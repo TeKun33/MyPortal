@@ -1,0 +1,2713 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>マイポータル</title>
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* ========================================
+       CSS Variables & Themes
+       ======================================== */
+    :root {
+      /* Shared values */
+      --font-sans: 'Inter', 'Noto Sans JP', sans-serif;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+      --radius-md: 0.5rem;
+      --radius-lg: 1rem;
+      --radius-xl: 1.5rem;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Themes */
+    [data-theme="ocean"] {
+      --primary: #0ea5e9;
+      --primary-light: #38bdf8;
+      --primary-dark: #0284c7;
+      --primary-rgb: 14, 165, 233;
+      --accent: #06b6d4;
+      --gradient-start: #0ea5e9;
+      --gradient-end: #6366f1;
+    }
+
+    [data-theme="sunset"] {
+      --primary: #f97316;
+      --primary-light: #fb923c;
+      --primary-dark: #ea580c;
+      --primary-rgb: 249, 115, 22;
+      --accent: #ef4444;
+      --gradient-start: #f97316;
+      --gradient-end: #ef4444;
+    }
+
+    [data-theme="forest"] {
+      --primary: #22c55e;
+      --primary-light: #4ade80;
+      --primary-dark: #16a34a;
+      --primary-rgb: 34, 197, 94;
+      --accent: #14b8a6;
+      --gradient-start: #22c55e;
+      --gradient-end: #14b8a6;
+    }
+
+    [data-theme="lavender"] {
+      --primary: #a855f7;
+      --primary-light: #c084fc;
+      --primary-dark: #9333ea;
+      --primary-rgb: 168, 85, 247;
+      --accent: #8b5cf6;
+      --gradient-start: #a855f7;
+      --gradient-end: #ec4899;
+    }
+
+    [data-theme="rose"] {
+      --primary: #f43f5e;
+      --primary-light: #fb7185;
+      --primary-dark: #e11d48;
+      --primary-rgb: 244, 63, 94;
+      --accent: #ec4899;
+      --gradient-start: #f43f5e;
+      --gradient-end: #ec4899;
+    }
+
+    /* Light Mode (Default) */
+    [data-mode="light"] {
+      --bg-primary: #f0f4f8;
+      --bg-secondary: #ffffff;
+      --bg-card: rgba(255, 255, 255, 0.7);
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --text-inverse: #ffffff;
+      --glass-bg: rgba(255, 255, 255, 0.6);
+      --glass-border: rgba(255, 255, 255, 0.3);
+      --border-color: rgba(226, 232, 240, 0.8);
+      --hover-bg: rgba(241, 245, 249, 0.8);
+      --input-bg: rgba(255, 255, 255, 0.9);
+      --skeleton-1: var(--bg-card);
+      --skeleton-2: var(--glass-bg);
+    }
+
+    /* Dark Mode */
+    [data-mode="dark"] {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: rgba(30, 41, 59, 0.7);
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-inverse: #ffffff;
+      --glass-bg: rgba(30, 41, 59, 0.6);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --border-color: rgba(51, 65, 85, 0.8);
+      --hover-bg: rgba(51, 65, 85, 0.6);
+      --input-bg: rgba(15, 23, 42, 0.8);
+      --skeleton-1: var(--bg-card);
+      --skeleton-2: var(--glass-bg);
+    }
+
+    /* ========================================
+       Reset & Base
+       ======================================== */
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      transition: background-color 0.5s ease, color 0.5s ease;
+    }
+
+    input,
+    select,
+    textarea {
+      font-family: inherit;
+      color: inherit;
+    }
+
+    /* Material Symbols setup */
+    .material-symbols-rounded {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+
+    /* ========================================
+       Animated Background
+       ======================================== */
+    .bg-gradient {
+      background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+      opacity: 0.05;
+      filter: blur(100px);
+      animation: gradientShift 15s ease infinite alternate;
+    }
+
+    [data-mode="dark"] .bg-gradient {
+      opacity: 0.15;
+    }
+
+    @keyframes gradientShift {
+      0% {
+        transform: scale(1) translate(0, 0);
+      }
+
+      50% {
+        transform: scale(1.2) translate(-5%, 5%);
+      }
+
+      100% {
+        transform: scale(1.1) translate(5%, -5%);
+      }
+    }
+
+    /* ========================================
+       Layout & Header
+       ======================================== */
+    header {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .header-left h1 {
+      background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .version-tag {
+      background: rgba(var(--primary-rgb), 0.12);
+      color: var(--primary);
+      border: 1px solid rgba(var(--primary-rgb), 0.25);
+    }
+
+    .week-period-label {
+      color: var(--text-secondary);
+    }
+
+    .datetime .date {
+      color: var(--text-secondary);
+    }
+
+    .datetime .time {
+      color: var(--text-primary);
+    }
+
+    .user-email {
+      color: var(--text-secondary);
+    }
+
+    .theme-toggle {
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      transition: var(--transition);
+    }
+
+    .theme-toggle:hover {
+      background: var(--hover-bg);
+      transform: scale(1.05);
+    }
+
+    .theme-picker {
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+    }
+
+    .theme-circle:hover {
+      transform: scale(1.2);
+    }
+
+    .theme-circle.active {
+      border-color: var(--text-primary);
+    }
+
+    /* Theme colors for picker */
+    .theme-ocean {
+      background: #0ea5e9;
+    }
+
+    .theme-sunset {
+      background: #f97316;
+    }
+
+    .theme-forest {
+      background: #22c55e;
+    }
+
+    .theme-lavender {
+      background: #a855f7;
+    }
+
+    .theme-rose {
+      background: #f43f5e;
+    }
+
+    /* ========================================
+       Dashboard Grid
+       ======================================== */
+    .dashboard {
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    }
+
+    .widget {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-glass);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Staggered entrance */
+    .widget:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+
+    .widget:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .widget:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    .widget:nth-child(4) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .widget-header h2 {
+      color: var(--text-primary);
+    }
+
+    .widget-header h2 .material-symbols-rounded {
+      color: var(--primary);
+    }
+
+    .add-btn {
+      background: rgba(var(--primary-rgb), 0.1);
+      color: var(--primary);
+      transition: var(--transition);
+    }
+
+    .add-btn:hover {
+      background: rgba(var(--primary-rgb), 0.2);
+      transform: translateY(-1px);
+    }
+
+    .icon-btn {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      transition: var(--transition);
+      color: var(--text-secondary);
+    }
+
+    .icon-btn:hover {
+      background: var(--hover-bg);
+      color: var(--primary);
+    }
+
+    /* ========================================
+       Bookmarks Widget
+       ======================================== */
+    .bookmark-grid {
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+
+    .bookmark-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: var(--transition);
+      position: relative;
+      cursor: pointer;
+    }
+
+    .bookmark-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 20px -10px rgba(var(--primary-rgb), 0.3);
+      border-color: rgba(var(--primary-rgb), 0.5);
+    }
+
+    .bookmark-card-top {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .bookmark-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--bg-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      object-fit: cover;
+    }
+
+    .bookmark-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+
+
+    .delete-bookmark-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: var(--transition);
+      backdrop-filter: blur(4px);
+    }
+
+    .bookmark-actions {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      display: flex;
+      gap: 0.25rem;
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .bookmark-card:hover .bookmark-actions {
+      opacity: 1;
+    }
+
+    .bookmark-action-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+
+    .bookmark-action-btn:hover {
+      background: var(--hover-bg);
+      color: var(--primary);
+      transform: scale(1.1);
+    }
+
+    .bookmark-action-btn .material-symbols-rounded {
+      font-size: 14px;
+    }
+
+    .icon-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+      gap: 0.5rem;
+      max-height: 160px;
+      overflow-y: auto;
+      padding: 0.5rem;
+      background: var(--hover-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+    }
+
+    .icon-picker-item {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: var(--transition);
+      color: var(--text-primary);
+    }
+
+    .icon-picker-item:hover {
+      background: var(--bg-secondary);
+      transform: scale(1.1);
+    }
+
+    .icon-picker-item.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 2px 6px rgba(var(--primary-rgb), 0.4);
+    }
+
+    /* ========================================
+       Gmail Widget
+       ======================================== */
+    .email-list {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.3);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 0.5);
+    }
+
+    .email-item {
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      border-radius: var(--radius-lg);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      transition: var(--transition);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      min-height: 140px;
+    }
+
+    .email-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 20px -10px rgba(var(--primary-rgb), 0.3);
+      border-color: rgba(var(--primary-rgb), 0.4);
+    }
+
+    .email-unread-indicator {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--primary);
+      opacity: 0;
+      border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+    }
+
+    .email-item.unread .email-unread-indicator {
+      opacity: 1;
+    }
+
+    .email-item.unread {
+      border-color: rgba(var(--primary-rgb), 0.25);
+      background: rgba(var(--primary-rgb), 0.03);
+    }
+
+    .email-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .email-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .email-sender-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .email-sender {
+      font-weight: 500;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.3;
+    }
+
+    .email-item.unread .email-sender {
+      font-weight: 700;
+    }
+
+    .email-time {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      line-height: 1.3;
+    }
+
+    .email-item.unread .email-time {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .email-subject {
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.4;
+    }
+
+    .email-item.unread .email-subject {
+      font-weight: 700;
+    }
+
+    .email-snippet {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.4;
+    }
+
+    .email-unread-badge {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+      box-shadow: 0 0 6px rgba(var(--primary-rgb), 0.5);
+    }
+
+    /* ========================================
+       Calendar Widget
+       ======================================== */
+    .calendar-view {
+      /* layout handled by Tailwind */
+    }
+
+    .calendar-day {
+      flex: 1;
+      min-width: 120px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      padding: 0.5rem;
+    }
+
+    .calendar-day.today {
+      border: 2px solid var(--primary);
+      background: rgba(var(--primary-rgb), 0.05);
+    }
+
+    .day-header {
+      text-align: center;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 0.5rem;
+    }
+
+    .day-name {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .day-date {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .calendar-day.today .day-date,
+    .calendar-day.today .day-name {
+      color: var(--primary);
+    }
+
+    .event-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    .event-chip {
+      background: rgba(var(--primary-rgb), 0.1);
+      border-left: 3px solid var(--primary);
+      border-radius: 4px;
+      padding: 0.5rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .event-chip:hover {
+      background: rgba(var(--primary-rgb), 0.2);
+    }
+
+    .event-chip.all-day {
+      background: var(--primary);
+      color: white;
+      border-left: none;
+      border-radius: 6px;
+    }
+
+    .event-time {
+      font-size: 0.7rem;
+      font-weight: 600;
+      opacity: 0.85;
+      margin-bottom: 0.15rem;
+    }
+
+    .event-title {
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.3;
+    }
+
+    .event-desc {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.3;
+      word-break: break-all;
+    }
+
+    .event-chip.all-day .event-desc {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .event-actions {
+      position: absolute;
+      top: 0.25rem;
+      right: 0.25rem;
+      display: flex;
+      gap: 0.15rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .event-chip:hover .event-actions {
+      opacity: 1;
+    }
+
+    .event-action-btn {
+      background: rgba(255, 255, 255, 0.8);
+      border: none;
+      color: var(--text-primary);
+      cursor: pointer;
+      padding: 3px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    }
+
+    .event-action-btn:hover {
+      background: white;
+      transform: scale(1.1);
+    }
+
+    .event-action-btn .material-symbols-rounded {
+      font-size: 14px;
+    }
+
+    .event-chip.all-day .event-action-btn {
+      background: rgba(0, 0, 0, 0.3);
+      color: white;
+    }
+
+    .event-chip.all-day .event-action-btn:hover {
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .delete-event-btn {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 20px;
+      height: 20px;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .event-chip:hover .delete-event-btn {
+      opacity: 1;
+    }
+
+    .delete-event-btn .material-symbols-rounded {
+      font-size: 14px;
+    }
+
+    /* ========================================
+       Tasks Widget
+       ======================================== */
+    .tasks-list {
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    }
+
+    .task-group {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+    }
+
+    .task-group-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .task-items {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      border-radius: var(--radius-md);
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .task-item:hover {
+      background: var(--hover-bg);
+    }
+
+    .task-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--text-secondary);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .task-checkbox .material-symbols-rounded {
+      font-size: 16px;
+      color: white;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: var(--transition);
+    }
+
+    .task-item.completed .task-checkbox {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .task-item.completed .task-checkbox .material-symbols-rounded {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .task-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .task-title {
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: var(--transition);
+    }
+
+    .task-item.completed .task-title {
+      text-decoration: line-through;
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+
+    .task-notes {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .task-meta {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .task-date {
+      font-size: 0.7rem;
+      padding: 0.1rem 0.5rem;
+      border-radius: 1rem;
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .task-date.overdue {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+    }
+
+    .task-date.today {
+      background: rgba(249, 115, 22, 0.1);
+      color: #f97316;
+    }
+
+    .delete-task-btn {
+      opacity: 0;
+      color: var(--text-secondary);
+      transition: var(--transition);
+    }
+
+    .task-item:hover .delete-task-btn {
+      opacity: 1;
+    }
+
+    .delete-task-btn:hover {
+      color: var(--accent);
+    }
+
+    /* ========================================
+       Modals
+       ======================================== */
+    .modal-overlay {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      opacity: 0;
+      visibility: hidden;
+      transition: var(--transition);
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-2xl);
+      transform: scale(0.95) translateY(20px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+    }
+
+    /* Visual Color Picker */
+    .color-picker-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      padding: 0.5rem 0;
+    }
+
+    .color-swatch {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: var(--transition);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.15);
+    }
+
+    .color-swatch.active {
+      border-color: var(--text-primary);
+      transform: scale(1.15);
+      box-shadow: 0 0 0 2px var(--bg-secondary), 0 0 0 4px var(--primary);
+    }
+
+    .color-swatch .material-symbols-rounded {
+      font-size: 18px;
+      color: white;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .color-swatch.active .material-symbols-rounded {
+      opacity: 1;
+    }
+
+    /* .modal-actions layout handled by Tailwind */
+
+    .btn {
+      padding: 0.6rem 1.25rem;
+      border-radius: var(--radius-md);
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: var(--transition);
+    }
+
+    .btn-secondary {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--border-color);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      box-shadow: 0 4px 10px rgba(var(--primary-rgb), 0.3);
+    }
+
+    /* ========================================
+       Toasts
+       ======================================== */
+    /* .toast-container layout handled by Tailwind */
+
+    .toast {
+      background: var(--bg-secondary);
+      border-left: 4px solid var(--primary);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transform: translateX(120%);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+      min-width: 300px;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .toast.success {
+      border-color: #22c55e;
+    }
+
+    .toast.success .material-symbols-rounded {
+      color: #22c55e;
+    }
+
+    .toast.error {
+      border-color: #ef4444;
+    }
+
+    .toast.error .material-symbols-rounded {
+      color: #ef4444;
+    }
+
+    .toast.info {
+      border-color: #3b82f6;
+    }
+
+    .toast.info .material-symbols-rounded {
+      color: #3b82f6;
+    }
+
+    .toast-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: inherit;
+      width: 100%;
+      transform-origin: left;
+      animation: progress 3s linear forwards;
+    }
+
+    .toast.success .toast-progress {
+      background: #22c55e;
+    }
+
+    .toast.error .toast-progress {
+      background: #ef4444;
+    }
+
+    .toast.info .toast-progress {
+      background: #3b82f6;
+    }
+
+    @keyframes progress {
+      to {
+        transform: scaleX(0);
+      }
+    }
+
+    /* ========================================
+       Skeletons (Loading)
+       ======================================== */
+    @keyframes shimmer {
+      0% {
+        background-position: -200% 0;
+      }
+
+      100% {
+        background-position: 200% 0;
+      }
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, var(--skeleton-1) 25%, var(--skeleton-2) 50%, var(--skeleton-1) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius-md);
+    }
+
+    .skeleton-text {
+      height: 1em;
+      margin-bottom: 0.5rem;
+    }
+
+    .skeleton-text.short {
+      width: 40%;
+    }
+
+    .skeleton-text.medium {
+      width: 70%;
+    }
+
+    .skeleton-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+
+    .skeleton-card {
+      height: 80px;
+    }
+
+    .empty-state {
+      padding: 3rem 1rem;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .empty-state .material-symbols-rounded {
+      font-size: 48px;
+      opacity: 0.5;
+    }
+
+    /* ========================================
+       Tab System
+       ======================================== */
+    .tab-bar {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+    }
+
+    .tab {
+      color: var(--text-secondary);
+      border-radius: calc(var(--radius-lg) - 4px);
+      transition: var(--transition);
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .tab:hover {
+      color: var(--text-primary);
+    }
+
+    .tab.active {
+      color: #ffffff !important;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    }
+
+    .tab .material-symbols-rounded {
+      font-size: 20px;
+    }
+
+    .tab-indicator {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      height: calc(100% - 8px);
+      border-radius: calc(var(--radius-lg) - 4px);
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 0;
+      box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.3);
+    }
+
+    .tab-panel {
+      display: none;
+      animation: tabFadeIn 0.35s ease;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    @keyframes tabFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ========================================
+       Drag & Drop Bookmarks
+       ======================================== */
+    .bookmark-card[draggable="true"] {
+      cursor: grab;
+    }
+
+    .bookmark-card[draggable="true"]:active {
+      cursor: grabbing;
+    }
+
+    .bookmark-card.dragging {
+      opacity: 0.4;
+      transform: scale(0.95);
+      box-shadow: none;
+    }
+
+    .bookmark-card.drag-over {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.3);
+      transform: translateY(-2px);
+    }
+
+    .bookmark-card .drag-handle {
+      position: absolute;
+      bottom: 0.5rem;
+      right: 0.5rem;
+      color: var(--text-secondary);
+      opacity: 0;
+      transition: var(--transition);
+      cursor: grab;
+    }
+
+    .bookmark-card:hover .drag-handle {
+      opacity: 0.5;
+    }
+
+    .bookmark-card .drag-handle:hover {
+      opacity: 1;
+    }
+
+    .drag-handle .material-symbols-rounded {
+      font-size: 18px;
+    }
+  </style>
+</head>
+
+<body data-theme="ocean" data-mode="light">
+
+  <div class="bg-gradient fixed top-0 left-0 w-screen h-screen -z-10"></div>
+
+  <header class="flex justify-between items-center py-6 px-8 sticky top-0 z-[100]">
+    <div class="header-left">
+      <div class="brand flex items-center gap-2">
+        <h1 class="text-2xl font-bold tracking-tight">マイポータル</h1>
+        <span
+          class="version-tag text-xs font-semibold py-0.5 px-2.5 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
+          onclick="showUpdateInfoModal()" title="アップデート情報を確認">v1.0.0</span>
+      </div>
+    </div>
+    <div class="header-center">
+      <div class="datetime flex items-center gap-4 tabular-nums">
+        <span class="date font-medium" id="clock-date">----年--月--日（-）</span>
+        <span class="time text-xl font-bold" id="clock-time">--:--:--</span>
+      </div>
+    </div>
+    <div class="header-right flex items-center gap-4">
+      <span class="user-email text-sm font-medium" id="user-email-display">読み込み中...</span>
+      <button class="btn btn-secondary py-1.5 px-3 text-xs rounded-full flex items-center gap-1"
+        onclick="showUpdateInfoModal()" title="アップデート情報">
+        <span class="material-symbols-rounded text-base">system_update</span> 更新情報
+      </button>
+      <button class="btn btn-secondary py-1.5 px-3 text-xs rounded-full flex items-center gap-1"
+        onclick="showTermsModal()" title="利用規約">
+        <span class="material-symbols-rounded text-base">description</span> 利用規約
+      </button>
+      <div class="theme-picker flex gap-2 p-2 rounded-full">
+        <div
+          class="theme-circle theme-ocean active w-5 h-5 rounded-full cursor-pointer border-2 border-transparent transition-transform duration-200"
+          data-color="ocean" onclick="setTheme('ocean')"></div>
+        <div
+          class="theme-circle theme-sunset w-5 h-5 rounded-full cursor-pointer border-2 border-transparent transition-transform duration-200"
+          data-color="sunset" onclick="setTheme('sunset')"></div>
+        <div
+          class="theme-circle theme-forest w-5 h-5 rounded-full cursor-pointer border-2 border-transparent transition-transform duration-200"
+          data-color="forest" onclick="setTheme('forest')"></div>
+        <div
+          class="theme-circle theme-lavender w-5 h-5 rounded-full cursor-pointer border-2 border-transparent transition-transform duration-200"
+          data-color="lavender" onclick="setTheme('lavender')"></div>
+        <div
+          class="theme-circle theme-rose w-5 h-5 rounded-full cursor-pointer border-2 border-transparent transition-transform duration-200"
+          data-color="rose" onclick="setTheme('rose')"></div>
+      </div>
+      <button class="theme-toggle flex items-center justify-center w-10 h-10 rounded-full" onclick="toggleDarkMode()"
+        title="テーマ切り替え">
+        <span class="material-symbols-rounded" id="mode-icon">light_mode</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="dashboard max-w-[1600px] mx-auto p-8 grid gap-8">
+    <!-- Bookmarks Widget -->
+    <section class="widget bookmarks-widget col-span-full p-6 flex flex-col overflow-hidden" id="widget-bookmarks">
+      <div class="widget-header flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold flex items-center gap-2"><span class="material-symbols-rounded">bookmark</span>
+          ブックマーク</h2>
+        <button class="add-btn py-2 px-4 rounded-full font-semibold text-sm flex items-center gap-1"
+          onclick="showAddBookmarkModal()">
+          <span class="material-symbols-rounded">add</span> 追加
+        </button>
+      </div>
+      <div class="bookmark-grid grid gap-4" id="bookmarks-container">
+        <!-- Skeleton -->
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+      </div>
+    </section>
+
+    <!-- Tabbed Widget: Gmail / Calendar / Tasks -->
+    <section class="widget tabbed-widget col-span-full p-6 flex flex-col overflow-hidden" id="widget-tabbed">
+      <div class="widget-header flex flex-col gap-4 mb-6">
+        <div class="tab-bar flex relative p-1" id="tab-bar">
+          <button
+            class="tab active flex-1 flex items-center justify-center gap-2 py-3 px-5 text-sm font-medium relative z-10 whitespace-nowrap"
+            data-tab="gmail" onclick="switchTab('gmail')">
+            <span class="material-symbols-rounded">mail</span> Gmail
+          </button>
+          <button
+            class="tab flex-1 flex items-center justify-center gap-2 py-3 px-5 text-sm font-medium relative z-10 whitespace-nowrap"
+            data-tab="calendar" onclick="switchTab('calendar')">
+            <span class="material-symbols-rounded">calendar_month</span> カレンダー
+          </button>
+          <button
+            class="tab flex-1 flex items-center justify-center gap-2 py-3 px-5 text-sm font-medium relative z-10 whitespace-nowrap"
+            data-tab="tasks" onclick="switchTab('tasks')">
+            <span class="material-symbols-rounded">task_alt</span> タスク
+          </button>
+          <div class="tab-indicator" id="tab-indicator"></div>
+        </div>
+        <div class="tab-header-row flex justify-between items-center w-full">
+          <div></div>
+          <div id="tab-action-gmail">
+            <button class="icon-btn w-9 h-9 rounded-full flex items-center justify-center" onclick="loadEmails()"
+              title="更新">
+              <span class="material-symbols-rounded">refresh</span>
+            </button>
+          </div>
+          <div id="tab-action-calendar" style="display:none" class="week-nav-group flex items-center gap-2">
+            <button class="icon-btn w-9 h-9 rounded-full flex items-center justify-center" onclick="navigateWeek(-1)"
+              title="前週">
+              <span class="material-symbols-rounded">chevron_left</span>
+            </button>
+            <button class="btn btn-secondary btn-sm py-1 px-3 text-sm rounded-full" onclick="navigateWeek(0)"
+              title="今週に戻る">
+              今週
+            </button>
+            <button class="icon-btn w-9 h-9 rounded-full flex items-center justify-center" onclick="navigateWeek(1)"
+              title="次週">
+              <span class="material-symbols-rounded">chevron_right</span>
+            </button>
+            <span class="week-period-label text-sm font-semibold mx-2" id="week-period-label"></span>
+            <button class="add-btn py-2 px-4 rounded-full font-semibold text-sm flex items-center gap-1"
+              onclick="showAddEventModal()">
+              <span class="material-symbols-rounded">add</span> 予定追加
+            </button>
+          </div>
+          <div id="tab-action-tasks" style="display:none">
+            <button class="add-btn py-2 px-4 rounded-full font-semibold text-sm flex items-center gap-1"
+              onclick="showAddTaskModal()">
+              <span class="material-symbols-rounded">add</span> タスク追加
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panels relative min-h-[350px]">
+        <div class="tab-panel active" id="panel-gmail">
+          <div class="email-list grid gap-3 max-h-[500px] overflow-y-auto pr-2 pb-2" id="emails-container">
+            <div class="email-item skeleton">
+              <div class="email-content">
+                <div class="skeleton skeleton-text medium"></div>
+                <div class="skeleton skeleton-text short"></div>
+              </div>
+            </div>
+            <div class="email-item skeleton">
+              <div class="email-content">
+                <div class="skeleton skeleton-text medium"></div>
+                <div class="skeleton skeleton-text short"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-panel" id="panel-calendar">
+          <div class="calendar-view flex gap-2 overflow-x-auto pb-2 min-h-[300px]" id="calendar-container"></div>
+        </div>
+        <div class="tab-panel" id="panel-tasks">
+          <div class="tasks-list grid gap-4" id="tasks-container">
+            <div class="skeleton skeleton-card" style="height: 150px;"></div>
+            <div class="skeleton skeleton-card" style="height: 150px;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer
+    class="max-w-[1600px] mx-auto py-8 px-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs opacity-70 border-t border-slate-200 dark:border-slate-800 mt-8">
+    <div class="flex items-center gap-4">
+      <button class="hover:underline" onclick="showUpdateInfoModal()">アップデート情報</button>
+      <span>•</span>
+      <button class="hover:underline" onclick="showTermsModal()">利用規約・プライバシー</button>
+    </div>
+    <div>
+      © 2026 マイポータル (v1.0.0) All rights reserved.
+    </div>
+  </footer>
+
+  <!-- Reusable Modal -->
+  <div class="modal-overlay fixed inset-0 w-screen h-screen flex items-center justify-center z-[1000]" id="modal">
+    <div class="modal-card w-[90%] max-w-[500px] p-8">
+      <div class="modal-header flex justify-between items-center mb-6">
+        <h3 class="text-xl font-semibold" id="modal-title">タイトル</h3>
+        <button class="icon-btn w-9 h-9 rounded-full flex items-center justify-center" onclick="hideModal()">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- Form injected via JS -->
+      </div>
+      <div class="modal-actions flex justify-end gap-4 mt-8">
+        <button class="btn btn-secondary" onclick="hideModal()">キャンセル</button>
+        <button class="btn btn-primary" id="modal-submit">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container fixed bottom-8 right-8 flex flex-col gap-4 z-[2000]" id="toasts"></div>
+
+  <script>
+    /* ========================================
+       State Management
+       ======================================== */
+    const state = {
+      email: '',
+      settings: { theme: 'ocean', darkMode: false },
+      bookmarks: [],
+      emails: [],
+      events: [],
+      taskLists: [],
+      weekOffset: 0
+    };
+
+    /* ========================================
+       Mock Data for Development (Fallback if google.script.run fails/undefined)
+       ======================================== */
+    const mockData = {
+      email: 'souta@example.com',
+      settings: { theme: 'ocean', darkMode: false },
+      bookmarks: [
+        { title: 'Google', url: 'https://google.com' },
+        { title: 'GitHub', url: 'https://github.com' },
+        { title: 'YouTube', url: 'https://youtube.com' }
+      ],
+      emails: [
+        { id: '1', senderName: 'Taro Yamada', subject: '明日の会議について', snippet: '明日の会議の資料を添付します...', date: new Date().toISOString(), isUnread: true, permalink: '#' },
+        { id: '2', senderName: 'GitHub', subject: 'New alert', snippet: 'Dependabot found 1 vulnerability...', date: new Date(Date.now() - 3600000).toISOString(), isUnread: false, permalink: '#' }
+      ],
+      events: [
+        { id: '1', title: '朝会', startTime: new Date().toISOString(), endTime: new Date(Date.now() + 3600000).toISOString(), isAllDay: false },
+        { id: '2', title: '休暇', startTime: new Date().toISOString(), endTime: new Date().toISOString(), isAllDay: true }
+      ],
+      taskLists: [
+        {
+          id: 'list1',
+          title: 'マイタスク',
+          tasks: [
+            { id: 't1', title: '週報の提出', notes: '今週の進捗をまとめる', due: new Date().toISOString(), status: 'needsAction' },
+            { id: 't2', title: 'メール返信', notes: '', due: new Date(Date.now() - 86400000).toISOString(), status: 'needsAction' }
+          ]
+        }
+      ]
+    };
+
+    /* ========================================
+       Server Communication Wrapper
+       ======================================== */
+    function callServer(functionName, ...args) {
+      return new Promise((resolve, reject) => {
+        if (typeof google !== 'undefined' && google.script && google.script.run) {
+          google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler(reject)
+          [functionName](...args);
+        } else {
+          // Dev mock fallback
+          console.log(`[Mock Server Call] ${functionName}`, args);
+          setTimeout(() => {
+            if (functionName === 'getUserEmail') resolve(mockData.email);
+            else if (functionName === 'getUserSettings') resolve(mockData.settings);
+            else if (functionName === 'getBookmarks') resolve(mockData.bookmarks);
+            else if (functionName === 'getGmailMessages' || functionName === 'getEmails') resolve(mockData.emails);
+            else if (functionName === 'getCalendarEvents' || functionName === 'getEvents') resolve(mockData.events);
+            else if (functionName === 'getTasks') resolve(mockData.taskLists);
+            else resolve({ success: true });
+          }, 300);
+        }
+      });
+    }
+
+    /* ========================================
+       Initialization & Clock
+       ======================================== */
+    function startClock() {
+      const days = ['日', '月', '火', '水', '木', '金', '土'];
+
+      function update() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const date = String(now.getDate()).padStart(2, '0');
+        const day = days[now.getDay()];
+
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
+
+        const dateEl = document.getElementById('clock-date');
+        const timeEl = document.getElementById('clock-time');
+        if (dateEl) dateEl.textContent = `${year}年${month}月${date}日（${day}）`;
+        if (timeEl) timeEl.textContent = `${h}:${m}:${s}`;
+      }
+
+      update();
+      setInterval(update, 1000);
+    }
+
+    async function init() {
+      startClock();
+      setupBookmarkDragAndDrop();
+
+      // 初期タブをGmailに強制切り替え
+      try { switchTab('gmail'); } catch (e) { }
+
+      // メールアドレス取得
+      try {
+        state.email = await callServer('getUserEmail');
+      } catch (err) {
+        console.warn('getUserEmail failed, fallback to default:', err);
+        state.email = 'ユーザー';
+      }
+      const emailEl = document.getElementById('user-email-display');
+      if (emailEl) emailEl.textContent = state.email;
+
+      // 設定取得
+      try {
+        const userSettings = await callServer('getUserSettings', state.email);
+        if (userSettings) state.settings = userSettings;
+        applySettings();
+      } catch (err) {
+        console.warn('getUserSettings failed:', err);
+        applySettings();
+      }
+
+      // データの並列取得（1つの失敗が他をブロックしないように独立実行）
+      loadBookmarks().catch(e => console.error('loadBookmarks error:', e));
+      loadEmails().catch(e => console.error('loadEmails error:', e));
+      loadEvents().catch(e => console.error('loadEvents error:', e));
+      loadTasks().catch(e => console.error('loadTasks error:', e));
+
+      // 初回アクセスの利用規約判定
+      checkFirstVisitTerms();
+    }
+
+    // 即時起動
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+
+
+
+    /* ========================================
+       Theme & Settings
+       ======================================== */
+    function applySettings() {
+      setTheme(state.settings.theme, false);
+      if (state.settings.darkMode) {
+        document.body.setAttribute('data-mode', 'dark');
+        document.getElementById('mode-icon').textContent = 'dark_mode';
+      }
+    }
+
+    function setTheme(themeName, save = true) {
+      document.body.setAttribute('data-theme', themeName);
+      state.settings.theme = themeName;
+
+      document.querySelectorAll('.theme-circle').forEach(el => {
+        el.classList.toggle('active', el.dataset.color === themeName);
+      });
+
+      if (save) {
+        callServer('saveUserSettings', state.email, state.settings)
+          .catch(() => showToast('テーマの保存に失敗しました', 'error'));
+      }
+    }
+
+    function toggleDarkMode() {
+      state.settings.darkMode = !state.settings.darkMode;
+      const mode = state.settings.darkMode ? 'dark' : 'light';
+      document.body.setAttribute('data-mode', mode);
+      document.getElementById('mode-icon').textContent = state.settings.darkMode ? 'dark_mode' : 'light_mode';
+
+      callServer('saveUserSettings', state.email, state.settings)
+        .catch(() => showToast('設定の保存に失敗しました', 'error'));
+    }
+
+    /* ========================================
+       Bookmarks
+       ======================================== */
+    async function loadBookmarks() {
+      try {
+        state.bookmarks = await callServer('getBookmarks', state.email);
+        renderBookmarks();
+      } catch (err) {
+        document.getElementById('bookmarks-container').innerHTML = '<div class="empty-state">エラーが発生しました</div>';
+      }
+    }
+
+    function renderBookmarks() {
+      const container = document.getElementById('bookmarks-container');
+      if (!state.bookmarks || state.bookmarks.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state flex flex-col items-center justify-center p-8 text-center gap-2 col-span-full">
+            <span class="material-symbols-rounded text-4xl opacity-50">bookmark_border</span>
+            <p class="text-sm font-medium">ブックマークがありません</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = state.bookmarks.map((bm, idx) => {
+        let faviconUrl = '';
+        try {
+          const domain = new URL(bm.url).hostname;
+          faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+        } catch (e) {
+          faviconUrl = bm.icon || '';
+        }
+
+        return `
+          <div class="bookmark-card" draggable="true" data-bm-index="${idx}" onclick="handleBookmarkClick(event, '${escapeHtml(bm.url)}')">
+            <button class="delete-bookmark-btn" onclick="event.stopPropagation(); deleteBookmark(${idx})" title="削除">
+              <span class="material-symbols-rounded">close</span>
+            </button>
+            <div class="bookmark-card-top flex items-center gap-3">
+              <img src="${faviconUrl}" alt="" class="bookmark-icon w-8 h-8 rounded-lg object-cover" onerror="this.style.display='none'">
+              <div class="bookmark-title font-semibold text-sm truncate flex-1" title="${escapeHtml(bm.title)}">${escapeHtml(bm.title)}</div>
+            </div>
+
+            <div class="drag-handle" title="ドラッグで並び替え">
+              <span class="material-symbols-rounded">drag_indicator</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    let isJustDragged = false;
+    function handleBookmarkClick(e, url) {
+      if (isJustDragged) {
+        isJustDragged = false;
+        return;
+      }
+      window.open(url, '_blank');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function showAddBookmarkModal() {
+      showModal({
+        title: 'ブックマーク追加',
+        fields: [
+          { name: 'title', label: 'タイトル', type: 'text', required: true },
+          { name: 'url', label: 'URL', type: 'url', required: true }
+        ],
+        onSubmit: async (data) => {
+          try {
+            const res = await callServer('addBookmark', state.email, data.title, data.url);
+            if (res && res.error) throw new Error(res.error);
+            showToast('追加しました', 'success');
+            hideModal();
+            loadBookmarks();
+          } catch (err) {
+            showToast('追加に失敗しました', 'error');
+          }
+        }
+      });
+    }
+
+    async function deleteBookmark(index) {
+      if (!confirm('削除しますか？')) return;
+      try {
+        state.bookmarks.splice(index, 1);
+        renderBookmarks();
+        const res = await callServer('deleteBookmark', state.email, index);
+        if (res && res.error) throw new Error(res.error);
+        showToast('削除しました', 'success');
+        loadBookmarks();
+      } catch (err) {
+        showToast('削除に失敗しました', 'error');
+        loadBookmarks();
+      }
+    }
+
+
+    /* ========================================
+       Gmail
+       ======================================== */
+    async function loadEmails() {
+      const container = document.getElementById('emails-container');
+      container.innerHTML = `
+        <div class="email-item skeleton"><div class="email-content"><div class="skeleton skeleton-text medium"></div><div class="skeleton skeleton-text short"></div></div></div>
+        <div class="email-item skeleton"><div class="email-content"><div class="skeleton skeleton-text medium"></div><div class="skeleton skeleton-text short"></div></div></div>
+      `;
+      try {
+        state.emails = await callServer('getGmailMessages');
+        renderEmails();
+      } catch (err) {
+        container.innerHTML = '<div class="empty-state">エラーが発生しました</div>';
+      }
+    }
+
+    function parseSenderName(fromStr) {
+      if (!fromStr) return '不明';
+      // Format: "Name <email>" or just "email"
+      const match = fromStr.match(/^"?([^"<]+)"?\s*</);
+      if (match) return match[1].trim();
+      return fromStr.replace(/<.*>/, '').trim() || fromStr;
+    }
+
+    function renderEmails() {
+      const container = document.getElementById('emails-container');
+      if (!state.emails || state.emails.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state flex flex-col items-center justify-center p-8 text-center gap-2 col-span-full">
+            <span class="material-symbols-rounded text-4xl opacity-50">mark_email_read</span>
+            <p class="text-sm font-medium">新しいメールはありません</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = state.emails.map(email => {
+        const senderName = parseSenderName(email.from);
+        const initial = senderName.charAt(0).toUpperCase();
+        const unreadClass = email.isUnread ? 'unread' : '';
+        const timeStr = formatRelativeTime(email.date);
+
+        return `
+          <div class="email-item ${unreadClass} p-4 rounded-xl relative overflow-hidden flex flex-col cursor-pointer min-h-[140px]" onclick="window.open('${escapeHtml(email.permalink)}', '_blank')">
+            <div class="email-unread-indicator"></div>
+            ${email.isUnread ? '<div class="email-unread-badge absolute top-3 right-3 w-2 h-2 rounded-full"></div>' : ''}
+            <div class="email-card-header flex items-center gap-3 mb-3">
+              <div class="email-avatar w-9 h-9 rounded-full flex items-center justify-center font-semibold text-sm shrink-0">${initial}</div>
+              <div class="email-sender-info flex-1 min-w-0">
+                <div class="email-sender font-medium text-xs truncate leading-tight">${escapeHtml(senderName)}</div>
+                <div class="email-time text-[0.7rem] leading-tight">${timeStr}</div>
+              </div>
+            </div>
+            <div class="email-subject text-sm font-medium mb-1 line-clamp-2 leading-snug">${escapeHtml(email.subject)}</div>
+            <div class="email-snippet text-xs line-clamp-2 leading-relaxed">${escapeHtml(email.snippet)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* ========================================
+       Calendar
+       ======================================== */
+    async function loadEvents() {
+      const container = document.getElementById('calendar-container');
+      container.innerHTML = `<div class="skeleton skeleton-card" style="grid-column: 1 / -1; height: 250px;"></div>`;
+      try {
+        const offset = state.weekOffset || 0;
+        state.events = await callServer('getCalendarEvents', offset);
+        if (!Array.isArray(state.events)) state.events = [];
+        renderEvents();
+      } catch (err) {
+        state.events = [];
+        container.innerHTML = '<div class="empty-state">エラーが発生しました</div>';
+      }
+    }
+
+    function navigateWeek(direction) {
+      if (direction === 0) {
+        state.weekOffset = 0;
+      } else {
+        state.weekOffset = (state.weekOffset || 0) + direction;
+      }
+      loadEvents();
+    }
+
+    const eventColorMap = {
+      '1': '#7986cb',
+      '2': '#33b679',
+      '3': '#8e24aa',
+      '4': '#e67c73',
+      '5': '#f6bf26',
+      '6': '#f4511e',
+      '7': '#039be5',
+      '8': '#616161',
+      '9': '#3f51b5',
+      '10': '#0b8043',
+      '11': '#d50000'
+    };
+
+    function formatEventTimeDisplay(e, d) {
+      if (e.isAllDay) return '全日';
+
+      const eStart = new Date(e.startTime);
+      const eEnd = new Date(e.endTime);
+
+      const startSame = eStart.getFullYear() === d.getFullYear() && eStart.getMonth() === d.getMonth() && eStart.getDate() === d.getDate();
+      const endSame = eEnd.getFullYear() === d.getFullYear() && eEnd.getMonth() === d.getMonth() && eEnd.getDate() === d.getDate();
+
+      const startTimeStr = eStart.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+      const endTimeStr = eEnd.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+
+      if (startSame && endSame) {
+        return `${startTimeStr} - ${endTimeStr}`;
+      } else if (startSame) {
+        return `${startTimeStr} 〜`;
+      } else if (endSame) {
+        return `〜 ${endTimeStr}`;
+      } else {
+        return `継続中`;
+      }
+    }
+
+    function renderEvents() {
+      const container = document.getElementById('calendar-container');
+      container.innerHTML = '';
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const offset = state.weekOffset || 0;
+      const startDay = new Date(today);
+      startDay.setDate(today.getDate() + (offset * 7));
+
+      // 表示期間テキストの更新
+      const endDay = new Date(startDay);
+      endDay.setDate(startDay.getDate() + 6);
+
+      const periodText = `${startDay.getFullYear()}/${startDay.getMonth() + 1}/${startDay.getDate()} 〜 ${endDay.getMonth() + 1}/${endDay.getDate()}`;
+      const labelEl = document.getElementById('week-period-label');
+      if (labelEl) labelEl.textContent = periodText;
+
+      const days = ['日', '月', '火', '水', '木', '金', '土'];
+
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(startDay);
+        d.setDate(startDay.getDate() + i);
+
+        const isToday = d.getTime() === today.getTime();
+
+        const dayStart = new Date(d);
+        dayStart.setHours(0, 0, 0, 0);
+        const dayEnd = new Date(d);
+        dayEnd.setHours(23, 59, 59, 999);
+
+        // 該当日に重なっているイベントをフィルタリング
+        const dayEvents = (state.events || []).filter(e => {
+          const eStart = new Date(e.startTime);
+          const eEnd = new Date(e.endTime);
+          return eStart <= dayEnd && eEnd >= dayStart;
+        });
+
+        const allDayEvents = dayEvents.filter(e => e.isAllDay);
+        const timedEvents = dayEvents.filter(e => !e.isAllDay).sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+
+        const eventsHtml = [
+          ...allDayEvents.map(e => {
+            const hex = eventColorMap[e.color] || 'var(--primary)';
+            const descHtml = e.description ? `<div class="event-desc" title="${escapeHtml(e.description)}">${escapeHtml(e.description)}</div>` : '';
+            return `
+              <div class="event-chip all-day" style="background: ${hex};" onclick="showEditEventModal('${escapeHtml(e.id)}')">
+                <div class="event-actions">
+                  <button class="event-action-btn" onclick="event.stopPropagation(); showEditEventModal('${escapeHtml(e.id)}')" title="編集">
+                    <span class="material-symbols-rounded">edit</span>
+                  </button>
+                  <button class="event-action-btn" onclick="event.stopPropagation(); deleteEvent('${escapeHtml(e.id)}')" title="削除">
+                    <span class="material-symbols-rounded">close</span>
+                  </button>
+                </div>
+                <div class="event-time">全日</div>
+                <div class="event-title">${escapeHtml(e.title)}</div>
+                ${descHtml}
+              </div>
+            `;
+          }),
+          ...timedEvents.map(e => {
+            const timeRangeStr = formatEventTimeDisplay(e, d);
+            const hex = eventColorMap[e.color];
+            const chipStyle = hex ? `border-left-color: ${hex}; background: ${hex}18;` : '';
+            const descHtml = e.description ? `<div class="event-desc" title="${escapeHtml(e.description)}">${escapeHtml(e.description)}</div>` : '';
+
+            return `
+              <div class="event-chip" style="${chipStyle}" onclick="showEditEventModal('${escapeHtml(e.id)}')">
+                <div class="event-actions">
+                  <button class="event-action-btn" onclick="event.stopPropagation(); showEditEventModal('${escapeHtml(e.id)}')" title="編集">
+                    <span class="material-symbols-rounded">edit</span>
+                  </button>
+                  <button class="event-action-btn" onclick="event.stopPropagation(); deleteEvent('${escapeHtml(e.id)}')" title="削除">
+                    <span class="material-symbols-rounded">close</span>
+                  </button>
+                </div>
+                <div class="event-time">${timeRangeStr}</div>
+                <div class="event-title">${escapeHtml(e.title)}</div>
+                ${descHtml}
+              </div>
+            `;
+          })
+        ].join('');
+
+        const dayCol = document.createElement('div');
+        dayCol.className = `calendar-day ${isToday ? 'today' : ''}`;
+        dayCol.innerHTML = `
+          <div class="day-header">
+            <div class="day-name">${days[d.getDay()]}</div>
+            <div class="day-date">${d.getDate()}</div>
+          </div>
+          <div class="event-list">
+            ${eventsHtml || '<div style="text-align:center;color:var(--text-secondary);font-size:0.8rem;padding:1rem;">予定なし</div>'}
+          </div>
+        `;
+        container.appendChild(dayCol);
+      }
+    }
+
+    const colorList = [
+      { label: 'ラベンダー', value: '1', hex: '#7986cb' },
+      { label: 'セージ', value: '2', hex: '#33b679' },
+      { label: 'ブドウ', value: '3', hex: '#8e24aa' },
+      { label: 'フラミンゴ', value: '4', hex: '#e67c73' },
+      { label: 'バナナ', value: '5', hex: '#f6bf26' },
+      { label: 'ミカン', value: '6', hex: '#f4511e' },
+      { label: 'ピーコック', value: '7', hex: '#039be5' },
+      { label: 'グラファイト', value: '8', hex: '#616161' },
+      { label: 'ブルーベリー', value: '9', hex: '#3f51b5' },
+      { label: 'バジル', value: '10', hex: '#0b8043' },
+      { label: 'トマト', value: '11', hex: '#d50000' }
+    ];
+
+    function toggleAllDayInputs(isAllDay) {
+      const timeStartGroup = document.getElementById('group-start-time');
+      const timeEndGroup = document.getElementById('group-end-time');
+      const labelStartDate = document.getElementById('label-start-date');
+      const labelEndDate = document.getElementById('label-end-date');
+
+      if (isAllDay) {
+        if (timeStartGroup) timeStartGroup.style.display = 'none';
+        if (timeEndGroup) timeEndGroup.style.display = 'none';
+        if (labelStartDate) labelStartDate.textContent = '開始日';
+        if (labelEndDate) labelEndDate.textContent = '終了日';
+      } else {
+        if (timeStartGroup) timeStartGroup.style.display = 'block';
+        if (timeEndGroup) timeEndGroup.style.display = 'block';
+        if (labelStartDate) labelStartDate.textContent = '開始日付';
+        if (labelEndDate) labelEndDate.textContent = '終了日付';
+      }
+    }
+
+    function showAddEventModal() {
+      showCalendarEventModal(null);
+    }
+
+    function showEditEventModal(eventId) {
+      const eventObj = (state.events || []).find(e => e.id === eventId);
+      if (!eventObj) return;
+      showCalendarEventModal(eventObj);
+    }
+
+    function showCalendarEventModal(eventObj) {
+      const isEdit = !!eventObj;
+
+      let isAllDay = eventObj ? !!eventObj.isAllDay : false;
+
+      const now = new Date();
+      const startDate = eventObj ? new Date(eventObj.startTime) : now;
+      const endDate = eventObj ? new Date(eventObj.endTime) : new Date(now.getTime() + 3600000);
+
+      const formatDate = (d) => {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      };
+
+      const formatTime = (d) => {
+        const h = String(d.getHours()).padStart(2, '0');
+        const m = String(d.getMinutes()).padStart(2, '0');
+        return `${h}:${m}`;
+      };
+
+      const startDateVal = formatDate(startDate);
+      const endDateVal = formatDate(endDate);
+      const startTimeVal = formatTime(startDate);
+      const endTimeVal = formatTime(endDate);
+
+      showModal({
+        title: isEdit ? '予定の編集' : '予定追加',
+        fields: [
+          { name: 'title', label: 'タイトル', type: 'text', required: true, value: eventObj ? eventObj.title : '' },
+          { name: 'isAllDay', label: '終日イベント', type: 'checkbox', value: isAllDay },
+          { name: 'startDate', label: isAllDay ? '開始日' : '開始日付', type: 'date', required: true, value: startDateVal },
+          { name: 'startTime', label: '開始時間', type: 'time', value: startTimeVal },
+          { name: 'endDate', label: isAllDay ? '終了日' : '終了日付', type: 'date', required: true, value: endDateVal },
+          { name: 'endTime', label: '終了時間', type: 'time', value: endTimeVal },
+          { name: 'color', label: 'カラー', type: 'color-picker', colors: colorList, value: eventObj ? (eventObj.color || '1') : '1' },
+          { name: 'description', label: '説明（詳細）', type: 'text', value: eventObj && eventObj.description ? eventObj.description : '' }
+        ],
+        onSubmit: async (data) => {
+          try {
+            const colorVal = data.color || '1';
+            const allDayChecked = !!data.isAllDay;
+
+            let startISO, endISO;
+            if (allDayChecked) {
+              startISO = new Date(data.startDate + 'T00:00:00').toISOString();
+              endISO = new Date((data.endDate || data.startDate) + 'T23:59:59').toISOString();
+            } else {
+              startISO = new Date(data.startDate + 'T' + (data.startTime || '09:00') + ':00').toISOString();
+              endISO = new Date((data.endDate || data.startDate) + 'T' + (data.endTime || data.startTime || '10:00') + ':00').toISOString();
+            }
+
+            let res;
+            if (isEdit) {
+              res = await callServer('updateCalendarEvent', eventObj.id, data.title, startISO, endISO, data.description || '', colorVal, allDayChecked);
+            } else {
+              res = await callServer('addCalendarEvent', data.title, startISO, endISO, data.description || '', colorVal, allDayChecked);
+            }
+
+            if (res && res.error) throw new Error(res.error);
+            showToast(isEdit ? '予定を更新しました' : '予定を追加しました', 'success');
+            hideModal();
+            loadEvents();
+          } catch (err) {
+            showToast(isEdit ? '更新に失敗しました' : '追加に失敗しました', 'error');
+          }
+        }
+      });
+
+      // Modal表示後にID属性を設定し終日切り替えイベントを初期バインド
+      setTimeout(() => {
+        const body = document.getElementById('modal-body');
+        if (!body) return;
+
+        const inputs = body.querySelectorAll('.form-group');
+        inputs.forEach(group => {
+          const input = group.querySelector('input, select');
+          if (!input) return;
+          if (input.name === 'startDate') group.id = 'group-start-date';
+          if (input.name === 'startTime') group.id = 'group-start-time';
+          if (input.name === 'endDate') group.id = 'group-end-date';
+          if (input.name === 'endTime') group.id = 'group-end-time';
+          if (input.name === 'isAllDay') {
+            input.onchange = (e) => toggleAllDayInputs(e.target.checked);
+          }
+        });
+
+        const labels = body.querySelectorAll('label');
+        labels.forEach(lbl => {
+          if (lbl.previousElementSibling && lbl.previousElementSibling.name === 'startDate') lbl.id = 'label-start-date';
+        });
+
+        toggleAllDayInputs(isAllDay);
+      }, 50);
+    }
+
+    async function deleteEvent(eventId) {
+      if (!confirm('削除しますか？')) return;
+      try {
+        await callServer('deleteCalendarEvent', eventId);
+        showToast('削除しました', 'success');
+        loadEvents();
+      } catch (err) {
+        showToast('削除に失敗しました', 'error');
+      }
+    }
+
+    /* ========================================
+       Tasks
+       ======================================== */
+    async function loadTasks() {
+      try {
+        const result = await callServer('getTasks');
+        if (result && result.error) {
+          document.getElementById('tasks-container').innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;"><span class="material-symbols-rounded">error</span><p>Tasks APIを有効化してください</p></div>`;
+          return;
+        }
+        state.taskLists = Array.isArray(result) ? result : [];
+        renderTasks();
+      } catch (err) {
+        document.getElementById('tasks-container').innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;"><span class="material-symbols-rounded">error</span><p>エラーが発生しました</p></div>';
+      }
+    }
+
+    function renderTasks() {
+      const container = document.getElementById('tasks-container');
+      if (!state.taskLists || state.taskLists.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state flex flex-col items-center justify-center p-8 text-center gap-2 col-span-full">
+            <span class="material-symbols-rounded text-4xl opacity-50">checklist</span>
+            <p class="text-sm font-medium">タスクリストがありません</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = state.taskLists.map(list => {
+        if (!list.tasks || list.tasks.length === 0) return '';
+
+        const tasksHtml = list.tasks.map(task => {
+          const isCompleted = task.status === 'completed' || task.completed;
+          let dateHtml = '';
+          if (task.due) {
+            const due = new Date(task.due);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const dueDay = new Date(due);
+            dueDay.setHours(0, 0, 0, 0);
+
+            let dateClass = '';
+            let dateText = `${due.getMonth() + 1}/${due.getDate()}`;
+
+            if (dueDay < today && !isCompleted) dateClass = 'overdue';
+            else if (dueDay.getTime() === today.getTime()) {
+              dateClass = 'today';
+              dateText = '今日';
+            }
+
+            dateHtml = `<span class="task-date ${dateClass} text-xs px-2 py-0.5 rounded-full font-medium">${dateText}</span>`;
+          }
+
+          return `
+            <div class="task-item ${isCompleted ? 'completed' : ''} flex items-start gap-3 p-3 rounded-lg relative transition-all" data-id="${task.id}" data-list="${list.listId}">
+              <div class="task-checkbox w-5 h-5 rounded flex items-center justify-center cursor-pointer shrink-0 mt-0.5" onclick="toggleTask('${list.listId}', '${task.id}', ${!isCompleted})">
+                <span class="material-symbols-rounded text-sm">check</span>
+              </div>
+              <div class="task-content flex-1 min-w-0">
+                <div class="task-title font-medium text-sm transition-all">${escapeHtml(task.title)}</div>
+                ${task.notes ? `<div class="task-notes text-xs mt-1 truncate">${escapeHtml(task.notes)}</div>` : ''}
+                <div class="task-meta flex gap-2 mt-2">
+                  ${dateHtml}
+                </div>
+              </div>
+              <button class="delete-task-btn p-1 rounded hover:text-red-500 transition-colors" onclick="deleteTask('${list.listId}', '${task.id}')">
+                <span class="material-symbols-rounded text-base">delete</span>
+              </button>
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <div class="task-group p-4 rounded-xl">
+            <div class="task-group-title text-base font-semibold mb-4 flex items-center gap-2">
+              <span class="material-symbols-rounded">list_alt</span>
+              ${escapeHtml(list.listTitle)}
+            </div>
+            <div class="task-items flex flex-col gap-2">
+              ${tasksHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function toggleTask(listId, taskId, isComplete) {
+      const list = state.taskLists.find(l => l.listId === listId);
+      if (!list) return;
+      const task = list.tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      task.status = isComplete ? 'completed' : 'needsAction';
+      task.completed = isComplete;
+      renderTasks();
+
+      try {
+        if (isComplete) {
+          await callServer('completeTask', listId, taskId);
+        }
+      } catch (err) {
+        showToast('更新に失敗しました', 'error');
+        task.status = !isComplete ? 'completed' : 'needsAction';
+        task.completed = !isComplete;
+        renderTasks();
+      }
+    }
+
+    async function deleteTask(listId, taskId) {
+      if (!confirm('タスクを削除しますか？')) return;
+      try {
+        const list = state.taskLists.find(l => l.listId === listId);
+        if (list) list.tasks = list.tasks.filter(t => t.id !== taskId);
+        renderTasks();
+        await callServer('deleteTask', listId, taskId);
+        showToast('削除しました', 'success');
+      } catch (err) {
+        showToast('削除に失敗しました', 'error');
+        loadTasks();
+      }
+    }
+
+    function showAddTaskModal() {
+      const listOptions = state.taskLists.map(l => ({ label: l.listTitle, value: l.listId }));
+      if (listOptions.length === 0) {
+        showToast('タスクリストがありません', 'error');
+        return;
+      }
+
+      showModal({
+        title: 'タスク追加',
+        fields: [
+          { name: 'listId', label: 'リスト', type: 'select', options: listOptions.map(o => o.label), values: listOptions.map(o => o.value) },
+          { name: 'title', label: 'タイトル', type: 'text', required: true },
+          { name: 'notes', label: 'メモ', type: 'text' },
+          { name: 'due', label: '期限', type: 'date' }
+        ],
+        onSubmit: async (data) => {
+          try {
+            const selectedIdx = listOptions.findIndex(o => o.label === data.listId);
+            const taskListId = selectedIdx >= 0 ? listOptions[selectedIdx].value : listOptions[0].value;
+            const dueDate = data.due ? new Date(data.due).toISOString() : null;
+            await callServer('addTask', taskListId, data.title, data.notes, dueDate);
+            showToast('タスクを追加しました', 'success');
+            hideModal();
+            loadTasks();
+          } catch (err) {
+            showToast('追加に失敗しました', 'error');
+          }
+        }
+      });
+    }
+
+    /* ========================================
+       UI Helpers
+       ======================================== */
+    function formatRelativeTime(dateString) {
+      const d = new Date(dateString);
+      const now = new Date();
+      const diffMs = now - d;
+      const diffSec = Math.floor(diffMs / 1000);
+      const diffMin = Math.floor(diffSec / 60);
+      const diffHr = Math.floor(diffMin / 60);
+      const diffDay = Math.floor(diffHr / 24);
+
+      if (diffSec < 60) return 'たった今';
+      if (diffMin < 60) return `${diffMin}分前`;
+      if (diffHr < 24) return `${diffHr}時間前`;
+      if (diffDay === 1) return '昨日';
+      return `${d.getMonth() + 1}/${d.getDate()}`;
+    }
+
+    function selectColorSwatch(el) {
+      const group = el.parentElement;
+      group.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+      el.classList.add('active');
+      const inputName = el.dataset.name;
+      const input = document.getElementById(`color-input-${inputName}`);
+      if (input) input.value = el.dataset.value;
+    }
+
+    let currentModalSubmit = null;
+
+    function checkFirstVisitTerms() {
+      const agreed = localStorage.getItem('myportal_has_agreed_terms');
+      if (!agreed) {
+        setTimeout(() => {
+          showTermsModal(true);
+        }, 500);
+      }
+    }
+
+    function showCustomInfoModal(title, htmlContent, actionConfig = null) {
+      document.getElementById('modal-title').textContent = title;
+      const body = document.getElementById('modal-body');
+      body.innerHTML = `<div class="max-h-[60vh] overflow-y-auto pr-2 text-sm leading-relaxed space-y-4">${htmlContent}</div>`;
+
+      const btnSubmit = document.getElementById('modal-submit');
+      if (actionConfig) {
+        if (btnSubmit) {
+          btnSubmit.style.display = 'inline-block';
+          btnSubmit.textContent = actionConfig.submitText || '同意する';
+
+          if (currentModalSubmit) {
+            btnSubmit.removeEventListener('click', currentModalSubmit);
+          }
+          currentModalSubmit = actionConfig.onSubmit;
+          btnSubmit.addEventListener('click', currentModalSubmit);
+        }
+      } else {
+        if (btnSubmit) btnSubmit.style.display = 'none';
+      }
+
+      document.getElementById('modal').classList.add('active');
+    }
+
+    function showUpdateInfoModal() {
+      const content = `
+        <div class="pb-3" style="border-bottom: 1px solid var(--border-color);">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="version-tag text-xs font-semibold py-0.5 px-2.5 rounded-full">v1.0.0</span>
+            <span class="text-xs font-medium opacity-70" style="color: var(--text-secondary);">2026年9月 最新版</span>
+          </div>
+          <ul class="list-disc list-inside space-y-1 text-xs" style="color: var(--text-primary);">
+            <li>初回リリース版</li>
+          </ul>
+        </div>
+      `;
+      showCustomInfoModal('🎉 アップデート情報', content);
+    }
+
+    function showTermsModal(isFirstVisit = false) {
+      const content = `
+        <div class="space-y-4" style="color: var(--text-primary);">
+          ${isFirstVisit ? `
+            <div class="p-3 rounded-xl mb-3 font-semibold text-xs text-center flex items-center justify-center gap-1.5" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary); border: 1px solid rgba(var(--primary-rgb), 0.2);">
+              <span class="material-symbols-rounded text-base">verified_user</span>
+              マイポータルへようこそ！ご利用前に利用規約をご確認ください。
+            </div>
+          ` : ''}
+          <section>
+            <h4 class="font-bold mb-1 flex items-center gap-1.5 text-sm" style="color: var(--primary);">
+              <span class="material-symbols-rounded text-base">apps</span> 第1条（本アプリについて）
+            </h4>
+            <p class="text-xs leading-relaxed" style="color: var(--text-primary);">「マイポータル」は、利用者の Google アカウント（Gmail、Google カレンダー、Google Tasks）および個人用ブックマークを統合管理するためのパーソナルポータル Web アプリケーションです。本アプリは Google Apps Script (GAS) 環境上で動作します。</p>
+          </section>
+
+          <section>
+            <h4 class="font-bold mb-1 flex items-center gap-1.5 text-sm" style="color: var(--primary);">
+              <span class="material-symbols-rounded text-base">database</span> 第2条（保存および保持するデータについて）
+            </h4>
+            <p class="text-xs mb-2 leading-relaxed" style="color: var(--text-primary);">本アプリでは、利便性とセキュリティを両立するため、以下の場所およびデータのみを安全に保持・管理します：</p>
+            <div class="p-3.5 rounded-xl space-y-2.5 text-xs" style="background: var(--hover-bg); border: 1px solid var(--border-color);">
+              <div>
+                <strong class="font-semibold" style="color: var(--primary);">1. Google スプレッドシート（専用保存領域）:</strong>
+                <ul class="list-disc list-inside ml-2 mt-1 space-y-1" style="color: var(--text-primary);">
+                  <li>ユーザー設定（テーマ色、ダークモード選択状態）</li>
+                  <li>ブックマーク一覧（タイトル、URL、表示順序）</li>
+                  <li>操作ログ（操作日時、実行アカウント、操作内容および詳細パラメータ）を <code class="px-1.5 py-0.5 rounded font-mono text-[0.75rem]" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--primary);">__LOG__</code> シートに自動記録します。</li>
+                </ul>
+              </div>
+              <div>
+                <strong class="font-semibold" style="color: var(--primary);">2. ブラウザローカルストレージ (LocalStorage):</strong>
+                <ul class="list-disc list-inside ml-2 mt-1 space-y-1" style="color: var(--text-primary);">
+                  <li>画面テーマおよびカラーモード設定の高速初期復元用データ</li>
+                </ul>
+              </div>
+              <div>
+                <strong class="font-semibold" style="color: var(--primary);">3. Google 連携データ (Gmail / カレンダー / Tasks):</strong>
+                <ul class="list-disc list-inside ml-2 mt-1 space-y-1" style="color: var(--text-primary);">
+                  <li>Google 公式 API 経由で直接読み書きされます。外部の第三者サーバー等へ送信・蓄積されることは一切ありません。</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h4 class="font-bold mb-1 flex items-center gap-1.5 text-sm" style="color: var(--primary);">
+              <span class="material-symbols-rounded text-base">security</span> 第3条（個人情報の保護とセキュリティ）
+            </h4>
+            <p class="text-xs leading-relaxed" style="color: var(--text-primary);">取得および表示されるすべてのデータ（メール、予定、タスク、ブックマーク等）は、利用者自身の Google アカウント権限領域および紐付けられたスプレッドシート内のみで保護されます。</p>
+          </section>
+
+          <section>
+            <h4 class="font-bold mb-1 flex items-center gap-1.5 text-sm" style="color: var(--primary);">
+              <span class="material-symbols-rounded text-base">gavel</span> 第4条（免責事項）
+            </h4>
+            <p class="text-xs leading-relaxed" style="color: var(--text-primary);">本アプリは利用者の生産性向上のために提供されます。Google 側の通信障害や仕様変更により、一時的に同期・表示が制限される場合があります。</p>
+          </section>
+        </div>
+      `;
+
+      if (isFirstVisit) {
+        showCustomInfoModal('📜 利用規約・プライバシー方針（初回確認）', content, {
+          submitText: '同意して利用を開始する',
+          onSubmit: () => {
+            localStorage.setItem('myportal_has_agreed_terms', 'true');
+            hideModal();
+            showToast('マイポータルへようこそ！', 'success');
+          }
+        });
+      } else {
+        showCustomInfoModal('📜 利用規約・プライバシー方針', content);
+      }
+    }
+
+    function showModal(config) {
+      const btnSubmit = document.getElementById('modal-submit');
+      if (btnSubmit) btnSubmit.style.display = 'block';
+
+      document.getElementById('modal-title').textContent = config.title;
+
+      const body = document.getElementById('modal-body');
+      body.innerHTML = config.fields.map(f => {
+        if (f.type === 'color-picker') {
+          const selectedVal = f.value !== undefined ? String(f.value) : f.colors[0].value;
+          const swatches = f.colors.map((c) => `
+            <div class="color-swatch ${c.value === selectedVal ? 'active' : ''}" data-name="${f.name}" data-value="${c.value}" style="background:${c.hex};" onclick="selectColorSwatch(this)" title="${c.label}">
+              <span class="material-symbols-rounded">check</span>
+            </div>
+          `).join('');
+          return `
+            <div class="form-group">
+              <label>${f.label}</label>
+              <input type="hidden" name="${f.name}" id="color-input-${f.name}" value="${selectedVal}">
+              <div class="color-picker-group">
+                ${swatches}
+              </div>
+            </div>
+          `;
+        }
+        if (f.type === 'select') {
+          const opts = f.options.map((o, idx) => {
+            const val = f.values ? f.values[idx] : o;
+            const selected = f.value !== undefined && (String(f.value) === String(val) || String(f.value) === String(o)) ? 'selected' : '';
+            return `<option value="${val}" ${selected}>${o}</option>`;
+          }).join('');
+          return `
+            <div class="form-group">
+              <label>${f.label}</label>
+              <select name="${f.name}" class="form-control">${opts}</select>
+            </div>
+          `;
+        }
+        if (f.type === 'checkbox') {
+          const checked = f.value ? 'checked' : '';
+          return `
+            <div class="form-group" style="display:flex; align-items:center; gap:0.5rem;">
+              <input type="checkbox" name="${f.name}" id="${f.name}" ${checked}>
+              <label for="${f.name}" style="margin:0;">${f.label}</label>
+            </div>
+          `;
+        }
+        const valStr = f.value !== undefined ? escapeHtml(f.value) : '';
+        return `
+          <div class="form-group">
+            <label>${f.label}</label>
+            <input type="${f.type}" name="${f.name}" class="form-control" value="${valStr}" ${f.required ? 'required' : ''}>
+          </div>
+        `;
+      }).join('');
+
+      const btn = document.getElementById('modal-submit');
+      if (currentModalSubmit) {
+        btn.removeEventListener('click', currentModalSubmit);
+      }
+
+      currentModalSubmit = () => {
+        const data = {};
+        const inputs = body.querySelectorAll('input, select');
+        let valid = true;
+        inputs.forEach(el => {
+          if (el.required && !el.value) valid = false;
+          data[el.name] = el.type === 'checkbox' ? el.checked : el.value;
+        });
+
+        if (!valid) {
+          showToast('必須項目を入力してください', 'error');
+          return;
+        }
+
+        config.onSubmit(data);
+      };
+
+      btn.addEventListener('click', currentModalSubmit);
+      document.getElementById('modal').classList.add('active');
+    }
+
+    function hideModal() {
+      document.getElementById('modal').classList.remove('active');
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toasts');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+
+      let icon = 'info';
+      if (type === 'success') icon = 'check_circle';
+      if (type === 'error') icon = 'error';
+
+      toast.innerHTML = `
+        <span class="material-symbols-rounded">${icon}</span>
+        <span>${message}</span>
+        <div class="toast-progress"></div>
+      `;
+
+      container.appendChild(toast);
+
+      // Trigger reflow
+      void toast.offsetWidth;
+      toast.classList.add('show');
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+      }, 3000);
+    }
+
+    /* ========================================
+       Tab Switching
+       ======================================== */
+    function switchTab(tabName) {
+      // Update tab buttons
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      const activeTab = document.querySelector(`.tab[data-tab="${tabName}"]`);
+      activeTab.classList.add('active');
+
+      // Animate indicator
+      updateTabIndicator();
+
+      // Switch panels
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById(`panel-${tabName}`).classList.add('active');
+
+      // Switch action buttons
+      ['gmail', 'calendar', 'tasks'].forEach(name => {
+        const action = document.getElementById(`tab-action-${name}`);
+        if (action) action.style.display = name === tabName ? '' : 'none';
+      });
+    }
+
+    function updateTabIndicator() {
+      const bar = document.getElementById('tab-bar');
+      const activeTab = bar.querySelector('.tab.active');
+      const indicator = document.getElementById('tab-indicator');
+      if (!activeTab || !indicator) return;
+
+      const barRect = bar.getBoundingClientRect();
+      const tabRect = activeTab.getBoundingClientRect();
+      indicator.style.width = tabRect.width + 'px';
+      indicator.style.left = (tabRect.left - barRect.left) + 'px';
+    }
+
+    // Initialize tab indicator after DOM ready
+    window.addEventListener('load', () => {
+      setTimeout(updateTabIndicator, 100);
+    });
+    window.addEventListener('resize', updateTabIndicator);
+
+    /* ========================================
+       Bookmark Drag & Drop
+       ======================================== */
+    let dragSrcIndex = null;
+
+    function setupBookmarkDragAndDrop() {
+      const container = document.getElementById('bookmarks-container');
+      if (!container) return;
+
+      container.addEventListener('dragstart', (e) => {
+        const card = e.target.closest('.bookmark-card');
+        if (!card) return;
+        dragSrcIndex = parseInt(card.dataset.bmIndex, 10);
+        card.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', dragSrcIndex);
+      });
+
+      container.addEventListener('dragend', (e) => {
+        const card = e.target.closest('.bookmark-card');
+        if (card) card.classList.remove('dragging');
+        document.querySelectorAll('.bookmark-card.drag-over').forEach(c => c.classList.remove('drag-over'));
+      });
+
+      container.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        const card = e.target.closest('.bookmark-card');
+        if (!card) return;
+        const targetIndex = parseInt(card.dataset.bmIndex, 10);
+        if (isNaN(targetIndex) || targetIndex === dragSrcIndex) return;
+        document.querySelectorAll('.bookmark-card.drag-over').forEach(c => c.classList.remove('drag-over'));
+        card.classList.add('drag-over');
+      });
+
+      container.addEventListener('dragleave', (e) => {
+        const card = e.target.closest('.bookmark-card');
+        if (card) card.classList.remove('drag-over');
+      });
+
+      container.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        const targetCard = e.target.closest('.bookmark-card');
+        document.querySelectorAll('.bookmark-card.drag-over').forEach(c => c.classList.remove('drag-over'));
+        if (!targetCard) return;
+
+        const targetIndex = parseInt(targetCard.dataset.bmIndex, 10);
+        if (isNaN(dragSrcIndex) || isNaN(targetIndex) || dragSrcIndex === targetIndex) return;
+
+        isJustDragged = true;
+
+        // ローカル状態の並び替え
+        const movedItem = state.bookmarks.splice(dragSrcIndex, 1)[0];
+        state.bookmarks.splice(targetIndex, 0, movedItem);
+
+        // 再描画
+        renderBookmarks();
+
+        // サーバーへ新しい順序で全保存
+        try {
+          const res = await callServer('saveAllBookmarks', state.email, state.bookmarks);
+          if (res && res.error) throw new Error(res.error);
+          showToast('並び替えを保存しました', 'success');
+          loadBookmarks();
+        } catch (err) {
+          showToast('並び替えの保存に失敗しました', 'error');
+          loadBookmarks();
+        } finally {
+          dragSrcIndex = null;
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>
