@@ -16,7 +16,7 @@
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
   <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
   <style>
     /* ========================================
@@ -123,6 +123,13 @@
     /* ========================================
        Reset & Base
        ======================================== */
+    html,
+    body {
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
+    }
+
     body {
       font-family: var(--font-sans);
       background-color: var(--bg-primary);
@@ -259,7 +266,13 @@
        Dashboard Grid
        ======================================== */
     .dashboard {
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 1024px) {
+      .dashboard {
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      }
     }
 
     .widget {
@@ -333,7 +346,17 @@
        Bookmarks Widget
        ======================================== */
     .bookmark-grid {
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+
+    @media (min-width: 640px) {
+      .bookmark-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      }
+    }
+
+    .bookmark-card:hover .delete-bookmark-btn {
+      opacity: 1;
     }
 
     .bookmark-card {
@@ -478,7 +501,13 @@
        Gmail Widget
        ======================================== */
     .email-list {
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 640px) {
+      .email-list {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      }
     }
 
     /* Custom Scrollbar */
@@ -631,18 +660,27 @@
        Calendar Widget
        ======================================== */
     .calendar-view {
-      /* layout handled by Tailwind */
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
     }
 
     .calendar-day {
       flex: 1;
-      min-width: 120px;
+      min-width: 130px;
+      scroll-snap-align: start;
       background: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
       display: flex;
       flex-direction: column;
       padding: 0.5rem;
+    }
+
+    @media (min-width: 1024px) {
+      .calendar-day {
+        min-width: 110px;
+      }
     }
 
     .calendar-day.today {
@@ -806,7 +844,13 @@
        Tasks Widget
        ======================================== */
     .tasks-list {
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 768px) {
+      .tasks-list {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      }
     }
 
     .task-group {
@@ -968,6 +1012,15 @@
       transform: scale(0.95) translateY(20px);
       opacity: 0;
       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-body {
+      overflow-y: auto;
+      max-height: calc(90vh - 140px);
+      padding-right: 2px;
     }
 
     .modal-overlay.active .modal-card {
@@ -1007,13 +1060,14 @@
     .color-picker-group {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.75rem;
-      padding: 0.5rem 0;
+      gap: 0.85rem;
+      padding: 0.5rem 0.4rem;
+      align-items: center;
     }
 
     .color-swatch {
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       cursor: pointer;
       border: 2px solid transparent;
@@ -1023,23 +1077,26 @@
       align-items: center;
       justify-content: center;
       box-shadow: var(--shadow-sm);
+      flex-shrink: 0;
     }
 
     .color-swatch:hover {
-      transform: scale(1.15);
+      transform: scale(1.08);
     }
 
     .color-swatch.active {
       border-color: var(--text-primary);
-      transform: scale(1.15);
+      transform: scale(1.08);
       box-shadow: 0 0 0 2px var(--bg-secondary), 0 0 0 4px var(--primary);
+      z-index: 2;
     }
 
     .color-swatch .material-symbols-rounded {
-      font-size: 18px;
+      font-size: 16px;
       color: white;
       opacity: 0;
       transition: opacity 0.2s;
+      line-height: 1;
     }
 
     .color-swatch.active .material-symbols-rounded {
@@ -1080,6 +1137,11 @@
        ======================================== */
     /* .toast-container layout handled by Tailwind */
 
+    .toast-container {
+      max-width: 100%;
+      pointer-events: none;
+    }
+
     .toast {
       background: var(--bg-secondary);
       border-left: 4px solid var(--primary);
@@ -1094,7 +1156,8 @@
       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
       overflow: hidden;
-      min-width: 300px;
+      min-width: 280px;
+      pointer-events: auto;
     }
 
     .toast.show {
@@ -1322,6 +1385,119 @@
     .drag-handle .material-symbols-rounded {
       font-size: 18px;
     }
+
+    /* ========================================
+       Responsive Design & Touch Optimization
+       ======================================== */
+    @media (hover: none),
+    (max-width: 768px) {
+      .delete-bookmark-btn {
+        opacity: 0.85;
+      }
+
+      .bookmark-card .drag-handle {
+        opacity: 0.6;
+      }
+
+      .event-actions {
+        opacity: 0.85;
+      }
+
+      .delete-task-btn {
+        opacity: 0.75;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .theme-picker {
+        padding: 0.25rem;
+        gap: 0.25rem;
+      }
+
+      .theme-circle {
+        width: 18px !important;
+        height: 18px !important;
+      }
+    }
+
+    @media (max-width: 639px) {
+      .bookmark-card {
+        padding: 0.75rem;
+        gap: 0.5rem;
+      }
+
+      .bookmark-icon {
+        width: 28px;
+        height: 28px;
+      }
+
+      .bookmark-title {
+        font-size: 0.85rem;
+      }
+
+      .email-item {
+        padding: 0.75rem;
+        min-height: auto;
+      }
+
+      .email-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
+      }
+
+      .email-subject {
+        font-size: 0.85rem;
+      }
+
+      .email-snippet {
+        font-size: 0.75rem;
+      }
+
+      .tab {
+        padding: 0.5rem 0.25rem !important;
+        font-size: 0.75rem !important;
+        gap: 0.25rem !important;
+      }
+
+      .tab .material-symbols-rounded {
+        font-size: 16px;
+      }
+
+      .modal-card {
+        padding: 1.25rem !important;
+        border-radius: var(--radius-lg);
+      }
+
+      .modal-header {
+        margin-bottom: 1rem !important;
+      }
+
+      .modal-actions {
+        margin-top: 1.25rem !important;
+      }
+
+      .color-picker-group {
+        gap: 0.75rem;
+        padding: 0.5rem 0.35rem;
+      }
+
+      .color-swatch {
+        width: 28px;
+        height: 28px;
+      }
+
+      .color-swatch .material-symbols-rounded {
+        font-size: 15px;
+      }
+
+      .toast {
+        min-width: 0;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.85rem;
+      }
+    }
   </style>
 </head>
 
@@ -1329,23 +1505,49 @@
 
   <div class="bg-gradient fixed top-0 left-0 w-screen h-screen -z-10"></div>
 
-  <header class="flex justify-between items-center py-6 px-8 sticky top-0 z-[100]">
-    <div class="header-left">
+  <header
+    class="flex flex-wrap md:flex-nowrap justify-between items-center py-3.5 px-4 sm:px-6 md:px-8 sticky top-0 z-[100] gap-3">
+    <div class="header-left flex items-center justify-between w-full md:w-auto">
       <div class="brand flex items-center gap-2">
-        <h1 class="text-2xl font-bold tracking-tight">マイポータル</h1>
+        <h1 class="text-xl sm:text-2xl font-bold tracking-tight">マイポータル</h1>
         <span
           class="version-tag text-xs font-semibold py-0.5 px-2.5 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
-          onclick="showUpdateInfoModal()" title="アップデート情報を確認">v1.0.0</span>
+          onclick="showUpdateInfoModal()" title="アップデート情報を確認">v1.0.1</span>
+      </div>
+      <!-- モバイル用クイック設定（テーマ & ダークモード） -->
+      <div class="header-mobile-controls flex items-center gap-2 md:hidden">
+        <div class="theme-picker flex gap-1 p-1 rounded-full">
+          <div
+            class="theme-circle theme-ocean active w-4 h-4 rounded-full cursor-pointer border-2 border-transparent transition-transform duration-200"
+            data-color="ocean" onclick="setTheme('ocean')"></div>
+          <div
+            class="theme-circle theme-sunset w-4 h-4 rounded-full cursor-pointer border-2 border-transparent transition-transform duration-200"
+            data-color="sunset" onclick="setTheme('sunset')"></div>
+          <div
+            class="theme-circle theme-forest w-4 h-4 rounded-full cursor-pointer border-2 border-transparent transition-transform duration-200"
+            data-color="forest" onclick="setTheme('forest')"></div>
+          <div
+            class="theme-circle theme-lavender w-4 h-4 rounded-full cursor-pointer border-2 border-transparent transition-transform duration-200"
+            data-color="lavender" onclick="setTheme('lavender')"></div>
+          <div
+            class="theme-circle theme-rose w-4 h-4 rounded-full cursor-pointer border-2 border-transparent transition-transform duration-200"
+            data-color="rose" onclick="setTheme('rose')"></div>
+        </div>
+        <button class="theme-toggle flex items-center justify-center w-8 h-8 rounded-full" onclick="toggleDarkMode()"
+          title="テーマ切り替え">
+          <span class="material-symbols-rounded text-lg" id="mode-icon-mobile">light_mode</span>
+        </button>
       </div>
     </div>
-    <div class="header-center">
-      <div class="datetime flex items-center gap-4 tabular-nums">
+    <div class="header-center order-3 md:order-2 w-full md:w-auto flex justify-center">
+      <div class="datetime flex items-center gap-2 sm:gap-4 tabular-nums text-xs sm:text-base">
         <span class="date font-medium" id="clock-date">----年--月--日（-）</span>
-        <span class="time text-xl font-bold" id="clock-time">--:--:--</span>
+        <span class="time font-bold" id="clock-time">--:--:--</span>
       </div>
     </div>
-    <div class="header-right flex items-center gap-4">
-      <span class="user-email text-sm font-medium" id="user-email-display">読み込み中...</span>
+    <div class="header-right hidden md:flex items-center gap-4 order-2 md:order-3">
+      <span class="user-email text-sm font-medium truncate max-w-[150px] lg:max-w-[220px]"
+        id="user-email-display">読み込み中...</span>
       <button class="btn btn-secondary py-1.5 px-3 text-xs rounded-full flex items-center gap-1"
         onclick="showUpdateInfoModal()" title="アップデート情報">
         <span class="material-symbols-rounded text-base">system_update</span> 更新情報
@@ -1378,18 +1580,21 @@
     </div>
   </header>
 
-  <main class="dashboard max-w-[1600px] mx-auto p-8 grid gap-8">
+  <main class="dashboard max-w-[1600px] mx-auto p-3 sm:p-6 lg:p-8 grid gap-4 sm:gap-6 lg:gap-8">
     <!-- Bookmarks Widget -->
-    <section class="widget bookmarks-widget col-span-full p-6 flex flex-col overflow-hidden" id="widget-bookmarks">
-      <div class="widget-header flex justify-between items-center mb-6">
-        <h2 class="text-xl font-semibold flex items-center gap-2"><span class="material-symbols-rounded">bookmark</span>
+    <section class="widget bookmarks-widget col-span-full p-4 sm:p-6 flex flex-col overflow-hidden"
+      id="widget-bookmarks">
+      <div class="widget-header flex justify-between items-center mb-4 sm:mb-6">
+        <h2 class="text-lg sm:text-xl font-semibold flex items-center gap-2"><span
+            class="material-symbols-rounded">bookmark</span>
           ブックマーク</h2>
-        <button class="add-btn py-2 px-4 rounded-full font-semibold text-sm flex items-center gap-1"
+        <button
+          class="add-btn py-1.5 px-3 sm:py-2 sm:px-4 rounded-full font-semibold text-xs sm:text-sm flex items-center gap-1"
           onclick="showAddBookmarkModal()">
-          <span class="material-symbols-rounded">add</span> 追加
+          <span class="material-symbols-rounded text-base sm:text-lg">add</span> 追加
         </button>
       </div>
-      <div class="bookmark-grid grid gap-4" id="bookmarks-container">
+      <div class="bookmark-grid grid gap-3 sm:gap-4" id="bookmarks-container">
         <!-- Skeleton -->
         <div class="skeleton skeleton-card"></div>
         <div class="skeleton skeleton-card"></div>
@@ -1399,57 +1604,63 @@
     </section>
 
     <!-- Tabbed Widget: Gmail / Calendar / Tasks -->
-    <section class="widget tabbed-widget col-span-full p-6 flex flex-col overflow-hidden" id="widget-tabbed">
-      <div class="widget-header flex flex-col gap-4 mb-6">
+    <section class="widget tabbed-widget col-span-full p-4 sm:p-6 flex flex-col overflow-hidden" id="widget-tabbed">
+      <div class="widget-header flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div class="tab-bar flex relative p-1" id="tab-bar">
           <button
-            class="tab active flex-1 flex items-center justify-center gap-2 py-3 px-5 text-sm font-medium relative z-10 whitespace-nowrap"
+            class="tab active flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2.5 sm:py-3 px-2 sm:px-5 text-xs sm:text-sm font-medium relative z-10 whitespace-nowrap"
             data-tab="gmail" onclick="switchTab('gmail')">
-            <span class="material-symbols-rounded">mail</span> Gmail
+            <span class="material-symbols-rounded text-base sm:text-xl">mail</span> Gmail
           </button>
           <button
-            class="tab flex-1 flex items-center justify-center gap-2 py-3 px-5 text-sm font-medium relative z-10 whitespace-nowrap"
+            class="tab flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2.5 sm:py-3 px-2 sm:px-5 text-xs sm:text-sm font-medium relative z-10 whitespace-nowrap"
             data-tab="calendar" onclick="switchTab('calendar')">
-            <span class="material-symbols-rounded">calendar_month</span> カレンダー
+            <span class="material-symbols-rounded text-base sm:text-xl">calendar_month</span> カレンダー
           </button>
           <button
-            class="tab flex-1 flex items-center justify-center gap-2 py-3 px-5 text-sm font-medium relative z-10 whitespace-nowrap"
+            class="tab flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2.5 sm:py-3 px-2 sm:px-5 text-xs sm:text-sm font-medium relative z-10 whitespace-nowrap"
             data-tab="tasks" onclick="switchTab('tasks')">
-            <span class="material-symbols-rounded">task_alt</span> タスク
+            <span class="material-symbols-rounded text-base sm:text-xl">task_alt</span> タスク
           </button>
           <div class="tab-indicator" id="tab-indicator"></div>
         </div>
-        <div class="tab-header-row flex justify-between items-center w-full">
+        <div class="tab-header-row flex flex-wrap justify-between items-center gap-2 w-full">
           <div></div>
           <div id="tab-action-gmail">
-            <button class="icon-btn w-9 h-9 rounded-full flex items-center justify-center" onclick="loadEmails()"
-              title="更新">
-              <span class="material-symbols-rounded">refresh</span>
+            <button class="icon-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center"
+              onclick="loadEmails()" title="更新">
+              <span class="material-symbols-rounded text-lg sm:text-xl">refresh</span>
             </button>
           </div>
-          <div id="tab-action-calendar" style="display:none" class="week-nav-group flex items-center gap-2">
-            <button class="icon-btn w-9 h-9 rounded-full flex items-center justify-center" onclick="navigateWeek(-1)"
-              title="前週">
-              <span class="material-symbols-rounded">chevron_left</span>
-            </button>
-            <button class="btn btn-secondary btn-sm py-1 px-3 text-sm rounded-full" onclick="navigateWeek(0)"
-              title="今週に戻る">
-              今週
-            </button>
-            <button class="icon-btn w-9 h-9 rounded-full flex items-center justify-center" onclick="navigateWeek(1)"
-              title="次週">
-              <span class="material-symbols-rounded">chevron_right</span>
-            </button>
-            <span class="week-period-label text-sm font-semibold mx-2" id="week-period-label"></span>
-            <button class="add-btn py-2 px-4 rounded-full font-semibold text-sm flex items-center gap-1"
+          <div id="tab-action-calendar" style="display:none"
+            class="week-nav-group flex flex-wrap items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
+            <div class="flex items-center gap-1 sm:gap-2">
+              <button class="icon-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center"
+                onclick="navigateWeek(-1)" title="前週">
+                <span class="material-symbols-rounded text-lg sm:text-xl">chevron_left</span>
+              </button>
+              <button class="btn btn-secondary btn-sm py-1 px-2.5 sm:px-3 text-xs sm:text-sm rounded-full"
+                onclick="navigateWeek(0)" title="今週に戻る">
+                今週
+              </button>
+              <button class="icon-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center"
+                onclick="navigateWeek(1)" title="次週">
+                <span class="material-symbols-rounded text-lg sm:text-xl">chevron_right</span>
+              </button>
+              <span class="week-period-label text-xs sm:text-sm font-semibold mx-1 sm:mx-2 whitespace-nowrap"
+                id="week-period-label"></span>
+            </div>
+            <button
+              class="add-btn py-1.5 px-3 sm:py-2 sm:px-4 rounded-full font-semibold text-xs sm:text-sm flex items-center gap-1 ml-auto sm:ml-0"
               onclick="showAddEventModal()">
-              <span class="material-symbols-rounded">add</span> 予定追加
+              <span class="material-symbols-rounded text-base sm:text-lg">add</span> 予定追加
             </button>
           </div>
           <div id="tab-action-tasks" style="display:none">
-            <button class="add-btn py-2 px-4 rounded-full font-semibold text-sm flex items-center gap-1"
+            <button
+              class="add-btn py-1.5 px-3 sm:py-2 sm:px-4 rounded-full font-semibold text-xs sm:text-sm flex items-center gap-1"
               onclick="showAddTaskModal()">
-              <span class="material-symbols-rounded">add</span> タスク追加
+              <span class="material-symbols-rounded text-base sm:text-lg">add</span> タスク追加
             </button>
           </div>
         </div>
@@ -1486,38 +1697,44 @@
   </main>
 
   <footer
-    class="max-w-[1600px] mx-auto py-8 px-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs opacity-70 border-t border-slate-200 dark:border-slate-800 mt-8">
-    <div class="flex items-center gap-4">
-      <button class="hover:underline" onclick="showUpdateInfoModal()">アップデート情報</button>
+    class="max-w-[1600px] mx-auto py-6 sm:py-8 px-4 sm:px-8 flex flex-col md:flex-row justify-between items-center gap-3 sm:gap-4 text-xs opacity-70 border-t border-slate-200 dark:border-slate-800 mt-6 sm:mt-8 text-center md:text-left">
+    <div class="flex flex-wrap justify-center items-center gap-2 sm:gap-4">
+      <button class="hover:underline py-1 px-1" onclick="showUpdateInfoModal()">アップデート情報</button>
       <span>•</span>
-      <button class="hover:underline" onclick="showTermsModal()">利用規約・プライバシー</button>
+      <button class="hover:underline py-1 px-1" onclick="showTermsModal()">利用規約・プライバシー</button>
+      <span class="sm:hidden">•</span>
+      <span class="sm:hidden text-primary user-email-footer" id="user-email-footer"></span>
     </div>
     <div>
-      © 2026 マイポータル (v1.0.0) All rights reserved.
+      © 2026 マイポータル (v1.0.1) All rights reserved.
     </div>
   </footer>
 
   <!-- Reusable Modal -->
-  <div class="modal-overlay fixed inset-0 w-screen h-screen flex items-center justify-center z-[1000]" id="modal">
-    <div class="modal-card w-[90%] max-w-[500px] p-8">
-      <div class="modal-header flex justify-between items-center mb-6">
-        <h3 class="text-xl font-semibold" id="modal-title">タイトル</h3>
-        <button class="icon-btn w-9 h-9 rounded-full flex items-center justify-center" onclick="hideModal()">
-          <span class="material-symbols-rounded">close</span>
+  <div class="modal-overlay fixed inset-0 w-screen h-screen flex items-center justify-center z-[1000] p-3 sm:p-4"
+    id="modal">
+    <div class="modal-card w-[95%] max-w-[500px] p-5 sm:p-8 max-h-[92vh] flex flex-col">
+      <div class="modal-header flex justify-between items-center mb-4 sm:mb-6 flex-shrink-0">
+        <h3 class="text-lg sm:text-xl font-semibold" id="modal-title">タイトル</h3>
+        <button class="icon-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center"
+          onclick="hideModal()">
+          <span class="material-symbols-rounded text-lg sm:text-xl">close</span>
         </button>
       </div>
-      <div class="modal-body" id="modal-body">
+      <div class="modal-body overflow-y-auto pr-1 flex-1" id="modal-body">
         <!-- Form injected via JS -->
       </div>
-      <div class="modal-actions flex justify-end gap-4 mt-8">
-        <button class="btn btn-secondary" onclick="hideModal()">キャンセル</button>
-        <button class="btn btn-primary" id="modal-submit">保存</button>
+      <div class="modal-actions flex justify-end gap-3 sm:gap-4 mt-6 sm:mt-8 flex-shrink-0">
+        <button class="btn btn-secondary text-xs sm:text-sm py-2 px-4" onclick="hideModal()">キャンセル</button>
+        <button class="btn btn-primary text-xs sm:text-sm py-2 px-4" id="modal-submit">保存</button>
       </div>
     </div>
   </div>
 
   <!-- Toast Container -->
-  <div class="toast-container fixed bottom-8 right-8 flex flex-col gap-4 z-[2000]" id="toasts"></div>
+  <div
+    class="toast-container fixed bottom-4 right-4 left-4 sm:left-auto sm:bottom-8 sm:right-8 flex flex-col gap-3 sm:gap-4 z-[2000] pointer-events-none sm:max-w-sm"
+    id="toasts"></div>
 
   <script>
     /* ========================================
@@ -1633,6 +1850,8 @@
       }
       const emailEl = document.getElementById('user-email-display');
       if (emailEl) emailEl.textContent = state.email;
+      const emailFooterEl = document.getElementById('user-email-footer');
+      if (emailFooterEl) emailFooterEl.textContent = state.email;
 
       // 設定取得
       try {
@@ -1670,7 +1889,10 @@
       setTheme(state.settings.theme, false);
       if (state.settings.darkMode) {
         document.body.setAttribute('data-mode', 'dark');
-        document.getElementById('mode-icon').textContent = 'dark_mode';
+        const mi = document.getElementById('mode-icon');
+        if (mi) mi.textContent = 'dark_mode';
+        const mim = document.getElementById('mode-icon-mobile');
+        if (mim) mim.textContent = 'dark_mode';
       }
     }
 
@@ -1692,7 +1914,11 @@
       state.settings.darkMode = !state.settings.darkMode;
       const mode = state.settings.darkMode ? 'dark' : 'light';
       document.body.setAttribute('data-mode', mode);
-      document.getElementById('mode-icon').textContent = state.settings.darkMode ? 'dark_mode' : 'light_mode';
+      const iconText = state.settings.darkMode ? 'dark_mode' : 'light_mode';
+      const mi = document.getElementById('mode-icon');
+      if (mi) mi.textContent = iconText;
+      const mim = document.getElementById('mode-icon-mobile');
+      if (mim) mim.textContent = iconText;
 
       callServer('saveUserSettings', state.email, state.settings)
         .catch(() => showToast('設定の保存に失敗しました', 'error'));
@@ -2021,6 +2247,14 @@
         `;
         container.appendChild(dayCol);
       }
+
+      // 小画面時に今日の日付カラムへスムーズスクロール
+      setTimeout(() => {
+        const todayCol = container.querySelector('.calendar-day.today');
+        if (todayCol && window.innerWidth < 768) {
+          todayCol.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+      }, 60);
     }
 
     const colorList = [
@@ -2395,8 +2629,19 @@
       const content = `
         <div class="pb-3" style="border-bottom: 1px solid var(--border-color);">
           <div class="flex items-center gap-2 mb-1">
+            <span class="version-tag text-xs font-semibold py-0.5 px-2.5 rounded-full">v1.0.1</span>
+            <span class="text-xs font-medium opacity-70" style="color: var(--text-secondary);">2026/9/3</span>
+          </div>
+          <ul class="list-disc list-inside space-y-1 text-xs" style="color: var(--text-primary);">
+            <li>ログ内容の修正</li>
+            <li>システムの実行環境の変更</li>
+            <li>UIの修正</li>
+          </ul>
+        </div>
+        <div class="pb-3" style="border-bottom: 1px solid var(--border-color);">
+          <div class="flex items-center gap-2 mb-1">
             <span class="version-tag text-xs font-semibold py-0.5 px-2.5 rounded-full">v1.0.0</span>
-            <span class="text-xs font-medium opacity-70" style="color: var(--text-secondary);">2026年9月 最新版</span>
+            <span class="text-xs font-medium opacity-70" style="color: var(--text-secondary);">2026/9/2</span>
           </div>
           <ul class="list-disc list-inside space-y-1 text-xs" style="color: var(--text-primary);">
             <li>初回リリース版</li>
@@ -2483,7 +2728,10 @@
 
     function showModal(config) {
       const btnSubmit = document.getElementById('modal-submit');
-      if (btnSubmit) btnSubmit.style.display = 'block';
+      if (btnSubmit) {
+        btnSubmit.style.display = 'block';
+        btnSubmit.textContent = config.submitText || '保存';
+      }
 
       document.getElementById('modal-title').textContent = config.title;
 
@@ -2565,6 +2813,10 @@
 
     function hideModal() {
       document.getElementById('modal').classList.remove('active');
+      const btnSubmit = document.getElementById('modal-submit');
+      if (btnSubmit) {
+        btnSubmit.textContent = '保存';
+      }
     }
 
     function showToast(message, type = 'info') {
@@ -2634,6 +2886,9 @@
       setTimeout(updateTabIndicator, 100);
     });
     window.addEventListener('resize', updateTabIndicator);
+    window.addEventListener('orientationchange', () => {
+      setTimeout(updateTabIndicator, 150);
+    });
 
     /* ========================================
        Bookmark Drag & Drop

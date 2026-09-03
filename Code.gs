@@ -23,10 +23,11 @@ function doGet(e) {
  * @returns {Sheet} ログシート
  */
 function getOrCreateLogSheet() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet = ss.getSheetByName('__LOG__');
+  const SSID = PropertiesService.getScriptProperties().getProperty('SSID');
+  const SS = SpreadsheetApp.openById(SSID);
+  let sheet = SS.getSheetByName('__LOG__');
   if (!sheet) {
-    sheet = ss.insertSheet('__LOG__');
+    sheet = SS.insertSheet('__LOG__');
     sheet.getRange(1, 1, 1, 4).setValues([['日時', 'ユーザー', '操作', '詳細']]);
     sheet.setFrozenRows(1);
     sheet.getRange(1, 1, 1, 4).setFontWeight('bold');
@@ -74,11 +75,12 @@ function getUserEmail() {
  */
 function getOrCreateUserSheet(email) {
   try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    let sheet = ss.getSheetByName(email);
+    const SSID = PropertiesService.getScriptProperties().getProperty('SSID');
+    const SS = SpreadsheetApp.openById(SSID);
+    let sheet = SS.getSheetByName(email);
     
     if (!sheet) {
-      sheet = ss.insertSheet(email);
+      sheet = SS.insertSheet(email);
       // Row 1: Settings
       sheet.getRange(1, 1, 1, 5).setValues([['__SETTINGS__', 'theme', 'ocean', 'darkMode', 'false']]);
       // Row 2: Bookmarks Header
@@ -129,7 +131,7 @@ function saveUserSettings(email, settings) {
       sheet.getRange('E1').setValue(settings.darkMode.toString());
     }
     
-    writeLog(email, '設定変更', 'テーマ: ' + (settings.theme || '') + ', ダークモード: ' + (settings.darkMode || ''));
+    writeLog(email, '設定', '設定の変更をしました');
     return { success: true };
   } catch (error) {
     console.error('saveUserSettings Error:', error);
@@ -204,7 +206,7 @@ function addBookmark(email, title, url, category) {
     
     sheet.appendRow(['', title, url, category || '', icon, addedAt]);
     
-    writeLog(email, 'ブックマーク追加', title + ' (' + url + ')');
+    writeLog(email, 'ブックマーク', '新しいブックマークを追加しました');
     return { success: true };
   } catch (error) {
     console.error('addBookmark Error:', error);
@@ -227,7 +229,7 @@ function deleteBookmark(email, index) {
       sheet.deleteRow(rowToDelete);
     }
     
-    writeLog(email, 'ブックマーク削除', 'インデックス: ' + index);
+    writeLog(email, 'ブックマーク', 'ブックマークを削除しました');
     return { success: true };
   } catch (error) {
     console.error('deleteBookmark Error:', error);
@@ -269,7 +271,7 @@ function saveAllBookmarks(email, bookmarks) {
     });
     
     sheet.getRange(3, 1, rows.length, 6).setValues(rows);
-    writeLog(email, 'ブックマーク並び替え', rows.length + ' 件の並び順を更新');
+    writeLog(email, 'ブックマーク', 'ブックマークを' + rows.length + ' 件の並び順を更新しました');
     return { success: true };
   } catch (error) {
     console.error('saveAllBookmarks Error:', error);
@@ -440,7 +442,7 @@ function addCalendarEvent(title, startTime, endTime, description, color, isAllDa
     }
     
     const email = Session.getActiveUser().getEmail();
-    writeLog(email, 'カレンダー予定追加', title + ' (' + startTime + ' 〜 ' + endTime + ')');
+    writeLog(email, 'カレンダー', 'カレンダー予定を追加しました');
     return { success: true, id: event.getId() };
   } catch (error) {
     console.error('addCalendarEvent Error:', error);
@@ -462,7 +464,7 @@ function deleteCalendarEvent(eventId) {
       const title = event.getTitle();
       event.deleteEvent();
       const email = Session.getActiveUser().getEmail();
-      writeLog(email, 'カレンダー予定削除', title + ' (ID: ' + eventId + ')');
+      writeLog(email, 'カレンダー', 'カレンダー予定を削除しました');
       return { success: true };
     } else {
       return { success: false, message: 'イベントが見つかりませんでした' };
@@ -521,7 +523,7 @@ function updateCalendarEvent(eventId, title, startTime, endTime, description, co
     }
     
     const email = Session.getActiveUser().getEmail();
-    writeLog(email, 'カレンダー予定更新', title + ' (ID: ' + eventId + ')');
+    writeLog(email, 'カレンダー', 'カレンダー予定を更新しました');
     return { success: true };
   } catch (error) {
     console.error('updateCalendarEvent Error:', error);
@@ -598,7 +600,7 @@ function addTask(taskListId, title, notes, dueDate) {
     
     const task = Tasks.Tasks.insert(newTask, taskListId);
     const email = Session.getActiveUser().getEmail();
-    writeLog(email, 'タスク追加', title + ' (リストID: ' + taskListId + ')');
+    writeLog(email, 'タスク', '新しいタスクを追加しました');
     return { success: true, id: task.id };
   } catch (error) {
     console.error('addTask Error:', error);
@@ -616,7 +618,7 @@ function deleteTask(taskListId, taskId) {
   try {
     Tasks.Tasks.remove(taskListId, taskId);
     const email = Session.getActiveUser().getEmail();
-    writeLog(email, 'タスク削除', 'タスクID: ' + taskId);
+    writeLog(email, 'タスク', 'タスクを削除しました');
     return { success: true };
   } catch (error) {
     console.error('deleteTask Error:', error);
@@ -636,7 +638,7 @@ function completeTask(taskListId, taskId) {
     task.status = 'completed';
     Tasks.Tasks.patch(task, taskListId, taskId);
     const email = Session.getActiveUser().getEmail();
-    writeLog(email, 'タスク完了', 'タスク: ' + (task.title || taskId));
+    writeLog(email, 'タスク', 'タスクを完了しました');
     return { success: true };
   } catch (error) {
     console.error('completeTask Error:', error);
