@@ -1742,7 +1742,7 @@
        ======================================== */
     const state = {
       email: '',
-      settings: { theme: 'ocean', darkMode: false },
+      settings: { theme: 'ocean', darkMode: false, termsAgreed: false, termsAgreedAt: '' },
       bookmarks: [],
       emails: [],
       events: [],
@@ -1755,7 +1755,7 @@
        ======================================== */
     const mockData = {
       email: 'example@gmail.com',
-      settings: { theme: 'ocean', darkMode: false },
+      settings: { theme: 'ocean', darkMode: false, termsAgreed: false, termsAgreedAt: '' },
       bookmarks: [
         { title: 'Google', url: 'https://google.com' },
         { title: 'GitHub', url: 'https://github.com' },
@@ -1797,6 +1797,12 @@
           setTimeout(() => {
             if (functionName === 'getUserEmail') resolve(mockData.email);
             else if (functionName === 'getUserSettings') resolve(mockData.settings);
+            else if (functionName === 'getTermsAgreement') resolve({ termsAgreed: mockData.settings.termsAgreed, termsAgreedAt: mockData.settings.termsAgreedAt });
+            else if (functionName === 'saveTermsAgreement') {
+              mockData.settings.termsAgreed = args[1] === true || args[1] === 'true';
+              mockData.settings.termsAgreedAt = new Date().toLocaleString();
+              resolve({ success: true, termsAgreed: mockData.settings.termsAgreed, termsAgreedAt: mockData.settings.termsAgreedAt });
+            }
             else if (functionName === 'getBookmarks') resolve(mockData.bookmarks);
             else if (functionName === 'getGmailMessages' || functionName === 'getEmails') resolve(mockData.emails);
             else if (functionName === 'getCalendarEvents' || functionName === 'getEvents') resolve(mockData.events);
@@ -2593,12 +2599,29 @@
     let currentModalSubmit = null;
 
     function checkFirstVisitTerms() {
-      const agreed = localStorage.getItem('myportal_has_agreed_terms');
-      if (!agreed) {
-        setTimeout(() => {
-          showTermsModal(true);
-        }, 500);
+      const agreedLocal = localStorage.getItem('myportal_has_agreed_terms') === 'true';
+      const agreedServer = state.settings && (state.settings.termsAgreed === true || state.settings.termsAgreed === 'true');
+
+      if (agreedServer) {
+        // スプレッドシート側で既に同意済みの場合、localStorageも同期
+        if (!agreedLocal) {
+          localStorage.setItem('myportal_has_agreed_terms', 'true');
+        }
+        return;
       }
+
+      if (agreedLocal) {
+        // localStorageで同意済みだがスプレッドシート側が未同意の場合、バックグラウンド同期
+        callServer('saveTermsAgreement', state.email, true).catch(err => {
+          console.warn('Background saveTermsAgreement failed:', err);
+        });
+        return;
+      }
+
+      // どちらも未同意の場合は初回利用規約モーダルを表示
+      setTimeout(() => {
+        showTermsModal(true);
+      }, 500);
     }
 
     function showCustomInfoModal(title, htmlContent, actionConfig = null) {
@@ -2676,8 +2699,9 @@
               <div>
                 <strong class="font-semibold" style="color: var(--primary);">1. Google スプレッドシート（専用保存領域）:</strong>
                 <ul class="list-disc list-inside ml-2 mt-1 space-y-1" style="color: var(--text-primary);">
-                  <li>ユーザー設定（テーマ色、ダークモード選択状態）</li>
+                  <li>ユーザー設定（テーマ色、ダークモード選択状態、利用規約同意フラグ・日時）</li>
                   <li>ブックマーク一覧（タイトル、URL、表示順序）</li>
+                  <li>利用規約同意一覧（<code class="px-1.5 py-0.5 rounded font-mono text-[0.75rem]" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--primary);">__TERMS__</code> シート）</li>
                   <li>操作ログ（操作日時、実行アカウント、操作内容および詳細パラメータ）を <code class="px-1.5 py-0.5 rounded font-mono text-[0.75rem]" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--primary);">__LOG__</code> シートに自動記録します。</li>
                 </ul>
               </div>
@@ -2715,10 +2739,21 @@
       if (isFirstVisit) {
         showCustomInfoModal('📜 利用規約・プライバシー方針（初回確認）', content, {
           submitText: '同意して利用を開始する',
-          onSubmit: () => {
+          onSubmit: async () => {
             localStorage.setItem('myportal_has_agreed_terms', 'true');
+            if (state.settings) {
+              state.settings.termsAgreed = true;
+              state.settings.termsAgreedAt = new Date().toLocaleString();
+            }
             hideModal();
-            showToast('マイポータルへようこそ！', 'success');
+            showToast('利用規約に同意しました。マイポータルへようこそ！', 'success');
+
+            // スプレッドシートに同意状態を保存
+            try {
+              await callServer('saveTermsAgreement', state.email, true);
+            } catch (e) {
+              console.error('saveTermsAgreement error:', e);
+            }
           }
         });
       } else {

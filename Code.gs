@@ -40,6 +40,27 @@ function getOrCreateLogSheet() {
 }
 
 /**
+ * 利用規約同意状況シートを取得または作成する
+ * @returns {Sheet} 利用規約シート
+ */
+function getOrCreateTermsSheet() {
+  const SSID = PropertiesService.getScriptProperties().getProperty('SSID');
+  const SS = SpreadsheetApp.openById(SSID);
+  let sheet = SS.getSheetByName('__TERMS__');
+  if (!sheet) {
+    sheet = SS.insertSheet('__TERMS__');
+    sheet.getRange(1, 1, 1, 4).setValues([['ユーザー', '同意ステータス', '同意日時', '最終更新日時']]);
+    sheet.setFrozenRows(1);
+    sheet.getRange(1, 1, 1, 4).setFontWeight('bold');
+    sheet.setColumnWidth(1, 220);
+    sheet.setColumnWidth(2, 120);
+    sheet.setColumnWidth(3, 180);
+    sheet.setColumnWidth(4, 180);
+  }
+  return sheet;
+}
+
+/**
  * スプレッドシートにログを記録する
  * @param {string} email ユーザーのメールアドレス
  * @param {string} action 操作名
@@ -81,8 +102,8 @@ function getOrCreateUserSheet(email) {
     
     if (!sheet) {
       sheet = SS.insertSheet(email);
-      // Row 1: Settings
-      sheet.getRange(1, 1, 1, 5).setValues([['__SETTINGS__', 'theme', 'ocean', 'darkMode', 'false']]);
+      // Row 1: Settings (theme, darkMode, termsAgreed, termsAgreedAt)
+      sheet.getRange(1, 1, 1, 9).setValues([['__SETTINGS__', 'theme', 'ocean', 'darkMode', 'false', 'termsAgreed', 'false', 'termsAgreedAt', '']]);
       // Row 2: Bookmarks Header
       sheet.getRange(2, 1, 1, 6).setValues([['__BOOKMARKS__', 'タイトル', 'URL', 'カテゴリ', 'アイコン', '追加日時']]);
     }
@@ -97,27 +118,29 @@ function getOrCreateUserSheet(email) {
 /**
  * ユーザーの設定を取得する
  * @param {string} email ユーザーのメールアドレス
- * @returns {Object} {theme, darkMode} 
+ * @returns {Object} {theme, darkMode, termsAgreed, termsAgreedAt} 
  */
 function getUserSettings(email) {
   try {
     const sheet = getOrCreateUserSheet(email);
-    const settingsRange = sheet.getRange(1, 1, 1, 5).getValues()[0];
+    const settingsRange = sheet.getRange(1, 1, 1, 9).getValues()[0];
     
     return {
-      theme: settingsRange[2],
-      darkMode: settingsRange[4] === 'true' || settingsRange[4] === true
+      theme: settingsRange[2] || 'ocean',
+      darkMode: settingsRange[4] === 'true' || settingsRange[4] === true,
+      termsAgreed: settingsRange[6] === 'true' || settingsRange[6] === true,
+      termsAgreedAt: settingsRange[8] ? String(settingsRange[8]) : ''
     };
   } catch (error) {
     console.error('getUserSettings Error:', error);
-    return { theme: 'ocean', darkMode: false };
+    return { theme: 'ocean', darkMode: false, termsAgreed: false, termsAgreedAt: '' };
   }
 }
 
 /**
  * ユーザーの設定を保存する
  * @param {string} email ユーザーのメールアドレス
- * @param {Object} settings {theme, darkMode}
+ * @param {Object} settings {theme, darkMode, termsAgreed}
  * @returns {Object} 処理結果
  */
 function saveUserSettings(email, settings) {
@@ -130,12 +153,93 @@ function saveUserSettings(email, settings) {
     if (settings.darkMode !== undefined) {
       sheet.getRange('E1').setValue(settings.darkMode.toString());
     }
+    if (settings.termsAgreed !== undefined) {
+      sheet.getRange('F1').setValue('termsAgreed');
+      sheet.getRange('G1').setValue(settings.termsAgreed ? 'true' : 'false');
+      sheet.getRange('H1').setValue('termsAgreedAt');
+      if (settings.termsAgreed) {
+        const timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy/MM/dd HH:mm:ss');
+        sheet.getRange('I1').setValue(timestamp);
+      }
+    }
     
     writeLog(email, '設定', '設定の変更をしました');
     return { success: true };
   } catch (error) {
     console.error('saveUserSettings Error:', error);
     return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 利用規約の同意状態をスプレッドシートに保存する
+ * @param {string} email ユーザーのメールアドレス
+ * @param {boolean} agreed 同意したかどうか
+ * @returns {Object} 処理結果
+ */
+function saveTermsAgreement(email, agreed) {
+  try {
+    if (!email) email = getUserEmail();
+    const isAgreed = agreed === true || agreed === 'true';
+    const timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy/MM/dd HH:mm:ss');
+    
+    // 1. ユーザー専用シートの Row 1 を更新
+    const userSheet = getOrCreateUserSheet(email);
+    userSheet.getRange('F1').setValue('termsAgreed');
+    userSheet.getRange('G1').setValue(isAgreed ? 'true' : 'false');
+    userSheet.getRange('H1').setValue('termsAgreedAt');
+    if (isAgreed) {
+      userSheet.getRange('I1').setValue(timestamp);
+    }
+    
+    // 2. __TERMS__ シートの該当ユーザー行を更新または追加
+    const termsSheet = getOrCreateTermsSheet();
+    const data = termsSheet.getDataRange().getValues();
+    let rowIndex = -1;
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === email) {
+        rowIndex = i + 1; // 1-based row index
+        break;
+      }
+    }
+    
+    const statusText = isAgreed ? '同意済み' : '未同意';
+    if (rowIndex > 0) {
+      termsSheet.getRange(rowIndex, 2).setValue(statusText);
+      if (isAgreed) {
+        termsSheet.getRange(rowIndex, 3).setValue(timestamp);
+      }
+      termsSheet.getRange(rowIndex, 4).setValue(timestamp);
+    } else {
+      termsSheet.appendRow([email, statusText, isAgreed ? timestamp : '', timestamp]);
+    }
+    
+    // 3. __LOG__ シートに監査ログを記録
+    writeLog(email, '利用規約', isAgreed ? '初回利用規約に同意しました' : '利用規約の同意状態を更新しました');
+    
+    return { success: true, termsAgreed: isAgreed, termsAgreedAt: isAgreed ? timestamp : '' };
+  } catch (error) {
+    console.error('saveTermsAgreement Error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 利用規約の同意状態を取得する
+ * @param {string} email ユーザーのメールアドレス
+ * @returns {Object} { termsAgreed: boolean, termsAgreedAt: string }
+ */
+function getTermsAgreement(email) {
+  try {
+    if (!email) email = getUserEmail();
+    const settings = getUserSettings(email);
+    return {
+      termsAgreed: settings.termsAgreed || false,
+      termsAgreedAt: settings.termsAgreedAt || ''
+    };
+  } catch (error) {
+    console.error('getTermsAgreement Error:', error);
+    return { termsAgreed: false, termsAgreedAt: '' };
   }
 }
 
