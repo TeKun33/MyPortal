@@ -719,6 +719,43 @@
       flex: 1;
     }
 
+    .day-add-btn {
+      color: var(--text-secondary);
+      background: rgba(125, 125, 125, 0.1);
+      border: 1px solid var(--border-color);
+    }
+
+    .day-add-btn:hover {
+      color: var(--primary);
+      background: rgba(var(--primary-rgb), 0.15);
+      border-color: rgba(var(--primary-rgb), 0.35);
+    }
+
+    .empty-day-slot {
+      color: var(--text-secondary);
+      transition: var(--transition);
+    }
+
+    .empty-day-slot:hover {
+      color: var(--primary);
+      border-color: var(--primary);
+      background: rgba(var(--primary-rgb), 0.06);
+    }
+
+    .add-event-inline-btn {
+      color: var(--text-secondary);
+      border-color: var(--border-color);
+      transition: var(--transition);
+      opacity: 0.65;
+    }
+
+    .add-event-inline-btn:hover {
+      color: var(--primary);
+      border-color: var(--primary);
+      background: rgba(var(--primary-rgb), 0.08);
+      opacity: 1;
+    }
+
     .event-chip {
       background: rgba(var(--primary-rgb), 0.1);
       border-left: 3px solid var(--primary);
@@ -2389,15 +2426,36 @@
           })
         ].join('');
 
+        const dateISOString = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const hasEvents = (allDayEvents.length + timedEvents.length) > 0;
+
         const dayCol = document.createElement('div');
         dayCol.className = `calendar-day ${isToday ? 'today' : ''}`;
         dayCol.innerHTML = `
-          <div class="day-header">
-            <div class="day-name">${days[d.getDay()]}</div>
-            <div class="day-date">${d.getDate()}</div>
+          <div class="day-header group/head cursor-pointer rounded-lg p-1 transition-colors hover:bg-black/5 dark:hover:bg-white/5" onclick="showAddEventModal('${dateISOString}')" title="${d.getMonth() + 1}月${d.getDate()}日に予定を追加">
+            <div class="flex items-center justify-between px-1">
+              <span class="day-name">${days[d.getDay()]}</span>
+              <button class="day-add-btn w-5 h-5 rounded-full flex items-center justify-center transition-all opacity-40 group-hover/head:opacity-100 hover:scale-110" onclick="event.stopPropagation(); showAddEventModal('${dateISOString}')" title="この日に予定を追加">
+                <span class="material-symbols-rounded" style="font-size: 14px;">add</span>
+              </button>
+            </div>
+            <div class="day-date mt-0.5">${d.getDate()}</div>
           </div>
-          <div class="event-list">
-            ${eventsHtml || '<div style="text-align:center;color:var(--text-secondary);font-size:0.8rem;padding:1rem;">予定なし</div>'}
+          <div class="event-list flex-1 flex flex-col justify-between" onclick="if(event.target === this) showAddEventModal('${dateISOString}')" title="クリックして予定を追加">
+            ${hasEvents ? `
+              <div class="space-y-2">
+                ${eventsHtml}
+              </div>
+              <button class="add-event-inline-btn w-full py-1.5 px-2 rounded-lg border border-dashed text-xs flex items-center justify-center gap-1 transition-all mt-2" onclick="event.stopPropagation(); showAddEventModal('${dateISOString}')" title="${d.getMonth() + 1}月${d.getDate()}日に予定を追加">
+                <span class="material-symbols-rounded" style="font-size: 14px;">add</span>
+                <span class="text-[0.7rem] font-medium">予定を追加</span>
+              </button>
+            ` : `
+              <div class="empty-day-slot flex flex-col items-center justify-center flex-1 p-3 rounded-lg border border-dashed text-xs cursor-pointer transition-all my-2 min-h-[90px]" onclick="event.stopPropagation(); showAddEventModal('${dateISOString}')" title="${d.getMonth() + 1}月${d.getDate()}日に予定を追加">
+                <span class="material-symbols-rounded text-lg mb-1 opacity-70">add_circle</span>
+                <span class="text-[0.75rem] font-medium">予定を追加</span>
+              </div>
+            `}
           </div>
         `;
         container.appendChild(dayCol);
@@ -2466,24 +2524,42 @@
       }
     }
 
-    function showAddEventModal() {
-      showCalendarEventModal(null);
+    function showAddEventModal(defaultDate = null) {
+      showCalendarEventModal(null, defaultDate);
     }
 
     function showEditEventModal(eventId) {
       const eventObj = (state.events || []).find(e => e.id === eventId);
       if (!eventObj) return;
-      showCalendarEventModal(eventObj);
+      showCalendarEventModal(eventObj, null);
     }
 
-    function showCalendarEventModal(eventObj) {
+    function showCalendarEventModal(eventObj, defaultDate = null) {
       const isEdit = !!eventObj;
 
       let isAllDay = eventObj ? !!eventObj.isAllDay : false;
 
       const now = new Date();
-      const startDate = eventObj ? new Date(eventObj.startTime) : now;
-      const endDate = eventObj ? new Date(eventObj.endTime) : new Date(now.getTime() + 3600000);
+      let startDate, endDate;
+
+      if (eventObj) {
+        startDate = new Date(eventObj.startTime);
+        endDate = new Date(eventObj.endTime);
+      } else if (defaultDate) {
+        const baseDate = typeof defaultDate === 'string' ? new Date(defaultDate + 'T00:00:00') : new Date(defaultDate);
+        const isToday = baseDate.toDateString() === now.toDateString();
+
+        startDate = new Date(baseDate);
+        if (isToday) {
+          startDate.setHours(now.getHours(), Math.ceil(now.getMinutes() / 15) * 15, 0, 0);
+        } else {
+          startDate.setHours(9, 0, 0, 0);
+        }
+        endDate = new Date(startDate.getTime() + 3600000);
+      } else {
+        startDate = now;
+        endDate = new Date(now.getTime() + 3600000);
+      }
 
       const formatDate = (d) => {
         const y = d.getFullYear();
