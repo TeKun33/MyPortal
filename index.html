@@ -1058,6 +1058,57 @@
       box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
     }
 
+    /* 必須バッジ & 入力バリデーションスタイル */
+    .required-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1px 6px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.28);
+      border-radius: 4px;
+      line-height: 1.2;
+      vertical-align: middle;
+      margin-left: 0.35rem;
+    }
+
+    .form-control.is-invalid {
+      border-color: #ef4444 !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18) !important;
+    }
+
+    /* ローディングスピナー & メールスケルトン */
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .animate-spin {
+      animation: spin 0.9s linear infinite;
+      display: inline-block;
+    }
+
+    .skeleton-email {
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .field-error-msg {
+      color: #ef4444;
+      font-size: 0.75rem;
+      margin-top: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
     /* Visual Color Picker */
     .color-picker-group {
       display: flex;
@@ -1628,10 +1679,15 @@
         </div>
         <div class="tab-header-row flex flex-wrap justify-between items-center gap-2 w-full">
           <div></div>
-          <div id="tab-action-gmail">
-            <button class="icon-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center"
-              onclick="loadEmails()" title="更新">
-              <span class="material-symbols-rounded text-lg sm:text-xl">refresh</span>
+          <div id="tab-action-gmail" class="flex items-center gap-2">
+            <span id="gmail-loading-badge" class="hidden text-xs font-medium flex items-center gap-1.5 py-1 px-2.5 rounded-full" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary); border: 1px solid rgba(var(--primary-rgb), 0.2);">
+              <span class="material-symbols-rounded animate-spin text-sm" style="font-size: 14px;">sync</span>
+              <span>受信中...</span>
+            </span>
+            <button class="icon-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-transform"
+              id="btn-refresh-emails"
+              onclick="loadEmails()" title="メールを更新">
+              <span class="material-symbols-rounded text-lg sm:text-xl" id="icon-refresh-emails">refresh</span>
             </button>
           </div>
           <div id="tab-action-calendar" style="display:none"
@@ -1671,17 +1727,33 @@
       <div class="tab-panels relative min-h-[350px]">
         <div class="tab-panel active" id="panel-gmail">
           <div class="email-list grid gap-3 max-h-[500px] overflow-y-auto pr-2 pb-2" id="emails-container">
-            <div class="email-item skeleton">
-              <div class="email-content">
-                <div class="skeleton skeleton-text medium"></div>
-                <div class="skeleton skeleton-text short"></div>
-              </div>
+            <div class="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-medium" style="background: rgba(var(--primary-rgb), 0.08); color: var(--primary); border: 1px solid rgba(var(--primary-rgb), 0.18);">
+              <span class="material-symbols-rounded animate-spin text-sm" style="font-size: 16px;">sync</span>
+              <span>Gmailから最新のメールを取得しています...</span>
             </div>
-            <div class="email-item skeleton">
-              <div class="email-content">
-                <div class="skeleton skeleton-text medium"></div>
-                <div class="skeleton skeleton-text short"></div>
+            <div class="email-item skeleton-email p-4 rounded-xl flex flex-col min-h-[140px]">
+              <div class="email-card-header flex items-center gap-3 mb-3">
+                <div class="skeleton skeleton-avatar w-9 h-9 rounded-full shrink-0"></div>
+                <div class="email-sender-info flex-1 min-w-0 space-y-1.5">
+                  <div class="skeleton skeleton-text" style="width: 35%; height: 12px;"></div>
+                  <div class="skeleton skeleton-text" style="width: 20%; height: 10px;"></div>
+                </div>
               </div>
+              <div class="skeleton skeleton-text" style="width: 75%; height: 15px; margin-bottom: 8px;"></div>
+              <div class="skeleton skeleton-text" style="width: 95%; height: 12px; margin-bottom: 4px;"></div>
+              <div class="skeleton skeleton-text" style="width: 60%; height: 12px;"></div>
+            </div>
+            <div class="email-item skeleton-email p-4 rounded-xl flex flex-col min-h-[140px]">
+              <div class="email-card-header flex items-center gap-3 mb-3">
+                <div class="skeleton skeleton-avatar w-9 h-9 rounded-full shrink-0"></div>
+                <div class="email-sender-info flex-1 min-w-0 space-y-1.5">
+                  <div class="skeleton skeleton-text" style="width: 40%; height: 12px;"></div>
+                  <div class="skeleton skeleton-text" style="width: 25%; height: 10px;"></div>
+                </div>
+              </div>
+              <div class="skeleton skeleton-text" style="width: 65%; height: 15px; margin-bottom: 8px;"></div>
+              <div class="skeleton skeleton-text" style="width: 90%; height: 12px; margin-bottom: 4px;"></div>
+              <div class="skeleton skeleton-text" style="width: 50%; height: 12px;"></div>
             </div>
           </div>
         </div>
@@ -1708,7 +1780,7 @@
       <span class="sm:hidden text-primary user-email-footer" id="user-email-footer"></span>
     </div>
     <div>
-      © 2026 マイポータル (v1.0.1) All rights reserved.
+      © 2026 マイポータル (v1.0.1) by TeKun33.
     </div>
   </footer>
 
@@ -2038,15 +2110,90 @@
        ======================================== */
     async function loadEmails() {
       const container = document.getElementById('emails-container');
+      const btnRefresh = document.getElementById('btn-refresh-emails');
+      const iconRefresh = document.getElementById('icon-refresh-emails');
+      const loadingBadge = document.getElementById('gmail-loading-badge');
+
+      // 更新ボタンとバッジのローディング状態
+      if (btnRefresh) {
+        btnRefresh.disabled = true;
+        btnRefresh.classList.add('opacity-50', 'cursor-not-allowed');
+      }
+      if (iconRefresh) {
+        iconRefresh.classList.add('animate-spin');
+      }
+      if (loadingBadge) {
+        loadingBadge.classList.remove('hidden');
+      }
+
       container.innerHTML = `
-        <div class="email-item skeleton"><div class="email-content"><div class="skeleton skeleton-text medium"></div><div class="skeleton skeleton-text short"></div></div></div>
-        <div class="email-item skeleton"><div class="email-content"><div class="skeleton skeleton-text medium"></div><div class="skeleton skeleton-text short"></div></div></div>
+        <div class="flex items-center justify-center gap-2 py-2.5 px-4 mb-1 rounded-xl text-xs font-medium" style="background: rgba(var(--primary-rgb), 0.08); color: var(--primary); border: 1px solid rgba(var(--primary-rgb), 0.18);">
+          <span class="material-symbols-rounded animate-spin text-sm" style="font-size: 16px;">sync</span>
+          <span>Gmailから最新のメールを取得しています...</span>
+        </div>
+        <div class="email-item skeleton-email p-4 rounded-xl flex flex-col min-h-[140px]">
+          <div class="email-card-header flex items-center gap-3 mb-3">
+            <div class="skeleton skeleton-avatar w-9 h-9 rounded-full shrink-0"></div>
+            <div class="email-sender-info flex-1 min-w-0 space-y-1.5">
+              <div class="skeleton skeleton-text" style="width: 35%; height: 12px;"></div>
+              <div class="skeleton skeleton-text" style="width: 20%; height: 10px;"></div>
+            </div>
+          </div>
+          <div class="skeleton skeleton-text" style="width: 75%; height: 15px; margin-bottom: 8px;"></div>
+          <div class="skeleton skeleton-text" style="width: 95%; height: 12px; margin-bottom: 4px;"></div>
+          <div class="skeleton skeleton-text" style="width: 60%; height: 12px;"></div>
+        </div>
+        <div class="email-item skeleton-email p-4 rounded-xl flex flex-col min-h-[140px]">
+          <div class="email-card-header flex items-center gap-3 mb-3">
+            <div class="skeleton skeleton-avatar w-9 h-9 rounded-full shrink-0"></div>
+            <div class="email-sender-info flex-1 min-w-0 space-y-1.5">
+              <div class="skeleton skeleton-text" style="width: 40%; height: 12px;"></div>
+              <div class="skeleton skeleton-text" style="width: 25%; height: 10px;"></div>
+            </div>
+          </div>
+          <div class="skeleton skeleton-text" style="width: 65%; height: 15px; margin-bottom: 8px;"></div>
+          <div class="skeleton skeleton-text" style="width: 90%; height: 12px; margin-bottom: 4px;"></div>
+          <div class="skeleton skeleton-text" style="width: 50%; height: 12px;"></div>
+        </div>
+        <div class="email-item skeleton-email p-4 rounded-xl flex flex-col min-h-[140px]">
+          <div class="email-card-header flex items-center gap-3 mb-3">
+            <div class="skeleton skeleton-avatar w-9 h-9 rounded-full shrink-0"></div>
+            <div class="email-sender-info flex-1 min-w-0 space-y-1.5">
+              <div class="skeleton skeleton-text" style="width: 30%; height: 12px;"></div>
+              <div class="skeleton skeleton-text" style="width: 18%; height: 10px;"></div>
+            </div>
+          </div>
+          <div class="skeleton skeleton-text" style="width: 80%; height: 15px; margin-bottom: 8px;"></div>
+          <div class="skeleton skeleton-text" style="width: 92%; height: 12px; margin-bottom: 4px;"></div>
+          <div class="skeleton skeleton-text" style="width: 55%; height: 12px;"></div>
+        </div>
       `;
+
       try {
         state.emails = await callServer('getGmailMessages');
         renderEmails();
       } catch (err) {
-        container.innerHTML = '<div class="empty-state">エラーが発生しました</div>';
+        console.error('loadEmails error:', err);
+        container.innerHTML = `
+          <div class="empty-state flex flex-col items-center justify-center p-8 text-center gap-2 col-span-full">
+            <span class="material-symbols-rounded text-4xl opacity-50" style="color: #ef4444;">mail_lock</span>
+            <p class="text-sm font-medium">メールの読み込みに失敗しました</p>
+            <button class="btn btn-secondary btn-sm py-1.5 px-4 rounded-full mt-2 text-xs flex items-center gap-1.5" onclick="loadEmails()">
+              <span class="material-symbols-rounded text-base">refresh</span> 再試行
+            </button>
+          </div>
+        `;
+      } finally {
+        if (btnRefresh) {
+          btnRefresh.disabled = false;
+          btnRefresh.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+        if (iconRefresh) {
+          iconRefresh.classList.remove('animate-spin');
+        }
+        if (loadingBadge) {
+          loadingBadge.classList.add('hidden');
+        }
       }
     }
 
@@ -2285,16 +2432,37 @@
       const labelStartDate = document.getElementById('label-start-date');
       const labelEndDate = document.getElementById('label-end-date');
 
+      const inputStartTime = timeStartGroup ? timeStartGroup.querySelector('input') : null;
+      const inputEndTime = timeEndGroup ? timeEndGroup.querySelector('input') : null;
+
       if (isAllDay) {
         if (timeStartGroup) timeStartGroup.style.display = 'none';
         if (timeEndGroup) timeEndGroup.style.display = 'none';
-        if (labelStartDate) labelStartDate.textContent = '開始日';
-        if (labelEndDate) labelEndDate.textContent = '終了日';
+        if (inputStartTime) {
+          inputStartTime.required = false;
+          inputStartTime.classList.remove('is-invalid');
+        }
+        if (inputEndTime) {
+          inputEndTime.required = false;
+          inputEndTime.classList.remove('is-invalid');
+        }
+        if (timeStartGroup) {
+          const err = timeStartGroup.querySelector('.field-error-msg');
+          if (err) err.remove();
+        }
+        if (timeEndGroup) {
+          const err = timeEndGroup.querySelector('.field-error-msg');
+          if (err) err.remove();
+        }
+        if (labelStartDate) labelStartDate.innerHTML = '開始日 <span class="required-badge">必須</span>';
+        if (labelEndDate) labelEndDate.innerHTML = '終了日 <span class="required-badge">必須</span>';
       } else {
         if (timeStartGroup) timeStartGroup.style.display = 'block';
         if (timeEndGroup) timeEndGroup.style.display = 'block';
-        if (labelStartDate) labelStartDate.textContent = '開始日付';
-        if (labelEndDate) labelEndDate.textContent = '終了日付';
+        if (inputStartTime) inputStartTime.required = true;
+        if (inputEndTime) inputEndTime.required = true;
+        if (labelStartDate) labelStartDate.innerHTML = '開始日付 <span class="required-badge">必須</span>';
+        if (labelEndDate) labelEndDate.innerHTML = '終了日付 <span class="required-badge">必須</span>';
       }
     }
 
@@ -2341,9 +2509,9 @@
           { name: 'title', label: 'タイトル', type: 'text', required: true, value: eventObj ? eventObj.title : '' },
           { name: 'isAllDay', label: '終日イベント', type: 'checkbox', value: isAllDay },
           { name: 'startDate', label: isAllDay ? '開始日' : '開始日付', type: 'date', required: true, value: startDateVal },
-          { name: 'startTime', label: '開始時間', type: 'time', value: startTimeVal },
+          { name: 'startTime', label: '開始時間', type: 'time', required: true, value: startTimeVal },
           { name: 'endDate', label: isAllDay ? '終了日' : '終了日付', type: 'date', required: true, value: endDateVal },
-          { name: 'endTime', label: '終了時間', type: 'time', value: endTimeVal },
+          { name: 'endTime', label: '終了時間', type: 'time', required: true, value: endTimeVal },
           { name: 'color', label: 'カラー', type: 'color-picker', colors: colorList, value: eventObj ? (eventObj.color || '1') : '1' },
           { name: 'description', label: '説明（詳細）', type: 'textarea', rows: 3, placeholder: '詳細やメモを入力（複数行入力可）', value: eventObj && eventObj.description ? eventObj.description : '' }
         ],
@@ -2396,10 +2564,16 @@
           }
         });
 
-        const labels = body.querySelectorAll('label');
-        labels.forEach(lbl => {
-          if (lbl.previousElementSibling && lbl.previousElementSibling.name === 'startDate') lbl.id = 'label-start-date';
-        });
+        const groupStartDate = document.getElementById('group-start-date');
+        if (groupStartDate) {
+          const lbl = groupStartDate.querySelector('label');
+          if (lbl) lbl.id = 'label-start-date';
+        }
+        const groupEndDate = document.getElementById('group-end-date');
+        if (groupEndDate) {
+          const lbl = groupEndDate.querySelector('label');
+          if (lbl) lbl.id = 'label-end-date';
+        }
 
         toggleAllDayInputs(isAllDay);
       }, 50);
@@ -2774,6 +2948,7 @@
 
       const body = document.getElementById('modal-body');
       body.innerHTML = config.fields.map(f => {
+        const reqBadge = f.required ? '<span class="required-badge">必須</span>' : '';
         if (f.type === 'color-picker') {
           const selectedVal = f.value !== undefined ? String(f.value) : f.colors[0].value;
           const swatches = f.colors.map((c) => `
@@ -2783,7 +2958,7 @@
           `).join('');
           return `
             <div class="form-group">
-              <label>${f.label}</label>
+              <label>${f.label} ${reqBadge}</label>
               <input type="hidden" name="${f.name}" id="color-input-${f.name}" value="${selectedVal}">
               <div class="color-picker-group">
                 ${swatches}
@@ -2797,7 +2972,7 @@
           const placeholder = f.placeholder ? `placeholder="${escapeHtml(f.placeholder)}"` : '';
           return `
             <div class="form-group">
-              <label>${f.label}</label>
+              <label>${f.label} ${reqBadge}</label>
               <textarea name="${f.name}" class="form-control" rows="${rows}" style="resize: vertical; min-height: 72px;" ${placeholder} ${f.required ? 'required' : ''}>${valStr}</textarea>
             </div>
           `;
@@ -2810,7 +2985,7 @@
           }).join('');
           return `
             <div class="form-group">
-              <label>${f.label}</label>
+              <label>${f.label} ${reqBadge}</label>
               <select name="${f.name}" class="form-control">${opts}</select>
             </div>
           `;
@@ -2820,18 +2995,32 @@
           return `
             <div class="form-group" style="display:flex; align-items:center; gap:0.5rem;">
               <input type="checkbox" name="${f.name}" id="${f.name}" ${checked}>
-              <label for="${f.name}" style="margin:0;">${f.label}</label>
+              <label for="${f.name}" style="margin:0;">${f.label} ${reqBadge}</label>
             </div>
           `;
         }
         const valStr = f.value !== undefined ? escapeHtml(f.value) : '';
         return `
           <div class="form-group">
-            <label>${f.label}</label>
+            <label>${f.label} ${reqBadge}</label>
             <input type="${f.type}" name="${f.name}" class="form-control" value="${valStr}" ${f.required ? 'required' : ''}>
           </div>
         `;
       }).join('');
+
+      // 入力時にバリデーションエラーを解除
+      body.querySelectorAll('input, select, textarea').forEach(el => {
+        el.addEventListener('input', () => {
+          if (el.classList.contains('is-invalid') && el.value.trim()) {
+            el.classList.remove('is-invalid');
+            const parent = el.closest('.form-group');
+            if (parent) {
+              const errMsg = parent.querySelector('.field-error-msg');
+              if (errMsg) errMsg.remove();
+            }
+          }
+        });
+      });
 
       const btn = document.getElementById('modal-submit');
       if (currentModalSubmit) {
@@ -2842,12 +3031,35 @@
         const data = {};
         const inputs = body.querySelectorAll('input, select, textarea');
         let valid = true;
+        let firstInvalidInput = null;
+
+        // エラー状態リセット
+        body.querySelectorAll('.form-control').forEach(el => el.classList.remove('is-invalid'));
+        body.querySelectorAll('.field-error-msg').forEach(el => el.remove());
+
         inputs.forEach(el => {
-          if (el.required && !el.value) valid = false;
+          const parentGroup = el.closest('.form-group');
+          const isHidden = parentGroup && (parentGroup.style.display === 'none' || parentGroup.hidden);
+
+          const val = el.type === 'checkbox' ? el.checked : (el.value ? el.value.trim() : '');
+          if (!isHidden && el.required && !val) {
+            valid = false;
+            el.classList.add('is-invalid');
+            if (!firstInvalidInput) firstInvalidInput = el;
+
+            const parent = el.closest('.form-group');
+            if (parent && !parent.querySelector('.field-error-msg')) {
+              const errMsg = document.createElement('div');
+              errMsg.className = 'field-error-msg';
+              errMsg.innerHTML = '<span class="material-symbols-rounded" style="font-size:14px;">error</span> この項目は必須です';
+              parent.appendChild(errMsg);
+            }
+          }
           data[el.name] = el.type === 'checkbox' ? el.checked : el.value;
         });
 
         if (!valid) {
+          if (firstInvalidInput) firstInvalidInput.focus();
           showToast('必須項目を入力してください', 'error');
           return;
         }
