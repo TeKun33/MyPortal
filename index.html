@@ -943,9 +943,9 @@
       font-size: 0.8rem;
       color: var(--text-secondary);
       margin-top: 0.25rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.4;
     }
 
     .task-meta {
@@ -1047,6 +1047,8 @@
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
       font-size: 0.95rem;
+      color: var(--text-primary);
+      font-family: inherit;
       outline: none;
       transition: var(--transition);
     }
@@ -2343,7 +2345,7 @@
           { name: 'endDate', label: isAllDay ? '終了日' : '終了日付', type: 'date', required: true, value: endDateVal },
           { name: 'endTime', label: '終了時間', type: 'time', value: endTimeVal },
           { name: 'color', label: 'カラー', type: 'color-picker', colors: colorList, value: eventObj ? (eventObj.color || '1') : '1' },
-          { name: 'description', label: '説明（詳細）', type: 'text', value: eventObj && eventObj.description ? eventObj.description : '' }
+          { name: 'description', label: '説明（詳細）', type: 'textarea', rows: 3, placeholder: '詳細やメモを入力（複数行入力可）', value: eventObj && eventObj.description ? eventObj.description : '' }
         ],
         onSubmit: async (data) => {
           try {
@@ -2475,7 +2477,7 @@
               </div>
               <div class="task-content flex-1 min-w-0">
                 <div class="task-title font-medium text-sm transition-all">${escapeHtml(task.title)}</div>
-                ${task.notes ? `<div class="task-notes text-xs mt-1 truncate">${escapeHtml(task.notes)}</div>` : ''}
+                ${task.notes ? `<div class="task-notes text-xs mt-1">${escapeHtml(task.notes)}</div>` : ''}
                 <div class="task-meta flex gap-2 mt-2">
                   ${dateHtml}
                 </div>
@@ -2549,7 +2551,7 @@
         fields: [
           { name: 'listId', label: 'リスト', type: 'select', options: listOptions.map(o => o.label), values: listOptions.map(o => o.value) },
           { name: 'title', label: 'タイトル', type: 'text', required: true },
-          { name: 'notes', label: 'メモ', type: 'text' },
+          { name: 'notes', label: 'メモ', type: 'textarea', rows: 3, placeholder: 'メモを入力（複数行入力可）' },
           { name: 'due', label: '期限', type: 'date' }
         ],
         onSubmit: async (data) => {
@@ -2789,6 +2791,17 @@
             </div>
           `;
         }
+        if (f.type === 'textarea') {
+          const valStr = f.value !== undefined ? escapeHtml(f.value) : '';
+          const rows = f.rows || 3;
+          const placeholder = f.placeholder ? `placeholder="${escapeHtml(f.placeholder)}"` : '';
+          return `
+            <div class="form-group">
+              <label>${f.label}</label>
+              <textarea name="${f.name}" class="form-control" rows="${rows}" style="resize: vertical; min-height: 72px;" ${placeholder} ${f.required ? 'required' : ''}>${valStr}</textarea>
+            </div>
+          `;
+        }
         if (f.type === 'select') {
           const opts = f.options.map((o, idx) => {
             const val = f.values ? f.values[idx] : o;
@@ -2827,7 +2840,7 @@
 
       currentModalSubmit = () => {
         const data = {};
-        const inputs = body.querySelectorAll('input, select');
+        const inputs = body.querySelectorAll('input, select, textarea');
         let valid = true;
         inputs.forEach(el => {
           if (el.required && !el.value) valid = false;
