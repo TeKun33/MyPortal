@@ -90,6 +90,53 @@ function getUserEmail() {
 }
 
 /**
+ * ユーザー専用シートを保護する（ユーザー本人とオーナー以外書き込めないように設定）
+ * @param {Sheet} sheet 対象シート
+ * @param {string} email ユーザーのメールアドレス
+ */
+function protectUserSheet(sheet, email) {
+  try {
+    // 既存のシート保護を取得、なければ新規作成
+    const protections = sheet.getProtections(SpreadsheetApp.ProtectionType.SHEET);
+    let protection = protections.length > 0 ? protections[0] : sheet.protect();
+    
+    protection.setDescription(email + ' 専用シート保護');
+
+    // ドメイン全体の編集許可がある場合は無効化
+    if (protection.canDomainEdit()) {
+      protection.setDomainEdit(false);
+    }
+
+    // オーナー以外の既存編集者をすべて削除
+    const currentEditors = protection.getEditors();
+    const editorsToRemove = currentEditors.filter(editor => {
+      const edEmail = editor.getEmail();
+      return edEmail && edEmail.toLowerCase() !== email.toLowerCase();
+    });
+    if (editorsToRemove.length > 0) {
+      protection.removeEditors(editorsToRemove);
+    }
+
+    // 対象ユーザーを編集者として追加（まだ含まれていない場合）
+    if (email && email.includes('@')) {
+      const isAlreadyEditor = protection.getEditors().some(editor => {
+        const edEmail = editor.getEmail();
+        return edEmail && edEmail.toLowerCase() === email.toLowerCase();
+      });
+      if (!isAlreadyEditor) {
+        try {
+          protection.addEditor(email);
+        } catch (e) {
+          console.warn('ユーザー編集者の追加をスキップ（権限または無効なアドレス）:', email, e);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('protectUserSheet Error:', error);
+  }
+}
+
+/**
  * ユーザー専用のシートを取得または作成する
  * @param {string} email ユーザーのメールアドレス
  * @returns {Sheet} ユーザー用シートオブジェクト
@@ -106,12 +153,44 @@ function getOrCreateUserSheet(email) {
       sheet.getRange(1, 1, 1, 9).setValues([['__SETTINGS__', 'theme', 'ocean', 'darkMode', 'false', 'termsAgreed', 'false', 'termsAgreedAt', '']]);
       // Row 2: Bookmarks Header
       sheet.getRange(2, 1, 1, 6).setValues([['__BOOKMARKS__', 'タイトル', 'URL', 'カテゴリ', 'アイコン', '追加日時']]);
+      
+      // 新規作成時にシートを保護（ユーザー本人とオーナー以外書き込み不可）
+      protectUserSheet(sheet, email);
+    } else {
+      // 既存シートでも保護が設定されていない場合は保護を設定
+      const protections = sheet.getProtections(SpreadsheetApp.ProtectionType.SHEET);
+      if (protections.length === 0) {
+        protectUserSheet(sheet, email);
+      }
     }
     
     return sheet;
   } catch (error) {
     console.error('getOrCreateUserSheet Error:', error);
     throw error;
+  }
+}
+
+/**
+ * 既存の全ユーザーシートを一括で保護する（手動実行・メンテナンス用）
+ */
+function protectAllExistingUserSheets() {
+  try {
+    const SSID = PropertiesService.getScriptProperties().getProperty('SSID');
+    const SS = SpreadsheetApp.openById(SSID);
+    const sheets = SS.getSheets();
+    
+    sheets.forEach(sheet => {
+      const name = sheet.getName();
+      // システム用シート（__LOG__, __TERMS__ 等）以外のユーザーシート（メールアドレス形式）を対象
+      if (name.includes('@') && !name.startsWith('__')) {
+        protectUserSheet(sheet, name);
+        console.log('Protected sheet for: ' + name);
+      }
+    });
+    console.log('All user sheets protection complete.');
+  } catch (error) {
+    console.error('protectAllExistingUserSheets Error:', error);
   }
 }
 
