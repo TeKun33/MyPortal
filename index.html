@@ -1914,6 +1914,20 @@
               mockData.settings.termsAgreedAt = new Date().toLocaleString();
               resolve({ success: true, termsAgreed: mockData.settings.termsAgreed, termsAgreedAt: mockData.settings.termsAgreedAt });
             }
+            else if (functionName === 'updateBookmark') {
+              const idx = args[1];
+              if (mockData.bookmarks[idx]) {
+                mockData.bookmarks[idx].title = args[2];
+                mockData.bookmarks[idx].url = args[3];
+                let domain = '';
+                try {
+                  const u = (args[3] && args[3].indexOf('://') === -1) ? ('https://' + args[3]) : (args[3] || '');
+                  domain = new URL(u).hostname;
+                } catch(e) {}
+                mockData.bookmarks[idx].icon = 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(domain) + '&sz=64';
+              }
+              resolve({ success: true });
+            }
             else if (functionName === 'getBookmarks') resolve(mockData.bookmarks);
             else if (functionName === 'getGmailMessages' || functionName === 'getEmails') resolve(mockData.emails);
             else if (functionName === 'getCalendarEvents' || functionName === 'getEvents') resolve(mockData.events);
@@ -2075,9 +2089,14 @@
 
         return `
           <div class="bookmark-card" draggable="true" data-bm-index="${idx}" onclick="handleBookmarkClick(event, '${escapeHtml(bm.url)}')">
-            <button class="delete-bookmark-btn" onclick="event.stopPropagation(); deleteBookmark(${idx})" title="削除">
-              <span class="material-symbols-rounded">close</span>
-            </button>
+            <div class="bookmark-actions flex items-center gap-1">
+              <button class="bookmark-action-btn" onclick="event.stopPropagation(); showEditBookmarkModal(${idx})" title="編集">
+                <span class="material-symbols-rounded">edit</span>
+              </button>
+              <button class="bookmark-action-btn delete-btn" onclick="event.stopPropagation(); deleteBookmark(${idx})" title="削除">
+                <span class="material-symbols-rounded">close</span>
+              </button>
+            </div>
             <div class="bookmark-card-top flex items-center gap-3">
               <img src="${faviconUrl}" alt="" class="bookmark-icon w-8 h-8 rounded-lg object-cover" onerror="this.style.display='none'">
               <div class="bookmark-title font-semibold text-sm truncate flex-1" title="${escapeHtml(bm.title)}">${escapeHtml(bm.title)}</div>
@@ -2121,6 +2140,31 @@
             loadBookmarks();
           } catch (err) {
             showToast('追加に失敗しました', 'error');
+          }
+        }
+      });
+    }
+
+    function showEditBookmarkModal(index) {
+      const bm = state.bookmarks && state.bookmarks[index];
+      if (!bm) return;
+
+      showModal({
+        title: 'ブックマーク編集',
+        submitText: '更新',
+        fields: [
+          { name: 'title', label: 'タイトル', type: 'text', value: bm.title || '', required: true },
+          { name: 'url', label: 'URL', type: 'url', value: bm.url || '', required: true }
+        ],
+        onSubmit: async (data) => {
+          try {
+            const res = await callServer('updateBookmark', state.email, index, data.title, data.url);
+            if (res && res.error) throw new Error(res.error);
+            showToast('ブックマークを更新しました', 'success');
+            hideModal();
+            loadBookmarks();
+          } catch (err) {
+            showToast('更新に失敗しました', 'error');
           }
         }
       });

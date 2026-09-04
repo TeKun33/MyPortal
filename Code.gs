@@ -403,6 +403,49 @@ function addBookmark(email, title, url, category) {
  * @param {number} index 削除するブックマークのインデックス (0-based)
  * @returns {Object} 処理結果
  */
+/**
+ * ブックマークを更新する（編集）
+ * @param {string} email ユーザーのメールアドレス
+ * @param {number} index 更新するブックマークのインデックス (0-based)
+ * @param {string} title タイトル
+ * @param {string} url URL
+ * @param {string} [category] カテゴリ
+ * @returns {Object} 処理結果
+ */
+function updateBookmark(email, index, title, url, category) {
+  try {
+    const sheet = getOrCreateUserSheet(email);
+    const rowToUpdate = index + 3;
+    
+    if (rowToUpdate < 3 || rowToUpdate > sheet.getLastRow()) {
+      return { success: false, error: '指定されたブックマークが見つかりません' };
+    }
+
+    let domain = '';
+    try {
+      const urlObj = url.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/im);
+      if (urlObj && urlObj[1]) {
+        domain = urlObj[1];
+      }
+    } catch (e) {}
+    
+    const icon = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+
+    sheet.getRange(rowToUpdate, 2, 1, 4).setValues([[
+      title,
+      url,
+      category || '',
+      icon
+    ]]);
+    
+    writeLog(email, 'ブックマーク', 'ブックマーク「' + title + '」を更新しました');
+    return { success: true };
+  } catch (error) {
+    console.error('updateBookmark Error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
 function deleteBookmark(email, index) {
   try {
     const sheet = getOrCreateUserSheet(email);
