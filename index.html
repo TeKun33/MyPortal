@@ -385,14 +385,27 @@
     }
 
     .bookmark-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: var(--bg-primary);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(var(--primary-rgb), 0.1);
+      color: var(--primary);
       display: flex;
       align-items: center;
       justify-content: center;
-      object-fit: cover;
+      flex-shrink: 0;
+      transition: var(--transition);
+    }
+
+    .bookmark-icon .material-symbols-rounded {
+      font-size: 20px;
+    }
+
+    .bookmark-card:hover .bookmark-icon {
+      background: var(--primary);
+      color: #ffffff;
+      transform: scale(1.08);
+      box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.35);
     }
 
     .bookmark-title {
@@ -1193,6 +1206,178 @@
       opacity: 1;
     }
 
+    /* Visual Icon Picker */
+    .icon-picker-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.75rem;
+    }
+
+    .icon-picker-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .icon-picker-preview-box {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: rgba(var(--primary-rgb), 0.12);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 1px solid rgba(var(--primary-rgb), 0.25);
+      transition: var(--transition);
+    }
+
+    .icon-picker-preview-box .material-symbols-rounded {
+      font-size: 26px;
+    }
+
+    .icon-picker-preview-info {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .icon-picker-preview-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .icon-picker-preview-name {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+
+    .icon-picker-search-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .icon-picker-search-wrapper .material-symbols-rounded {
+      position: absolute;
+      left: 0.6rem;
+      font-size: 18px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .icon-picker-search-input {
+      width: 100%;
+      padding: 0.45rem 0.6rem 0.45rem 2.1rem;
+      font-size: 0.8rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .icon-picker-search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.15);
+    }
+
+    .icon-picker-tabs {
+      display: flex;
+      gap: 0.35rem;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
+      scrollbar-width: none;
+    }
+
+    .icon-picker-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .icon-picker-tab {
+      font-size: 0.72rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 9999px;
+      white-space: nowrap;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      transition: var(--transition);
+      user-select: none;
+    }
+
+    .icon-picker-tab:hover {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    .icon-picker-tab.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      font-weight: 500;
+    }
+
+    .icon-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+      gap: 0.35rem;
+      max-height: 180px;
+      overflow-y: auto;
+      padding: 0.25rem 0.15rem;
+    }
+
+    .icon-picker-item {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .icon-picker-item .material-symbols-rounded {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .icon-picker-item:hover {
+      background: rgba(var(--primary-rgb), 0.12);
+      color: var(--primary);
+      border-color: rgba(var(--primary-rgb), 0.4);
+      transform: scale(1.08);
+    }
+
+    .icon-picker-item.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--bg-secondary), 0 0 0 4px var(--primary);
+      transform: scale(1.06);
+      z-index: 2;
+    }
+
     /* .modal-actions layout handled by Tailwind */
 
     .btn {
@@ -1517,8 +1702,12 @@
       }
 
       .bookmark-icon {
-        width: 28px;
-        height: 28px;
+        width: 30px;
+        height: 30px;
+      }
+
+      .bookmark-icon .material-symbols-rounded {
+        font-size: 18px;
       }
 
       .bookmark-title {
@@ -1602,7 +1791,7 @@
         <h1 class="text-xl sm:text-2xl font-bold tracking-tight">マイポータル</h1>
         <span
           class="version-tag text-xs font-semibold py-0.5 px-2.5 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
-          onclick="showUpdateInfoModal()" title="アップデート情報を確認">v1.0.1</span>
+          onclick="showUpdateInfoModal()" title="アップデート情報を確認">v1.1.0</span>
       </div>
       <!-- モバイル用クイック設定（テーマ & ダークモード） -->
       <div class="header-mobile-controls flex items-center gap-2 md:hidden">
@@ -1817,7 +2006,7 @@
       <span class="sm:hidden text-primary user-email-footer" id="user-email-footer"></span>
     </div>
     <div>
-      © 2026 マイポータル (v1.0.1) by TeKun33.
+      © 2026 マイポータル (v1.1.0) by TeKun33.
     </div>
   </footer>
 
@@ -1849,6 +2038,290 @@
 
   <script>
     /* ========================================
+       Bookmark Icons Catalog (260+ Icons)
+       ======================================== */
+    const BOOKMARK_ICONS = [
+
+      // --- Web・ブラウジング ---
+      { name: 'language', label: 'Web・一般', category: 'web', keywords: 'ウェブ インターネット サイト ブラウザ language web global' },
+      { name: 'public', label: '地球・海外', category: 'web', keywords: '地球 海外 グローバル 世界 public world earth' },
+      { name: 'home', label: 'ホーム・ポータル', category: 'web', keywords: 'ホーム トップ ポータル home house' },
+      { name: 'search', label: '検索エンジン', category: 'web', keywords: '検索 探す サーチ search google yahoo' },
+      { name: 'explore', label: '発見・探索', category: 'web', keywords: '探す 探索 発見 explore compass 方位磁針' },
+      { name: 'star', label: 'お気に入り・スター', category: 'web', keywords: 'お気に入り スター 星 star fav favorite' },
+      { name: 'star_half', label: '評価・星半分', category: 'web', keywords: '評価 レビュー 星 半分 star rating' },
+      { name: 'grade', label: 'ランク・評価', category: 'web', keywords: 'ランク 評価 バッジ grade rank' },
+      { name: 'bookmark', label: 'ブックマーク', category: 'web', keywords: 'ブックマーク しおり bookmark' },
+      { name: 'bookmarks', label: 'ブックマーク一覧', category: 'web', keywords: 'ブックマーク集 一覧 複数 bookmarks' },
+      { name: 'link', label: 'リンク・URL', category: 'web', keywords: 'リンク URL つなぐ link chain' },
+      { name: 'open_in_new', label: '外部リンク', category: 'web', keywords: '外部リンク 外部 移動 open in new' },
+      { name: 'open_in_browser', label: 'ブラウザで開く', category: 'web', keywords: 'ブラウザ 外部ブラウザ open browser' },
+      { name: 'travel_explore', label: 'Web巡回・リサーチ', category: 'web', keywords: '巡回 リサーチ 探訪 travel explore' },
+      { name: 'rss_feed', label: 'RSS・フィード', category: 'web', keywords: 'RSS フィード 購読 配信 feed' },
+      { name: 'tab', label: 'ブラウザタブ', category: 'web', keywords: 'タブ ページ ブラウザ tab' },
+      { name: 'tab_group', label: 'タブグループ', category: 'web', keywords: 'タブグループ 整理 まとめる tab group' },
+      { name: 'window', label: 'ウィンドウ・画面', category: 'web', keywords: 'ウィンドウ 画面 アプリ window' },
+      { name: 'devices', label: '複数デバイス・同期', category: 'web', keywords: 'デバイス PC スマホ 同期 devices' },
+      { name: 'laptop', label: 'ノートPC', category: 'web', keywords: 'ノートPC パソコン ラップトップ laptop macbook' },
+      { name: 'desktop_windows', label: 'デスクトップPC', category: 'web', keywords: 'デスクトップ パソコン PC モニター desktop' },
+      { name: 'smartphone', label: 'スマートフォン', category: 'web', keywords: 'スマホ iPhone Android モバイル smartphone phone' },
+      { name: 'tablet', label: 'タブレット・iPad', category: 'web', keywords: 'タブレット iPad tablet mobile' },
+      { name: 'wifi', label: 'Wi-Fi・無線LAN', category: 'web', keywords: 'Wi-Fi ワイファイ 無線 ネット回線 wifi' },
+      { name: 'router', label: 'ルーター・回線', category: 'web', keywords: 'ルーター 通信 モデム router' },
+      { name: 'speed', label: '速度測定・スピード', category: 'web', keywords: '回線速度 スピード テスト メーター speed' },
+      { name: 'dns', label: 'サーバー・DNS', category: 'web', keywords: 'サーバー ドメイン DNS ホスト server' },
+      { name: 'security', label: 'セキュリティ・安全', category: 'web', keywords: 'セキュリティ 安全 防犯 security shield' },
+      { name: 'lock', label: '暗号化・保護・鍵', category: 'web', keywords: '鍵 ロック パスワード 秘密 HTTPS lock' },
+      { name: 'vpn_key', label: '認証キー・トークン', category: 'web', keywords: 'キー 認証 APIキー 暗号 key token' },
+      { name: 'vpn_lock', label: 'VPN・セキュア通信', category: 'web', keywords: 'VPN トンネル 安全 通信 vpn' },
+      { name: 'privacy_tip', label: 'プライバシー', category: 'web', keywords: 'プライバシー 個人情報 保護 privacy' },
+      { name: 'cookie', label: 'Cookie・クッキー', category: 'web', keywords: 'クッキー Cookie Web保存 cookie' },
+      { name: 'history', label: '閲覧履歴・ログ', category: 'web', keywords: '履歴 ログ 閲覧 history' },
+      { name: 'sync', label: 'クラウド同期', category: 'web', keywords: '同期 リフレッシュ 更新 sync' },
+      { name: 'refresh', label: '再読み込み・更新', category: 'web', keywords: 'リロード 更新 再読み込み refresh' },
+
+      // --- SNS・コミュニケーション ---
+      { name: 'mail', label: 'メール・Gmail', category: 'social', keywords: 'メール Gmail 連絡 手紙 mail email' },
+      { name: 'mark_email_unread', label: '未読メール', category: 'social', keywords: '未読メール 新着 unread mail' },
+      { name: 'contact_mail', label: 'お問い合わせ窓口', category: 'social', keywords: '問い合わせ コンタクト 窓口 contact mail' },
+      { name: 'chat', label: 'チャット・メッセージ', category: 'social', keywords: 'チャット メッセージ LINE Slack Discord chat talk' },
+      { name: 'chat_bubble', label: '吹き出し・トーク', category: 'social', keywords: '吹き出し 会話 トーク comment bubble' },
+      { name: 'sms', label: 'SMS・ショートメール', category: 'social', keywords: 'SMS ショートメール メッセージ sms' },
+      { name: 'forum', label: '掲示板・コミュニティ', category: 'social', keywords: '掲示板 フォーラム コミュニティ forum board 5ch' },
+      { name: 'send', label: '送信・DM・Telegram', category: 'social', keywords: '送信 紙飛行機 DM Telegram send' },
+      { name: 'share', label: 'シェア・共有', category: 'social', keywords: 'シェア 共有 拡散 SNS share' },
+      { name: 'group', label: 'グループ・チーム', category: 'social', keywords: 'グループ チーム 仲間 組織 group team' },
+      { name: 'groups', label: 'サークル・団体', category: 'social', keywords: 'サークル コミュニティ 集まり groups' },
+      { name: 'diversity_3', label: '交流・ネットワーク', category: 'social', keywords: '交流 ネットワーク つながり diversity' },
+      { name: 'person', label: 'プロフィール・個人', category: 'social', keywords: 'プロフィール 個人 アカウント ユーザー person user' },
+      { name: 'account_circle', label: 'アカウント・マイページ', category: 'social', keywords: 'マイページ 会員情報 アカウント account circle' },
+      { name: 'badge', label: 'ID・名札・会員証', category: 'social', keywords: 'ID 社員証 名札 会員証 badge' },
+      { name: 'contacts', label: '連絡先・アドレス帳', category: 'social', keywords: '連絡先 アドレス帳 名簿 電話帳 contacts' },
+      { name: 'call', label: '電話・通話', category: 'social', keywords: '電話 通話 call phone tel' },
+      { name: 'video_call', label: 'ビデオ通話・会議', category: 'social', keywords: 'ビデオ通話 Zoom Meet Teams 会議 video call' },
+      { name: 'voice_chat', label: 'ボイスチャット', category: 'social', keywords: 'ボイスチャット 通話 Discord 音声 voice chat' },
+      { name: 'notifications', label: '通知・ベル', category: 'social', keywords: '通知 ベル お知らせ notification bell' },
+      { name: 'notifications_active', label: '通知ON・重要通知', category: 'social', keywords: '通知ON アラート ベル notifications active' },
+      { name: 'campaign', label: '広報・お知らせ', category: 'social', keywords: '広報 お知らせ キャンペーン メガホン campaign announcement' },
+      { name: 'alternate_email', label: 'メンション・SNS・X', category: 'social', keywords: 'アットマーク メンション X Twitter SNS at sign' },
+      { name: 'thumb_up', label: 'いいね・高評価', category: 'social', keywords: 'いいね 高評価 グッド thumb up like' },
+      { name: 'favorite', label: 'お気に入り・ハート', category: 'social', keywords: 'ハート 愛 お気に入り いいね love heart' },
+      { name: 'waving_hand', label: '挨拶・手振り', category: 'social', keywords: '挨拶 こんにちは 手を振る wave hello' },
+      { name: 'handshake', label: '提携・パートナー', category: 'social', keywords: '握手 提携 契約 合意 handshake' },
+      { name: 'celebration', label: 'お祝い・記念日', category: 'social', keywords: 'お祝い パーティー クラッカー 記念 celebration' },
+      { name: 'feed', label: 'タイムライン・新着', category: 'social', keywords: 'タイムライン 投稿一覧 フィード feed' },
+      { name: 'post_add', label: '新規投稿・つぶやき', category: 'social', keywords: '投稿 ツイート つぶやき 記事作成 post' },
+
+      // --- 開発・IT・テクノロジー ---
+      { name: 'code', label: 'ソースコード・開発', category: 'dev', keywords: 'コード 開発 プログラミング GitHub code dev' },
+      { name: 'terminal', label: 'ターミナル・CLI', category: 'dev', keywords: 'ターミナル コマンド シェル CLI terminal bash' },
+      { name: 'data_object', label: 'データ・JSON', category: 'dev', keywords: 'JSON オブジェクト データ構造 data object' },
+      { name: 'data_array', label: '配列・リスト', category: 'dev', keywords: '配列 リスト データ array' },
+      { name: 'integration_instructions', label: 'API連携・システム', category: 'dev', keywords: 'API 連携 インテグレーション integration' },
+      { name: 'api', label: 'Web API・REST', category: 'dev', keywords: 'API エンドポイント 外部連携 api' },
+      { name: 'webhook', label: 'Webhook・フック', category: 'dev', keywords: 'Webhook イベント連携 自動化 hook' },
+      { name: 'bug_report', label: 'バグ報告・Issue', category: 'dev', keywords: 'バグ Issue デバッグ 修正 bug issue' },
+      { name: 'database', label: 'データベース・SQL', category: 'dev', keywords: 'データベース DB SQL ストレージ database mysql postgres' },
+      { name: 'table_view', label: 'テーブル・データ表', category: 'dev', keywords: 'テーブル レコード スキーマ table view' },
+      { name: 'schema', label: 'スキーマ・ER図', category: 'dev', keywords: 'スキーマ ER図 設計図 アーキテクチャ schema' },
+      { name: 'dataset', label: 'データセット・分析', category: 'dev', keywords: 'データセット ビッグデータ 機械学習 dataset' },
+      { name: 'cloud', label: 'クラウド・AWS/GCP', category: 'dev', keywords: 'クラウド AWS GCP Azure cloud' },
+      { name: 'cloud_upload', label: 'アップロード', category: 'dev', keywords: 'クラウド アップロード 保存 upload' },
+      { name: 'cloud_download', label: 'ダウンロード', category: 'dev', keywords: 'クラウド ダウンロード 取得 download' },
+      { name: 'cloud_sync', label: 'クラウド自動同期', category: 'dev', keywords: '同期 クラウド バックアップ sync' },
+      { name: 'cloud_done', label: '保存完了・同期済', category: 'dev', keywords: '保存済み 完了 クラウド done' },
+      { name: 'developer_board', label: 'ハードウェア・IoT', category: 'dev', keywords: 'ハードウェア 基板 IoT マイコン Arduino RaspberryPi board' },
+      { name: 'memory', label: 'CPU・メモリ・チップ', category: 'dev', keywords: 'メモリ チップ CPU ハードウェア 半導体 memory' },
+      { name: 'smart_toy', label: 'AI・ボット・ChatGPT', category: 'dev', keywords: 'AI ロボット ボット ChatGPT 生成AI bot robot' },
+      { name: 'psychology', label: '機械学習・知能・LLM', category: 'dev', keywords: 'AI 機械学習 脳 思考 LLM brain ai' },
+      { name: 'model_training', label: 'AIモデル学習', category: 'dev', keywords: '機械学習 モデル 学習 ファインチューニング training' },
+      { name: 'precision_manufacturing', label: '自動化・CI/CD', category: 'dev', keywords: '自動化 CI CD パイプライン GitHubActions factory' },
+      { name: 'deployed_code', label: 'デプロイ・稼働中', category: 'dev', keywords: 'デプロイ 公開 本番 リリース deploy' },
+      { name: 'commit', label: 'Git コミット', category: 'dev', keywords: 'Git コミット 履歴 commit' },
+      { name: 'merge', label: 'Git マージ・PR', category: 'dev', keywords: 'Git マージ プルリクエスト PR merge' },
+      { name: 'fork_right', label: 'Git フォーク・分岐', category: 'dev', keywords: 'Git フォーク ブランチ 分岐 fork' },
+      { name: 'account_tree', label: 'ツリー・ブランチ構造', category: 'dev', keywords: 'ツリー ディレクトリ ブランチ 構造 tree' },
+      { name: 'folder_zip', label: 'ZIP・圧縮ファイル', category: 'dev', keywords: 'ZIP 圧縮 アーカイブ zip archive' },
+      { name: 'code_blocks', label: 'コードスニペット', category: 'dev', keywords: 'スニペット コード構文 blocks' },
+      { name: 'source', label: 'ソースコード・リポジトリ', category: 'dev', keywords: 'ソース リポジトリ ドキュメント source' },
+      { name: 'developer_mode', label: '開発者モード・設定', category: 'dev', keywords: '開発者モード デバッグ 設定 developer' },
+      { name: 'adb', label: 'Android・デバッグ', category: 'dev', keywords: 'Android デバッグ スマホ開発 adb' },
+      { name: 'extension', label: '拡張機能・プラグイン', category: 'dev', keywords: '拡張 プラグイン アドオン extension plugin' },
+      { name: 'storage', label: 'ストレージ・サーバー', category: 'dev', keywords: 'ストレージ NAS ハードディスク 容量 storage' },
+      { name: 'cable', label: 'LANケーブル・接続', category: 'dev', keywords: 'ケーブル 有線 接続 通信 cable' },
+      { name: 'usb', label: 'USB・外部接続', category: 'dev', keywords: 'USB メモリ ポート 外部機器 usb' },
+
+      // --- 仕事・ビジネス・文書 ---
+      { name: 'description', label: 'ドキュメント・Docs', category: 'work', keywords: 'ドキュメント 文書 Docs 報告書 description doc' },
+      { name: 'article', label: '記事・ブログ・技術記事', category: 'work', keywords: '記事 ブログ Qiita Zenn Note ニュース article' },
+      { name: 'table_chart', label: 'スプレッドシート・表', category: 'work', keywords: 'スプレッドシート Excel 表 データ table sheet' },
+      { name: 'slideshow', label: 'プレゼン・スライド', category: 'work', keywords: 'スライド プレゼン パワポ Slides presentation' },
+      { name: 'edit_note', label: 'ノート・メモ・Notion', category: 'work', keywords: 'ノート メモ Notion アイデア note memo' },
+      { name: 'note_alt', label: '付箋・メモ帳', category: 'work', keywords: '付箋 備忘録 メモ note' },
+      { name: 'text_snippet', label: 'テキスト・原稿', category: 'work', keywords: 'テキスト 原稿 文章 スニペット text' },
+      { name: 'draft', label: '下書き・ドラフト', category: 'work', keywords: '下書き ドラフト 作成中 draft' },
+      { name: 'task_alt', label: 'タスク・ToDo・完了', category: 'work', keywords: 'タスク ToDo チェック 完了 task todo' },
+      { name: 'checklist', label: 'チェックリスト', category: 'work', keywords: 'チェックリスト リスト 確認 検証 checklist' },
+      { name: 'assignment', label: '課題・業務チケット', category: 'work', keywords: '課題 アサイン チケット 案件 assignment' },
+      { name: 'assignment_turned_in', label: '完了課題・承認', category: 'work', keywords: '完了 承認 合格 assignment done' },
+      { name: 'pending_actions', label: '承認待ち・進行中', category: 'work', keywords: '保留 待ち 審査 進行中 pending' },
+      { name: 'calendar_today', label: '今日の予定・カレンダー', category: 'work', keywords: 'カレンダー 予定 スケジュール 日程 calendar today' },
+      { name: 'calendar_month', label: '月間カレンダー', category: 'work', keywords: '月間 スケジュール 日程 月 calendar month' },
+      { name: 'event', label: 'イベント・行事', category: 'work', keywords: 'イベント 行事 記念日 event' },
+      { name: 'event_available', label: '予約可能・空き', category: 'work', keywords: '予約 空き状況 スケジュール available' },
+      { name: 'schedule', label: 'スケジュール・時計', category: 'work', keywords: '時計 時間 スケジュール タイマー time schedule' },
+      { name: 'alarm', label: 'アラーム・目覚まし', category: 'work', keywords: 'アラーム 目覚まし 通知 alarm' },
+      { name: 'timer', label: 'タイマー・計測', category: 'work', keywords: 'タイマー ストップウォッチ 計測 timer' },
+      { name: 'hourglass_top', label: '砂時計・処理中', category: 'work', keywords: '砂時計 待ち 時間 処理中 hourglass' },
+      { name: 'folder', label: 'フォルダ・ドライブ', category: 'work', keywords: 'フォルダ ドライブ ドキュメント 保存 folder drive' },
+      { name: 'folder_open', label: '開いたフォルダ', category: 'work', keywords: 'フォルダ 開く 展開 folder open' },
+      { name: 'folder_shared', label: '共有フォルダ', category: 'work', keywords: '共有フォルダ チームフォルダ share folder' },
+      { name: 'create_new_folder', label: '新規フォルダ作成', category: 'work', keywords: 'フォルダ作成 追加 新規 new folder' },
+      { name: 'attach_file', label: '添付ファイル・資料', category: 'work', keywords: '添付 ファイル 資料 クリップ attach file' },
+      { name: 'work', label: '仕事・ビジネス・業務', category: 'work', keywords: '仕事 業務 ビジネス 案件 work' },
+      { name: 'business_center', label: 'ビジネス・案件・出張', category: 'work', keywords: 'ビジネス かばん 出張 会社 business' },
+      { name: 'domain', label: '企業・組織・ビル', category: 'work', keywords: '企業 会社 組織 コーポレート domain' },
+      { name: 'apartment', label: 'オフィス・オフィスビル', category: 'work', keywords: 'オフィス ビル 職場 apartment' },
+      { name: 'meeting_room', label: '会議室・ミーティング', category: 'work', keywords: '会議室 打ち合わせ ドア meeting room' },
+      { name: 'contract', label: '契約書・合意文書', category: 'work', keywords: '契約 規約 合意 書類 contract' },
+      { name: 'fact_check', label: '確認・検収・審査', category: 'work', keywords: '確認 検収 ファクトチェック 審査 fact check' },
+      { name: 'analytics', label: '分析・アナリティクス', category: 'work', keywords: '分析 アナリティクス 指標 GA analytics' },
+      { name: 'insights', label: 'インサイト・知見', category: 'work', keywords: 'インサイト 考察 統計 insights' },
+      { name: 'monitoring', label: 'モニタリング・監視', category: 'work', keywords: '監視 モニタリング 観測 monitoring' },
+      { name: 'bar_chart', label: '棒グラフ・売上推移', category: 'work', keywords: 'グラフ 棒グラフ 統計 業績 chart' },
+      { name: 'pie_chart', label: '円グラフ・シェア構成', category: 'work', keywords: 'グラフ 円グラフ 比率 割合 pie' },
+      { name: 'show_chart', label: '折れ線グラフ・推移', category: 'work', keywords: '折れ線 グラフ 推移 株価 chart' },
+      { name: 'trending_up', label: '上昇・成長・トレンド', category: 'work', keywords: 'トレンド 上昇 成長 成果 trend up' },
+      { name: 'trending_down', label: '下降・コスト削減', category: 'work', keywords: '下降 減少 コスト削減 trend down' },
+      { name: 'dashboard', label: 'ダッシュボード・管理画面', category: 'work', keywords: 'ダッシュボード 管理画面 ポータル dashboard' },
+      { name: 'calculate', label: '計算機・電卓・経理', category: 'work', keywords: '計算 電卓 経理 会計 calculate' },
+      { name: 'point_of_sale', label: 'レジ・POS・会計', category: 'work', keywords: 'POS レジ 店舗 売上 pos' },
+      { name: 'leaderboard', label: 'ランキング・順位', category: 'work', keywords: 'ランキング 順位 スコア leaderboard' },
+      { name: 'troubleshoot', label: '問題解決・トラブル対応', category: 'work', keywords: '問題解決 トラブル デバッグ troubleshoot' },
+
+      // --- メディア・エンタメ ---
+      { name: 'play_circle', label: 'YouTube・動画再生', category: 'media', keywords: 'YouTube 動画 再生 配信 play video' },
+      { name: 'smart_display', label: '動画配信・Netflix', category: 'media', keywords: '動画配信 Netflix 画面 視聴 display' },
+      { name: 'movie', label: '映画・シネマ・映像', category: 'media', keywords: '映画 ムービー シネマ 映像 movie' },
+      { name: 'video_library', label: '動画ライブラリ', category: 'media', keywords: '動画集 ライブラリ プレイリスト video library' },
+      { name: 'videocam', label: 'ビデオカメラ・録画', category: 'media', keywords: 'カメラ 録画 撮影 ビデオ videocam' },
+      { name: 'video_camera_front', label: 'ライブ配信・配信者', category: 'media', keywords: '配信 ライブ配信 YouTuber ストリーマー stream' },
+      { name: 'live_tv', label: '生放送・テレビ・TV', category: 'media', keywords: 'テレビ TV 生放送 放送 live' },
+      { name: 'music_note', label: '音楽・BGM・メロディ', category: 'media', keywords: '音楽 曲 サウンド BGM music' },
+      { name: 'headphones', label: 'ヘッドフォン・Spotify', category: 'media', keywords: 'Spotify 音楽 試聴 オーディオ headphones' },
+      { name: 'graphic_eq', label: 'イコライザー・音声編集', category: 'media', keywords: '音声 イコライザー ラジオ 波形 audio eq' },
+      { name: 'podcasts', label: 'ポッドキャスト・ラジオ', category: 'media', keywords: 'ポッドキャスト ラジオ 番組 podcast' },
+      { name: 'radio', label: 'ラジオ放送・radiko', category: 'media', keywords: 'ラジオ 放送 radiko radio' },
+      { name: 'mic', label: 'マイク・録音・音声入力', category: 'media', keywords: 'マイク 録音 音声 入力 mic' },
+      { name: 'volume_up', label: 'スピーカー・音量', category: 'media', keywords: 'スピーカー 音量 サウンド 音 speaker' },
+      { name: 'album', label: 'レコード・アルバム', category: 'media', keywords: 'レコード アルバム CD 音楽 album' },
+      { name: 'queue_music', label: 'プレイリスト・選曲', category: 'media', keywords: 'プレイリスト キュー 楽曲 queue music' },
+      { name: 'image', label: '画像・写真・イラスト', category: 'media', keywords: '画像 写真 イラスト ギャラリー image picture' },
+      { name: 'photo_camera', label: 'カメラ・Instagram', category: 'media', keywords: 'カメラ 写真 Instagram 撮影 camera photo' },
+      { name: 'photo_library', label: '写真集・アルバム', category: 'media', keywords: 'アルバム 写真集 フォト GooglePhotos photo album' },
+      { name: 'palette', label: 'デザイン・配色・Figma', category: 'media', keywords: 'デザイン カラー パレット Figma 配色 palette design' },
+      { name: 'brush', label: 'お絵かき・ペイント', category: 'media', keywords: 'ブラシ ペイント イラスト 描画 brush paint' },
+      { name: 'draw', label: 'スケッチ・手描き', category: 'media', keywords: 'ペン スケッチ 手描き ドロー draw' },
+      { name: 'color_lens', label: 'カラー調整・トーン', category: 'media', keywords: 'カラー 色調 調整 lens' },
+      { name: 'design_services', label: 'クリエイティブ制作', category: 'media', keywords: '制作 デザイン ツール 編集 design services' },
+      { name: 'auto_fix_high', label: '画像補正・レタッチ', category: 'media', keywords: '写真補正 レタッチ フィルター 加工 fix' },
+      { name: 'crop', label: 'トリミング・切り抜き', category: 'media', keywords: 'トリミング 切り抜き 編集 crop' },
+      { name: 'animation', label: 'アニメーション・動画', category: 'media', keywords: 'アニメ アニメーション 動き animation' },
+      { name: '3d_rotation', label: '3Dモデル・CG', category: 'media', keywords: '3D 立体 CG モデリング 3d' },
+      { name: 'sports_esports', label: 'ゲーム・Discord', category: 'media', keywords: 'ゲーム Discord 配信 esports game steam' },
+      { name: 'casino', label: 'ボードゲーム・サイコロ', category: 'media', keywords: 'サイコロ ダイス ボードゲーム カジノ game dice' },
+      { name: 'theater_comedy', label: '演劇・お笑い・エンタメ', category: 'media', keywords: 'エンタメ 演劇 お笑い 劇場 映画 entertainment' },
+      { name: 'auto_awesome', label: 'おすすめ・AIハイライト', category: 'media', keywords: 'キラキラ おすすめ 注目 AI 特集 awesome star' },
+
+      // --- 生活・買物・学習 ---
+      { name: 'shopping_cart', label: 'ネット通販・Amazon', category: 'life', keywords: 'カート 買い物 Amazon ネット通販 EC shopping cart' },
+      { name: 'add_shopping_cart', label: 'カートに追加', category: 'life', keywords: 'カート追加 買い物 注文 cart add' },
+      { name: 'shopping_bag', label: 'ショップ・ブランド', category: 'life', keywords: 'ショッピング 買い物 ファッション bag shop' },
+      { name: 'storefront', label: '実店舗・ショップ', category: 'life', keywords: 'お店 店舗 ショップ 商店 storefront' },
+      { name: 'sell', label: 'セール・値札・特売', category: 'life', keywords: 'セール 値札 特売 割引 タグ sale' },
+      { name: 'loyalty', label: 'ポイント・クーポン', category: 'life', keywords: 'ポイント クーポン 特典 会員 loyalty' },
+      { name: 'redeem', label: 'ギフト・プレゼント', category: 'life', keywords: 'ギフト プレゼント 贈り物 特典 gift' },
+      { name: 'payments', label: '決済・支払い・クレカ', category: 'life', keywords: '決済 支払い クレジットカード 請求 payment' },
+      { name: 'credit_card', label: 'クレジットカード', category: 'life', keywords: 'クレカ カード 決済 Visa JCB card' },
+      { name: 'wallet', label: '電子マネー・PayPay', category: 'life', keywords: '財布 ウォレット 電子マネー PayPay wallet' },
+      { name: 'account_balance', label: '銀行・金融機関・証券', category: 'life', keywords: '銀行 金融 口座 証券 bank' },
+      { name: 'currency_yen', label: '日本円・マネー', category: 'life', keywords: '日本円 円 お金 価格 yen money' },
+      { name: 'receipt_long', label: 'レシート・領収書', category: 'life', keywords: 'レシート 領収書 請求書 明細 receipt invoice' },
+      { name: 'school', label: '学習・学校・大学', category: 'life', keywords: '学校 大学 学習 教育 資格 講座 school study' },
+      { name: 'menu_book', label: '読書・本・マニュアル', category: 'life', keywords: '本 読書 マニュアル 書籍 教科書 book' },
+      { name: 'library_books', label: '図書館・書籍資料', category: 'life', keywords: '図書館 本棚 資料集 文庫 辞書 library' },
+      { name: 'translate', label: '翻訳・DeepL・語学', category: 'life', keywords: '翻訳 DeepL 英語 語学 辞書 translate' },
+      { name: 'local_cafe', label: 'カフェ・喫茶・休憩', category: 'life', keywords: 'カフェ コーヒー 喫茶店 休憩 スタバ cafe coffee' },
+      { name: 'restaurant', label: 'グルメ・飲食店', category: 'life', keywords: 'グルメ 飲食店 レストラン ご飯 食べログ restaurant food' },
+      { name: 'fastfood', label: 'ファストフード・軽食', category: 'life', keywords: 'ファストフード ハンバーガー 軽食 出前 food' },
+      { name: 'local_pizza', label: 'ピザ・デリバリー', category: 'life', keywords: 'ピザ デリバリー 出前 pizza' },
+      { name: 'ramen_dining', label: 'ラーメン・麺類', category: 'life', keywords: 'ラーメン うどん そば 麺 ramen' },
+      { name: 'lunch_dining', label: 'ランチ・お弁当', category: 'life', keywords: 'ランチ 昼食 弁当 lunch' },
+      { name: 'local_bar', label: '居酒屋・バー・お酒', category: 'life', keywords: 'お酒 居酒屋 バー ビール 飲み会 bar' },
+      { name: 'local_grocery_store', label: 'スーパー・食料品', category: 'life', keywords: 'スーパー 食料品 買い出し grocery' },
+      { name: 'map', label: '地図・Google Maps', category: 'life', keywords: '地図 マップ 経路 GoogleMaps 案内 map' },
+      { name: 'pin_drop', label: '位置情報・スポット', category: 'life', keywords: 'スポット 場所 ピン 位置情報 pin spot' },
+      { name: 'navigation', label: 'ナビ・経路案内', category: 'life', keywords: 'ナビ 道案内 経路 GPS navigation' },
+      { name: 'flight', label: '飛行機・旅行・出張', category: 'life', keywords: '飛行機 旅行 トラベル 航空券 出張 空港 flight travel' },
+      { name: 'hotel', label: 'ホテル・宿泊・旅館', category: 'life', keywords: 'ホテル 宿泊 予約 旅館 じゃらん hotel' },
+      { name: 'directions_car', label: '車・ドライブ・レンタカー', category: 'life', keywords: '車 ドライブ レンタカー 交通 自動車 car' },
+      { name: 'train', label: '電車・新幹線・路線', category: 'life', keywords: '電車 鉄道 路線 乗り換え 新幹線 駅 train transit' },
+      { name: 'directions_subway', label: '地下鉄・メトロ', category: 'life', keywords: '地下鉄 メトロ 電車 subway' },
+      { name: 'directions_bus', label: 'バス・高速バス', category: 'life', keywords: 'バス 路線バス 高速バス bus' },
+      { name: 'directions_bike', label: '自転車・サイクリング', category: 'life', keywords: '自転車 チャリ サイクリング バイク bike' },
+      { name: 'directions_walk', label: '徒歩・ウォーキング', category: 'life', keywords: '徒歩 散歩 ウォーキング walk' },
+      { name: 'fitness_center', label: 'ジム・フィットネス', category: 'life', keywords: 'ジム 筋トレ 運動 フィットネス 健康 fitness gym' },
+      { name: 'sports_soccer', label: 'スポーツ・観戦', category: 'life', keywords: 'スポーツ サッカー 運動 観戦 sports' },
+      { name: 'self_improvement', label: 'ヨガ・瞑想・健康', category: 'life', keywords: 'ヨガ 瞑想 リラックス マインドフルネス self' },
+      { name: 'spa', label: '温泉・サウナ・スパ', category: 'life', keywords: '温泉 サウナ 銭湯 スパ 露天風呂 spa' },
+      { name: 'park', label: '公園・ピクニック', category: 'life', keywords: '公園 自然 散歩 ピクニック park' },
+      { name: 'medical_services', label: '病院・クリニック・医療', category: 'life', keywords: '病院 医療 クリニック 健康 診察 medical' },
+      { name: 'medication', label: 'おくすり・処方箋', category: 'life', keywords: '薬 カプセル 処方箋 薬局 medication' },
+      { name: 'healing', label: '手当て・絆創膏', category: 'life', keywords: '絆創膏 応急手当 治療 ケア healing' },
+      { name: 'wb_sunny', label: '天気・晴れ・気象', category: 'life', keywords: '天気 晴れ 気象 予報 太陽 weather sun' },
+      { name: 'umbrella', label: '傘・雨天・降水', category: 'life', keywords: '傘 雨 梅雨 降水 umbrella rain' },
+      { name: 'thermostat', label: '気温・温度・エアコン', category: 'life', keywords: '温度計 気温 室温 エアコン thermostat' },
+      { name: 'pets', label: 'ペット・犬・猫', category: 'life', keywords: 'ペット 犬 猫 動物 肉球 pets dog cat' },
+
+      // --- ツール・設定・その他 ---
+      { name: 'settings', label: '設定・システム設定', category: 'tools', keywords: '設定 歯車 環境 オプション settings gear' },
+      { name: 'tune', label: '調整・パラメータ', category: 'tools', keywords: '調整 パラメータ フィルタ スライダー tune' },
+      { name: 'build', label: 'ツール・修理・工具', category: 'tools', keywords: 'ツール 工具 修理 整備 メンテナンス build tool' },
+      { name: 'handyman', label: 'メンテナンス・保守', category: 'tools', keywords: '保守 メンテナンス 工具 handyman' },
+      { name: 'support_agent', label: 'サポート・問い合わせ', category: 'tools', keywords: 'サポート 問い合わせ ヘルプデスク 相談 support' },
+      { name: 'help', label: 'ヘルプ・FAQ・案内', category: 'tools', keywords: 'ヘルプ FAQ 使い方 ガイド 質問 help question' },
+      { name: 'info', label: 'インフォ・インフォメーション', category: 'tools', keywords: 'インフォ 情報 案内 お知らせ info' },
+      { name: 'rocket_launch', label: 'ロケット・スタートアップ', category: 'tools', keywords: 'ロケット ローンチ スタートアップ 発進 rocket' },
+      { name: 'lightbulb', label: 'アイデア・ヒラメキ', category: 'tools', keywords: 'アイデア ひらめき 電球 ヒント 発想 idea light' },
+      { name: 'inventory_2', label: '保管庫・アーカイブ', category: 'tools', keywords: '保管 アーカイブ 箱 倉庫 inventory box' },
+      { name: 'download', label: 'ダウンロード・保存', category: 'tools', keywords: '保存 ダウンロード ファイル download' },
+      { name: 'print', label: '印刷・プリント出力', category: 'tools', keywords: '印刷 プリント 出力 プリンター print' },
+      { name: 'manage_accounts', label: 'アカウント管理', category: 'tools', keywords: 'ユーザー管理 アカウント設定 manage accounts' },
+      { name: 'admin_panel_settings', label: '管理者権限・セキュリティ', category: 'tools', keywords: '管理者 管理画面 admin security' },
+      { name: 'verified', label: '公式・認証バッジ', category: 'tools', keywords: '公式 認証 マーク チェック verified' },
+      { name: 'shield', label: 'シールド・防御', category: 'tools', keywords: '盾 防御 セキュリティ ガード shield' },
+      { name: 'auto_mode', label: '自動モード・オート', category: 'tools', keywords: '自動 オート ループ auto' },
+      { name: 'bolt', label: '高速・稲妻・電気', category: 'tools', keywords: '稲妻 電気 高速 パワー 急速 bolt electric' },
+      { name: 'battery_charging_full', label: '充電・バッテリー', category: 'tools', keywords: '充電 バッテリー 電池 battery charge' },
+      { name: 'eco', label: 'エコ・自然・グリーン', category: 'tools', keywords: 'エコ 葉っぱ 自然 環境 eco leaf' },
+      { name: 'dark_mode', label: 'ダークモード・夜間', category: 'tools', keywords: 'ダークモード 月 夜 ナイト dark moon' },
+      { name: 'light_mode', label: 'ライトモード・日中', category: 'tools', keywords: 'ライトモード 太陽 昼 デイ light sun' },
+      { name: 'visibility', label: 'プレビュー・表示', category: 'tools', keywords: '目 表示 プレビュー 閲覧 eye visibility' },
+      { name: 'visibility_off', label: '非表示・隠す', category: 'tools', keywords: '非表示 隠す シークレット visibility off' },
+      { name: 'filter_alt', label: 'フィルター・絞り込み', category: 'tools', keywords: 'フィルター 絞り込み 抽出 filter' },
+      { name: 'sort', label: '並び替え・ソート', category: 'tools', keywords: 'ソート 並び替え 順序 sort' },
+      { name: 'file_copy', label: '複製・コピー', category: 'tools', keywords: 'コピー 複製 ファイル file copy' },
+      { name: 'content_paste', label: '貼り付け・ペースト', category: 'tools', keywords: 'ペースト 貼り付け クリップボード paste' },
+      { name: 'delete', label: '削除・ゴミ箱', category: 'tools', keywords: '削除 ゴミ箱 破棄 delete trash' },
+      { name: 'archive', label: 'アーカイブ・収納', category: 'tools', keywords: 'アーカイブ 保管 箱 archive' },
+      { name: 'qr_code_2', label: 'QRコード・スキャン', category: 'tools', keywords: 'QRコード バーコード スキャン qr code' },
+      { name: 'push_pin', label: 'ピン留め・固定', category: 'tools', keywords: 'ピン 画鋲 固定 重要 pin' },
+      { name: 'diamond', label: 'ダイヤモンド・プレミアム', category: 'tools', keywords: 'ダイヤ 宝石 プレミアム 特典 diamond' },
+      { name: 'emoji_events', label: 'トロフィー・表彰', category: 'tools', keywords: 'トロフィー 優勝 賞 表彰 trophy' },
+      { name: 'military_tech', label: 'メダル・実績', category: 'tools', keywords: 'メダル 実績 バッジ medal' }
+    ];
+
+    /* ========================================
        State Management
        ======================================== */
     const state = {
@@ -1868,9 +2341,9 @@
       email: 'example@gmail.com',
       settings: { theme: 'ocean', darkMode: false, termsAgreed: false, termsAgreedAt: '' },
       bookmarks: [
-        { title: 'Google', url: 'https://google.com' },
-        { title: 'GitHub', url: 'https://github.com' },
-        { title: 'YouTube', url: 'https://youtube.com' }
+        { title: 'Google', url: 'https://google.com', icon: 'search' },
+        { title: 'GitHub', url: 'https://github.com', icon: 'code' },
+        { title: 'YouTube', url: 'https://youtube.com', icon: 'play_circle' }
       ],
       emails: [
         { id: '1', senderName: 'Taro Yamada', subject: '明日の会議について', snippet: '明日の会議の資料を添付します...', date: new Date().toISOString(), isUnread: true, permalink: '#' },
@@ -1914,18 +2387,27 @@
               mockData.settings.termsAgreedAt = new Date().toLocaleString();
               resolve({ success: true, termsAgreed: mockData.settings.termsAgreed, termsAgreedAt: mockData.settings.termsAgreedAt });
             }
+            else if (functionName === 'addBookmark') {
+              const title = args[1];
+              const url = args[2];
+              const cat = args[3];
+              const icon = args[4] || (cat && !cat.includes('/') ? cat : 'language');
+              mockData.bookmarks.push({ title, url, icon: icon || 'language' });
+              resolve({ success: true });
+            }
             else if (functionName === 'updateBookmark') {
               const idx = args[1];
               if (mockData.bookmarks[idx]) {
                 mockData.bookmarks[idx].title = args[2];
                 mockData.bookmarks[idx].url = args[3];
-                let domain = '';
-                try {
-                  const u = (args[3] && args[3].indexOf('://') === -1) ? ('https://' + args[3]) : (args[3] || '');
-                  domain = new URL(u).hostname;
-                } catch(e) {}
-                mockData.bookmarks[idx].icon = 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(domain) + '&sz=64';
+                const cat = args[4];
+                const icon = args[5] || (cat && !cat.includes('/') ? cat : 'language');
+                mockData.bookmarks[idx].icon = icon || 'language';
               }
+              resolve({ success: true });
+            }
+            else if (functionName === 'saveAllBookmarks') {
+              mockData.bookmarks = args[1] || [];
               resolve({ success: true });
             }
             else if (functionName === 'getBookmarks') resolve(mockData.bookmarks);
@@ -2079,14 +2561,7 @@
       }
 
       container.innerHTML = state.bookmarks.map((bm, idx) => {
-        let faviconUrl = '';
-        try {
-          const domain = new URL(bm.url).hostname;
-          faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-        } catch (e) {
-          faviconUrl = bm.icon || '';
-        }
-
+        const iconName = bm.icon || 'language';
         return `
           <div class="bookmark-card" draggable="true" data-bm-index="${idx}" onclick="handleBookmarkClick(event, '${escapeHtml(bm.url)}')">
             <div class="bookmark-actions flex items-center gap-1">
@@ -2098,7 +2573,9 @@
               </button>
             </div>
             <div class="bookmark-card-top flex items-center gap-3">
-              <img src="${faviconUrl}" alt="" class="bookmark-icon w-8 h-8 rounded-lg object-cover" onerror="this.style.display='none'">
+              <div class="bookmark-icon">
+                <span class="material-symbols-rounded">${escapeHtml(iconName)}</span>
+              </div>
               <div class="bookmark-title font-semibold text-sm truncate flex-1" title="${escapeHtml(bm.title)}">${escapeHtml(bm.title)}</div>
             </div>
 
@@ -2128,12 +2605,13 @@
       showModal({
         title: 'ブックマーク追加',
         fields: [
-          { name: 'title', label: 'タイトル', type: 'text', required: true },
-          { name: 'url', label: 'URL', type: 'url', required: true }
+          { name: 'title', label: 'タイトル', type: 'text', required: true, placeholder: '例: Google' },
+          { name: 'url', label: 'URL', type: 'url', required: true, placeholder: 'https://google.com' },
+          { name: 'icon', label: 'アイコン', type: 'icon-picker', value: 'language', required: true }
         ],
         onSubmit: async (data) => {
           try {
-            const res = await callServer('addBookmark', state.email, data.title, data.url);
+            const res = await callServer('addBookmark', state.email, data.title, data.url, '', data.icon);
             if (res && res.error) throw new Error(res.error);
             showToast('追加しました', 'success');
             hideModal();
@@ -2154,11 +2632,12 @@
         submitText: '更新',
         fields: [
           { name: 'title', label: 'タイトル', type: 'text', value: bm.title || '', required: true },
-          { name: 'url', label: 'URL', type: 'url', value: bm.url || '', required: true }
+          { name: 'url', label: 'URL', type: 'url', value: bm.url || '', required: true },
+          { name: 'icon', label: 'アイコン', type: 'icon-picker', value: bm.icon || 'language', required: true }
         ],
         onSubmit: async (data) => {
           try {
-            const res = await callServer('updateBookmark', state.email, index, data.title, data.url);
+            const res = await callServer('updateBookmark', state.email, index, data.title, data.url, '', data.icon);
             if (res && res.error) throw new Error(res.error);
             showToast('ブックマークを更新しました', 'success');
             hideModal();
@@ -2892,6 +3371,86 @@
       if (input) input.value = el.dataset.value;
     }
 
+    function selectIconPickerItem(el) {
+      const fieldName = el.dataset.name;
+      const iconName = el.dataset.icon;
+      const iconLabel = el.dataset.label;
+
+      const container = document.getElementById(`icon-picker-container-${fieldName}`);
+      if (container) {
+        container.querySelectorAll('.icon-picker-item').forEach(item => item.classList.remove('active'));
+      }
+      el.classList.add('active');
+
+      const input = document.getElementById(`icon-input-${fieldName}`);
+      if (input) input.value = iconName;
+
+      const glyph = document.getElementById(`icon-preview-glyph-${fieldName}`);
+      if (glyph) glyph.textContent = iconName;
+
+      const label = document.getElementById(`icon-preview-label-${fieldName}`);
+      if (label) label.textContent = iconLabel;
+
+      const nameEl = document.getElementById(`icon-preview-name-${fieldName}`);
+      if (nameEl) nameEl.textContent = iconName;
+    }
+
+    function handleIconPickerTabClick(tabBtn, fieldName) {
+      const container = document.getElementById(`icon-picker-container-${fieldName}`);
+      if (!container) return;
+      container.querySelectorAll('.icon-picker-tab').forEach(b => b.classList.remove('active'));
+      tabBtn.classList.add('active');
+      filterIconPickerItems(fieldName);
+    }
+
+    function handleIconPickerSearch(searchInput, fieldName) {
+      filterIconPickerItems(fieldName);
+    }
+
+    function filterIconPickerItems(fieldName) {
+      const container = document.getElementById(`icon-picker-container-${fieldName}`);
+      if (!container) return;
+
+      const activeTab = container.querySelector('.icon-picker-tab.active');
+      const activeCat = activeTab ? activeTab.dataset.cat : 'all';
+
+      const searchInput = container.querySelector('.icon-picker-search-input');
+      const query = (searchInput ? searchInput.value.trim().toLowerCase() : '');
+
+      const items = container.querySelectorAll('.icon-picker-item');
+      let visibleCount = 0;
+      items.forEach(item => {
+        const cat = item.dataset.category;
+        const iconName = item.dataset.icon.toLowerCase();
+        const label = item.dataset.label.toLowerCase();
+        const keywords = (item.dataset.keywords || '').toLowerCase();
+
+        const matchesCat = (activeCat === 'all' || cat === activeCat);
+        const matchesQuery = !query || iconName.includes(query) || label.includes(query) || keywords.includes(query);
+
+        if (matchesCat && matchesQuery) {
+          item.style.display = 'flex';
+          visibleCount++;
+        } else {
+          item.style.display = 'none';
+        }
+      });
+
+      let emptyMsg = container.querySelector('.icon-picker-empty');
+      if (visibleCount === 0) {
+        if (!emptyMsg) {
+          emptyMsg = document.createElement('div');
+          emptyMsg.className = 'icon-picker-empty flex flex-col items-center justify-center p-6 text-center text-xs opacity-60 col-span-full gap-1.5';
+          emptyMsg.style.gridColumn = '1 / -1';
+          emptyMsg.innerHTML = '<span class="material-symbols-rounded text-2xl opacity-40">search_off</span><span>該当するアイコンが見つかりません</span>';
+          const grid = container.querySelector('.icon-picker-grid');
+          if (grid) grid.appendChild(emptyMsg);
+        }
+      } else {
+        if (emptyMsg) emptyMsg.remove();
+      }
+    }
+
     let currentModalSubmit = null;
 
     function checkFirstVisitTerms() {
@@ -2946,6 +3505,45 @@
 
     function showUpdateInfoModal() {
       const content = `
+        <div class="pb-3" style="border-bottom: 1px solid var(--border-color);">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="version-tag text-xs font-semibold py-0.5 px-2.5 rounded-full">v1.1.0</span>
+            <span class="text-xs font-medium opacity-70" style="color: var(--text-secondary);">2026/9/5</span>
+          </div>
+          <div class="space-y-2.5 text-xs" style="color: var(--text-primary);">
+            <div>
+              <p class="font-semibold mb-1" style="color: var(--primary);">📌 ブックマーク機能の全面刷新</p>
+              <ul class="list-disc list-inside space-y-0.5 pl-1 opacity-90 leading-relaxed">
+                <li>ファビコン自動取得を廃止し、統一感とプライバシーに優れたアイコン選択方式へ刷新</li>
+                <li>264種類の豊富な Material Symbols アイコンピッカー（8カテゴリ・日本語検索・件数バッジ対応）を搭載</li>
+                <li>ブックマークの編集機能（タイトル・URL・アイコンの変更）を追加</li>
+                <li>カードホバー時のマイクロアニメーションとテーマカラー連動の強化</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold mb-1" style="color: var(--primary);">📅 カレンダー & タスクの操作性改善</p>
+              <ul class="list-disc list-inside space-y-0.5 pl-1 opacity-90 leading-relaxed">
+                <li>カレンダー各日付ヘッダーの「＋」ボタンや空き枠から直接予定を作成可能に</li>
+                <li>終日予定と時間指定の動的切り替え（終日選択時は時刻欄を自動非表示）</li>
+                <li>カレンダー予定詳細とタスクメモを複数行テキストエリア（textarea）に対応</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold mb-1" style="color: var(--primary);">✨ 入力補助 & UI/UX 改善</p>
+              <ul class="list-disc list-inside space-y-0.5 pl-1 opacity-90 leading-relaxed">
+                <li>モーダルフォーム内の必須項目バッジ明示 & インラインバリデーション（エラー表示と自動フォーカス）</li>
+                <li>Gmail 取得・同期中の視覚的ローディングインジケータ（スピナー＆バッジ）を追加</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold mb-1" style="color: var(--primary);">🔒 セキュリティ & データ保護</p>
+              <ul class="list-disc list-inside space-y-0.5 pl-1 opacity-90 leading-relaxed">
+                <li>ユーザー専用シートの自動保護機能（本人およびオーナー以外編集不可）を実装</li>
+                <li>利用規約・プライバシー方針の初回同意フローおよびスプレッドシート（__TERMS__）永続化</li>
+              </ul>
+            </div>
+          </div>
+        </div>
         <div class="pb-3" style="border-bottom: 1px solid var(--border-color);">
           <div class="flex items-center gap-2 mb-1">
             <span class="version-tag text-xs font-semibold py-0.5 px-2.5 rounded-full">v1.0.1</span>
@@ -3082,6 +3680,71 @@
               <input type="hidden" name="${f.name}" id="color-input-${f.name}" value="${selectedVal}">
               <div class="color-picker-group">
                 ${swatches}
+              </div>
+            </div>
+          `;
+        }
+        if (f.type === 'icon-picker') {
+          const selectedVal = f.value || 'language';
+          const selectedIconObj = BOOKMARK_ICONS.find(ic => ic.name === selectedVal) || { name: selectedVal, label: 'カスタム', category: 'all' };
+          
+          const catCounts = { all: BOOKMARK_ICONS.length };
+          BOOKMARK_ICONS.forEach(ic => {
+            catCounts[ic.category] = (catCounts[ic.category] || 0) + 1;
+          });
+
+          const categories = [
+            { id: 'all', label: `すべて (${catCounts.all})` },
+            { id: 'web', label: `Web (${catCounts.web || 0})` },
+            { id: 'social', label: `SNS (${catCounts.social || 0})` },
+            { id: 'dev', label: `開発 (${catCounts.dev || 0})` },
+            { id: 'work', label: `仕事 (${catCounts.work || 0})` },
+            { id: 'media', label: `メディア (${catCounts.media || 0})` },
+            { id: 'life', label: `生活 (${catCounts.life || 0})` },
+            { id: 'tools', label: `ツール (${catCounts.tools || 0})` }
+          ];
+
+          const tabsHtml = categories.map((cat, i) => `
+            <button type="button" class="icon-picker-tab ${i === 0 ? 'active' : ''}" data-cat="${cat.id}" onclick="handleIconPickerTabClick(this, '${f.name}')">${cat.label}</button>
+          `).join('');
+
+          const itemsHtml = BOOKMARK_ICONS.map(ic => `
+            <div class="icon-picker-item ${ic.name === selectedVal ? 'active' : ''}"
+                 data-name="${f.name}"
+                 data-icon="${ic.name}"
+                 data-label="${escapeHtml(ic.label)}"
+                 data-category="${ic.category}"
+                 data-keywords="${escapeHtml(ic.keywords)}"
+                 title="${escapeHtml(ic.label)} (${ic.name})"
+                 onclick="selectIconPickerItem(this)">
+              <span class="material-symbols-rounded">${ic.name}</span>
+            </div>
+          `).join('');
+
+          return `
+            <div class="form-group">
+              <label>${f.label} ${reqBadge}</label>
+              <input type="hidden" name="${f.name}" id="icon-input-${f.name}" value="${selectedVal}">
+              <div class="icon-picker-container" id="icon-picker-container-${f.name}">
+                <div class="icon-picker-header">
+                  <div class="icon-picker-preview-box" id="icon-preview-box-${f.name}">
+                    <span class="material-symbols-rounded" id="icon-preview-glyph-${f.name}">${selectedIconObj.name}</span>
+                  </div>
+                  <div class="icon-picker-preview-info">
+                    <span class="icon-picker-preview-label" id="icon-preview-label-${f.name}">${selectedIconObj.label}</span>
+                    <span class="icon-picker-preview-name" id="icon-preview-name-${f.name}">${selectedIconObj.name}</span>
+                  </div>
+                </div>
+                <div class="icon-picker-search-wrapper">
+                  <span class="material-symbols-rounded">search</span>
+                  <input type="text" class="icon-picker-search-input" placeholder="アイコンを検索（例: コード、メール、動画）..." oninput="handleIconPickerSearch(this, '${f.name}')">
+                </div>
+                <div class="icon-picker-tabs">
+                  ${tabsHtml}
+                </div>
+                <div class="icon-picker-grid" id="icon-grid-${f.name}">
+                  ${itemsHtml}
+                </div>
               </div>
             </div>
           `;

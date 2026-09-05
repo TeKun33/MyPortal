@@ -370,24 +370,15 @@ function getBookmarks(email) {
  * @param {string} category カテゴリ
  * @returns {Object} 処理結果
  */
-function addBookmark(email, title, url, category) {
+function addBookmark(email, title, url, category, icon) {
   try {
     const sheet = getOrCreateUserSheet(email);
     
-    let domain = '';
-    try {
-      const urlObj = url.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/im);
-      if (urlObj && urlObj[1]) {
-        domain = urlObj[1];
-      }
-    } catch (e) {
-      // 無視
-    }
-    
-    const icon = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+    const iconName = icon || (category && !category.includes('/') ? category : 'language');
+    const cat = (icon && category) ? category : '';
     const addedAt = new Date().toISOString();
     
-    sheet.appendRow(['', title, url, category || '', icon, addedAt]);
+    sheet.appendRow(['', title, url, cat, iconName, addedAt]);
     
     writeLog(email, 'ブックマーク', '新しいブックマークを追加しました');
     return { success: true };
@@ -412,7 +403,7 @@ function addBookmark(email, title, url, category) {
  * @param {string} [category] カテゴリ
  * @returns {Object} 処理結果
  */
-function updateBookmark(email, index, title, url, category) {
+function updateBookmark(email, index, title, url, category, icon) {
   try {
     const sheet = getOrCreateUserSheet(email);
     const rowToUpdate = index + 3;
@@ -421,21 +412,14 @@ function updateBookmark(email, index, title, url, category) {
       return { success: false, error: '指定されたブックマークが見つかりません' };
     }
 
-    let domain = '';
-    try {
-      const urlObj = url.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/im);
-      if (urlObj && urlObj[1]) {
-        domain = urlObj[1];
-      }
-    } catch (e) {}
-    
-    const icon = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+    const iconName = icon || (category && !category.includes('/') ? category : 'language');
+    const cat = (icon && category) ? category : '';
 
     sheet.getRange(rowToUpdate, 2, 1, 4).setValues([[
       title,
       url,
-      category || '',
-      icon
+      cat,
+      iconName
     ]]);
     
     writeLog(email, 'ブックマーク', 'ブックマーク「' + title + '」を更新しました');
@@ -484,14 +468,7 @@ function saveAllBookmarks(email, bookmarks) {
     }
     
     const rows = bookmarks.map(bm => {
-      let domain = '';
-      try {
-        const urlObj = (bm.url || '').match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/im);
-        if (urlObj && urlObj[1]) {
-          domain = urlObj[1];
-        }
-      } catch (e) {}
-      const icon = bm.icon || `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+      const icon = bm.icon || 'language';
       const addedAt = bm.addedAt || new Date().toISOString();
       return ['', bm.title || '', bm.url || '', bm.category || '', icon, addedAt];
     });
