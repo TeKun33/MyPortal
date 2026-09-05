@@ -1296,21 +1296,76 @@
       box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.15);
     }
 
+    .icon-picker-controls-row {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .icon-picker-category-select {
+      padding: 0.42rem 0.6rem;
+      font-size: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      outline: none;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: var(--transition);
+      max-width: 140px;
+    }
+
+    .icon-picker-category-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.15);
+    }
+
+    .icon-picker-tabs-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      width: 100%;
+      position: relative;
+    }
+
     .icon-picker-tabs {
       display: flex;
       gap: 0.35rem;
       overflow-x: auto;
-      padding-bottom: 0.25rem;
-      scrollbar-width: none;
+      padding: 0.25rem 0.15rem;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(var(--primary-rgb), 0.25) transparent;
+      cursor: grab;
+      user-select: none;
+      flex: 1;
+      scroll-behavior: smooth;
+    }
+
+    .icon-picker-tabs.dragging {
+      cursor: grabbing;
+      scroll-behavior: auto;
     }
 
     .icon-picker-tabs::-webkit-scrollbar {
-      display: none;
+      height: 4px;
+    }
+
+    .icon-picker-tabs::-webkit-scrollbar-thumb {
+      background: rgba(var(--primary-rgb), 0.25);
+      border-radius: 4px;
+    }
+
+    .icon-picker-tabs::-webkit-scrollbar-thumb:hover {
+      background: var(--primary);
     }
 
     .icon-picker-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
       font-size: 0.72rem;
-      padding: 0.2rem 0.55rem;
+      padding: 0.22rem 0.6rem;
       border-radius: 9999px;
       white-space: nowrap;
       cursor: pointer;
@@ -1319,11 +1374,14 @@
       color: var(--text-secondary);
       transition: var(--transition);
       user-select: none;
+      flex-shrink: 0;
     }
 
     .icon-picker-tab:hover {
       background: var(--bg-secondary);
       color: var(--text-primary);
+      border-color: rgba(var(--primary-rgb), 0.4);
+      transform: translateY(-1px);
     }
 
     .icon-picker-tab.active {
@@ -1331,6 +1389,34 @@
       color: #ffffff;
       border-color: var(--primary);
       font-weight: 500;
+      box-shadow: 0 2px 6px rgba(var(--primary-rgb), 0.3);
+    }
+
+    .icon-picker-scroll-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: var(--transition);
+      padding: 0;
+    }
+
+    .icon-picker-scroll-btn:hover {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      transform: scale(1.08);
+    }
+
+    .icon-picker-scroll-btn .material-symbols-rounded {
+      font-size: 16px;
     }
 
     .icon-picker-grid {
@@ -3396,11 +3482,97 @@
     }
 
     function handleIconPickerTabClick(tabBtn, fieldName) {
+      if (tabBtn._preventClick) {
+        tabBtn._preventClick = false;
+        return;
+      }
       const container = document.getElementById(`icon-picker-container-${fieldName}`);
       if (!container) return;
       container.querySelectorAll('.icon-picker-tab').forEach(b => b.classList.remove('active'));
       tabBtn.classList.add('active');
+
+      // Sync with dropdown select
+      const select = container.querySelector('.icon-picker-category-select');
+      if (select) select.value = tabBtn.dataset.cat;
+
+      // Smooth scroll clicked tab into view
+      tabBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+
       filterIconPickerItems(fieldName);
+    }
+
+    function handleIconPickerCategorySelect(selectEl, fieldName) {
+      const catId = selectEl.value;
+      const container = document.getElementById(`icon-picker-container-${fieldName}`);
+      if (!container) return;
+
+      const targetTab = container.querySelector(`.icon-picker-tab[data-cat="${catId}"]`);
+      if (targetTab) {
+        container.querySelectorAll('.icon-picker-tab').forEach(b => b.classList.remove('active'));
+        targetTab.classList.add('active');
+        targetTab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+      filterIconPickerItems(fieldName);
+    }
+
+    function scrollIconPickerTabs(fieldName, offset) {
+      const tabsEl = document.getElementById(`icon-tabs-${fieldName}`);
+      if (tabsEl) {
+        tabsEl.scrollBy({ left: offset, behavior: 'smooth' });
+      }
+    }
+
+    function initIconPickerTabsMouseControl(tabsEl) {
+      if (!tabsEl || tabsEl._hasMouseControl) return;
+      tabsEl._hasMouseControl = true;
+
+      // 1. Mouse wheel horizontal scrolling
+      tabsEl.addEventListener('wheel', (e) => {
+        if (e.deltaY !== 0) {
+          e.preventDefault();
+          tabsEl.scrollLeft += (e.deltaY * 0.9);
+        }
+      }, { passive: false });
+
+      // 2. Mouse drag-to-scroll (grab & slide)
+      let isDown = false;
+      let startX;
+      let scrollLeft;
+      let dragged = false;
+
+      tabsEl.addEventListener('mousedown', (e) => {
+        isDown = true;
+        dragged = false;
+        tabsEl.classList.add('dragging');
+        startX = e.pageX - tabsEl.offsetLeft;
+        scrollLeft = tabsEl.scrollLeft;
+      });
+
+      const stopDrag = () => {
+        if (!isDown) return;
+        isDown = false;
+        tabsEl.classList.remove('dragging');
+        if (dragged) {
+          // Temporarily suppress tab clicks that occurred during drag
+          const tabs = tabsEl.querySelectorAll('.icon-picker-tab');
+          tabs.forEach(t => t._preventClick = true);
+          setTimeout(() => tabs.forEach(t => t._preventClick = false), 100);
+        }
+      };
+
+      tabsEl.addEventListener('mouseleave', stopDrag);
+      tabsEl.addEventListener('mouseup', stopDrag);
+
+      tabsEl.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - tabsEl.offsetLeft;
+        const walk = (x - startX) * 1.3;
+        if (Math.abs(walk) > 4) {
+          dragged = true;
+        }
+        tabsEl.scrollLeft = scrollLeft - walk;
+      });
     }
 
     function handleIconPickerSearch(searchInput, fieldName) {
@@ -3694,19 +3866,24 @@
           });
 
           const categories = [
-            { id: 'all', label: `すべて (${catCounts.all})` },
-            { id: 'web', label: `Web (${catCounts.web || 0})` },
-            { id: 'social', label: `SNS (${catCounts.social || 0})` },
-            { id: 'dev', label: `開発 (${catCounts.dev || 0})` },
-            { id: 'work', label: `仕事 (${catCounts.work || 0})` },
-            { id: 'media', label: `メディア (${catCounts.media || 0})` },
-            { id: 'life', label: `生活 (${catCounts.life || 0})` },
-            { id: 'tools', label: `ツール (${catCounts.tools || 0})` }
+            { id: 'all', label: `すべて (${catCounts.all})`, icon: 'apps' },
+            { id: 'web', label: `Web (${catCounts.web || 0})`, icon: 'language' },
+            { id: 'social', label: `SNS (${catCounts.social || 0})`, icon: 'chat' },
+            { id: 'dev', label: `開発 (${catCounts.dev || 0})`, icon: 'code' },
+            { id: 'work', label: `仕事 (${catCounts.work || 0})`, icon: 'description' },
+            { id: 'media', label: `メディア (${catCounts.media || 0})`, icon: 'movie' },
+            { id: 'life', label: `生活 (${catCounts.life || 0})`, icon: 'shopping_cart' },
+            { id: 'tools', label: `ツール (${catCounts.tools || 0})`, icon: 'settings' }
           ];
 
           const tabsHtml = categories.map((cat, i) => `
-            <button type="button" class="icon-picker-tab ${i === 0 ? 'active' : ''}" data-cat="${cat.id}" onclick="handleIconPickerTabClick(this, '${f.name}')">${cat.label}</button>
+            <button type="button" class="icon-picker-tab ${i === 0 ? 'active' : ''}" data-cat="${cat.id}" onclick="handleIconPickerTabClick(this, '${f.name}')">
+              <span class="material-symbols-rounded" style="font-size: 13px;">${cat.icon}</span>
+              <span>${cat.label}</span>
+            </button>
           `).join('');
+
+          const selectOptionsHtml = categories.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
 
           const itemsHtml = BOOKMARK_ICONS.map(ic => `
             <div class="icon-picker-item ${ic.name === selectedVal ? 'active' : ''}"
@@ -3735,12 +3912,25 @@
                     <span class="icon-picker-preview-name" id="icon-preview-name-${f.name}">${selectedIconObj.name}</span>
                   </div>
                 </div>
-                <div class="icon-picker-search-wrapper">
-                  <span class="material-symbols-rounded">search</span>
-                  <input type="text" class="icon-picker-search-input" placeholder="アイコンを検索（例: コード、メール、動画）..." oninput="handleIconPickerSearch(this, '${f.name}')">
+                <div class="icon-picker-controls-row">
+                  <div class="icon-picker-search-wrapper flex-1">
+                    <span class="material-symbols-rounded">search</span>
+                    <input type="text" class="icon-picker-search-input" placeholder="アイコンを検索（例: コード、メール、動画）..." oninput="handleIconPickerSearch(this, '${f.name}')">
+                  </div>
+                  <select class="icon-picker-category-select" onchange="handleIconPickerCategorySelect(this, '${f.name}')" title="カテゴリを直接切り替え">
+                    ${selectOptionsHtml}
+                  </select>
                 </div>
-                <div class="icon-picker-tabs">
-                  ${tabsHtml}
+                <div class="icon-picker-tabs-wrapper">
+                  <button type="button" class="icon-picker-scroll-btn" onclick="scrollIconPickerTabs('${f.name}', -130)" title="左へスクロール">
+                    <span class="material-symbols-rounded">chevron_left</span>
+                  </button>
+                  <div class="icon-picker-tabs" id="icon-tabs-${f.name}">
+                    ${tabsHtml}
+                  </div>
+                  <button type="button" class="icon-picker-scroll-btn" onclick="scrollIconPickerTabs('${f.name}', 130)" title="右へスクロール">
+                    <span class="material-symbols-rounded">chevron_right</span>
+                  </button>
                 </div>
                 <div class="icon-picker-grid" id="icon-grid-${f.name}">
                   ${itemsHtml}
@@ -3852,6 +4042,9 @@
 
       btn.addEventListener('click', currentModalSubmit);
       document.getElementById('modal').classList.add('active');
+
+      // Initialize mouse wheel & drag scrolling on icon picker tabs
+      body.querySelectorAll('.icon-picker-tabs').forEach(initIconPickerTabsMouseControl);
     }
 
     function hideModal() {
