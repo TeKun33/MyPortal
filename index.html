@@ -1135,6 +1135,7 @@
       from {
         transform: rotate(0deg);
       }
+
       to {
         transform: rotate(360deg);
       }
@@ -1974,7 +1975,7 @@
         <button
           class="add-btn py-1.5 px-3 sm:py-2 sm:px-4 rounded-full font-semibold text-xs sm:text-sm flex items-center gap-1"
           onclick="showAddBookmarkModal()">
-          <span class="material-symbols-rounded text-base sm:text-lg">add</span> 追加
+          <span class="material-symbols-rounded text-base sm:text-lg">bookmark_add</span> 追加
         </button>
       </div>
       <div class="bookmark-grid grid gap-3 sm:gap-4" id="bookmarks-container">
@@ -2010,13 +2011,15 @@
         <div class="tab-header-row flex flex-wrap justify-between items-center gap-2 w-full">
           <div></div>
           <div id="tab-action-gmail" class="flex items-center gap-2">
-            <span id="gmail-loading-badge" class="hidden text-xs font-medium flex items-center gap-1.5 py-1 px-2.5 rounded-full" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary); border: 1px solid rgba(var(--primary-rgb), 0.2);">
+            <span id="gmail-loading-badge"
+              class="hidden text-xs font-medium flex items-center gap-1.5 py-1 px-2.5 rounded-full"
+              style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary); border: 1px solid rgba(var(--primary-rgb), 0.2);">
               <span class="material-symbols-rounded animate-spin text-sm" style="font-size: 14px;">sync</span>
               <span>受信中...</span>
             </span>
-            <button class="icon-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-transform"
-              id="btn-refresh-emails"
-              onclick="loadEmails()" title="メールを更新">
+            <button
+              class="icon-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-transform"
+              id="btn-refresh-emails" onclick="loadEmails()" title="メールを更新">
               <span class="material-symbols-rounded text-lg sm:text-xl" id="icon-refresh-emails">refresh</span>
             </button>
           </div>
@@ -2041,14 +2044,14 @@
             <button
               class="add-btn py-1.5 px-3 sm:py-2 sm:px-4 rounded-full font-semibold text-xs sm:text-sm flex items-center gap-1 ml-auto sm:ml-0"
               onclick="showAddEventModal()">
-              <span class="material-symbols-rounded text-base sm:text-lg">add</span> 予定追加
+              <span class="material-symbols-rounded text-base sm:text-lg">calendar_add_on</span> 予定追加
             </button>
           </div>
           <div id="tab-action-tasks" style="display:none">
             <button
               class="add-btn py-1.5 px-3 sm:py-2 sm:px-4 rounded-full font-semibold text-xs sm:text-sm flex items-center gap-1"
               onclick="showAddTaskModal()">
-              <span class="material-symbols-rounded text-base sm:text-lg">add</span> タスク追加
+              <span class="material-symbols-rounded text-base sm:text-lg">add_task</span> タスク追加
             </button>
           </div>
         </div>
@@ -2057,7 +2060,8 @@
       <div class="tab-panels relative min-h-[350px]">
         <div class="tab-panel active" id="panel-gmail">
           <div class="email-list grid gap-3 max-h-[500px] overflow-y-auto pr-2 pb-2" id="emails-container">
-            <div class="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-medium" style="background: rgba(var(--primary-rgb), 0.08); color: var(--primary); border: 1px solid rgba(var(--primary-rgb), 0.18);">
+            <div class="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-medium"
+              style="background: rgba(var(--primary-rgb), 0.08); color: var(--primary); border: 1px solid rgba(var(--primary-rgb), 0.18);">
               <span class="material-symbols-rounded animate-spin text-sm" style="font-size: 16px;">sync</span>
               <span>Gmailから最新のメールを取得しています...</span>
             </div>
@@ -2145,45 +2149,50 @@
        Bookmark Icons Catalog (140 Curated Icons, Multi-Category)
        ======================================== */
     const BOOKMARK_ICONS = [
-      // --- Web・ポータル・検索 (18) ---
-      { name: 'language', label: 'Web・一般・公式サイト', category: 'web', categories: ["web", "tools"], keywords: 'Web 一般 ホーム サイト 公式 インターネット ホームページ language global site official' },
-      { name: 'home', label: 'ホーム・ポータル', category: 'web', categories: ["web", "life"], keywords: 'ホーム トップ ポータル メイン スタート 社内ポータル home portal start main' },
-      { name: 'search', label: '検索エンジン・Google', category: 'web', categories: ["web", "tools"], keywords: '検索 探す ググる 調べる Google Yahoo 検索窓 search find engine' },
-      { name: 'newspaper', label: 'ニュース・報道・新聞', category: 'web', categories: ["web", "work", "media"], keywords: 'ニュース 新聞 報道 記事 朝日 日経 読売 ヤフーニュース newspaper news media article' },
-      { name: 'star', label: 'お気に入り・スター', category: 'web', categories: ["web", "tools"], keywords: 'スター 星 お気に入り 評価 ブックマーク 重要 star favorite bookmark' },
-      { name: 'bookmark', label: 'ブックマーク・保存', category: 'web', categories: ["web", "tools"], keywords: 'ブックマーク しおり 保存 キープ 後で読む bookmark save pin keep' },
-      { name: 'link', label: 'リンク・URL・共有', category: 'web', categories: ["web", "tools"], keywords: 'リンク URL パーマリンク 接続 つなぐ link chain url share' },
-      { name: 'open_in_new', label: '外部リンク・別サービス', category: 'web', categories: ["web", "tools"], keywords: '外部リンク 外部 移動 別ウィンドウ open in new external link' },
-      { name: 'rss_feed', label: 'RSS・ブログ購読', category: 'web', categories: ["web", "media"], keywords: 'RSS フィード 購読 配信 ブログ ニュース購読 feed rss blog subscribe' },
+      // --- Web・ポータル・検索 ---
+      { name: 'language', label: 'Web・一般', category: 'web', categories: ["web", "tools"], keywords: 'Web 一般 ホーム サイト 公式 インターネット ホームページ language global site official' },
+      { name: 'public', label: '地球', category: 'web', categories: ["web"], keywords: '地球 海外 グローバル 世界 国際 英語 public world earth global foreign' },
       { name: 'travel_explore', label: 'リサーチ・Web巡回', category: 'web', categories: ["web", "life"], keywords: '巡回 リサーチ 探訪 ネットサーフィン 調査 travel explore research browse' },
-      { name: 'public', label: '海外・グローバル・英語', category: 'web', categories: ["web"], keywords: '地球 海外 グローバル 世界 国際 英語 public world earth global foreign' },
-      { name: 'devices', label: '複数デバイス・同期', category: 'web', categories: ["web", "tools", "dev"], keywords: 'デバイス PC スマホ 同期 マルチデバイス devices sync mobile pc' },
-      { name: 'laptop', label: 'PC向けサイト・ツール', category: 'web', categories: ["web", "work", "dev"], keywords: 'ノートPC パソコン ラップトップ MacBook Windows laptop pc computer' },
-      { name: 'smartphone', label: 'スマホサイト・アプリ', category: 'web', categories: ["web", "social", "life"], keywords: 'スマホ iPhone Android モバイル 携帯 アプリ smartphone phone mobile app' },
+      { name: 'search', label: '検索エンジン', category: 'web', categories: ["web", "tools"], keywords: '検索 探す ググる 調べる Google Yahoo 検索窓 search find engine' },
+      { name: 'home', label: 'ホーム', category: 'web', categories: ["web", "life"], keywords: 'ホーム 家 トップ ポータル メイン スタート 社内ポータル home portal start main' },
+      { name: 'bookmark', label: 'ブックマーク・保存', category: 'web', categories: ["web", "tools"], keywords: 'ブックマーク しおり 保存 キープ 後で読む bookmark save pin keep' },
+      { name: 'bookmarks', label: 'ブックマーク一覧', category: 'web', categories: ["web", "tools"], keywords: 'ブックマーク しおり 保存 キープ 後で読む bookmark save pin keep' },
+      { name: 'star', label: 'お気に入り・星', category: 'web', categories: ["web", "tools"], keywords: 'スター 星 お気に入り 評価 ブックマーク 重要 star favorite bookmark' },
+      { name: 'star_shine', label: 'お気に入り・星輝き', category: 'web', categories: ["web", "tools"], keywords: 'スター 星 お気に入り 評価 ブックマーク 重要 star favorite bookmark' },
+      { name: 'favorite', label: 'お気に入り・ハート', category: 'web', categories: ["web", "life"], keywords: 'ハート 愛 お気に入り いいね 推し 好き ファンクラブ favorite heart love like' },
       { name: 'wifi', label: 'Wi-Fi・ネット回線', category: 'web', categories: ["web", "tools"], keywords: 'Wi-Fi ワイファイ 無線 ネット回線 光回線 ルーター wifi wireless network' },
-      { name: 'security', label: 'セキュリティ・認証・公式', category: 'web', categories: ["web", "tools", "dev"], keywords: 'セキュリティ 安全 防犯 保護 対策 防御 マイナンバー security safety protect shield' },
-      { name: 'lock', label: 'ログイン・会員認証・SSL', category: 'web', categories: ["web", "tools"], keywords: '鍵 ロック パスワード 会員 ログイン 秘密 暗号化 HTTPS lock secret key login' },
-      { name: 'history', label: '閲覧履歴・アーカイブ', category: 'web', categories: ["web", "tools"], keywords: '履歴 ログ 閲覧 過去 タイムライン 記録 history log record past archive' },
+      { name: 'android_cell_4_bar', label: 'モバイル回線', category: 'web', categories: ["web", "social", "life"], keywords: 'スマホ iPhone Android モバイル 携帯 アプリ smartphone phone mobile app' },
+      { name: 'bluetooth', label: 'Bluetooth', category: 'web', categories: ["web", "tools"], keywords: 'Bluetooth ブルートゥース 無線 bluetooth wireless' },
+      { name: 'security', label: 'セキュリティ・認証', category: 'web', categories: ["web", "tools", "dev"], keywords: 'セキュリティ 安全 防犯 保護 対策 防御 マイナンバー security safety protect shield' },
+      { name: 'lock', label: 'ログイン・会員認証', category: 'web', categories: ["web", "tools"], keywords: '鍵 ロック パスワード 会員 ログイン 秘密 暗号化 HTTPS lock secret key login' },
+      { name: 'key', label: 'パスワード', category: 'web', categories: ["web", "tools"], keywords: 'パスワード 鍵 ロック 暗号化 パスワードマネージャー password secret key lock' },
+      { name: 'fingerprint', label: '生体認証', category: 'web', categories: ["web", "tools"], keywords: '生体認証 指紋 パスワードマネージャー fingerprint biometric password manager' },
+      { name: 'extension', label: '拡張機能', category: 'web', categories: ["web", "tools"], keywords: '拡張機能 拡張 アプリプラグイン プラグイン browser extension plugin' },
 
-      // --- SNS・コミュニケーション (16) ---
-      { name: 'mail', label: 'メール・Gmail', category: 'social', categories: ["social", "work", "web"], keywords: 'メール Gmail 連絡 手紙 メッセージ Outlook mail email google inbox' },
-      { name: 'chat', label: 'チャット・LINE・Slack', category: 'social', categories: ["social", "work"], keywords: 'チャット メッセージ LINE Slack Discord Teams 会話 トーク chat talk text message' },
-      { name: 'alternate_email', label: 'X (Twitter)・SNS', category: 'social', categories: ["social", "web"], keywords: 'アットマーク メンション X Twitter SNS ツイッター alternate email mention handle' },
+      // --- SNS・コミュニケーション ---
+      { name: 'mail', label: 'メール', category: 'social', categories: ["social", "work", "web"], keywords: 'メール Gmail 連絡 手紙 メッセージ Outlook mail email google inbox' },
+      { name: 'send', label: '送信', category: 'social', categories: ["social", "work", "tools"], keywords: '送信 紙飛行機 DM Telegram メッセンジャー 送る 発信 send message direct' },
+      { name: 'label', label: 'ラベル', category: 'social', categories: ["social", "web", "work"], keywords: 'ラベル マーク シール 印 ラベル付け label tag mark badge' },
+      { name: 'chat', label: 'チャット', category: 'social', categories: ["social", "work"], keywords: 'チャット メッセージ LINE Slack Discord Teams 会話 トーク chat talk text message' },
+      { name: 'chat_bubble', label: 'チャット2', category: 'social', categories: ["social", "work"], keywords: 'チャット メッセージ LINE Slack Discord Teams 会話 トーク chat talk text message' },
+      { name: 'sms', label: 'ショートメッセージ', category: 'social', categories: ["social", "work", "web"], keywords: 'SMS ショートメッセージ 連絡 手紙 メッセージ LINE Slack Discord Teams 会話 トーク chat talk text message' },
+      { name: 'forum', label: '掲示板・コミュニティ', category: 'social', categories: ["social", "web"], keywords: '掲示板 フォーラム コミュニティ スレッド 談話室 5ch Reddit forum board thread' },
+      { name: 'alternate_email', label: '@マーク', category: 'social', categories: ["social", "web"], keywords: '@ アットマーク メンション X Twitter SNS ツイッター alternate email mention handle' },
       { name: 'video_call', label: 'Web会議・Zoom・Meet', category: 'social', categories: ["social", "work"], keywords: 'ビデオ通話 Zoom Meet Teams 会議 オンラインミーティング 面談 video call conference' },
-      { name: 'forum', label: '掲示板・コミュニティ・5ch', category: 'social', categories: ["social", "web"], keywords: '掲示板 フォーラム コミュニティ スレッド 談話室 5ch Reddit forum board thread' },
-      { name: 'question_answer', label: '知恵袋・Q&A・質問サイト', category: 'social', categories: ["social", "web", "dev"], keywords: '知恵袋 質問 回答 Q&A 相談 コミュニティ Yahoo知恵袋 Quora question answer faq' },
-      { name: 'reviews', label: 'クチコミ・レビュー・評判', category: 'social', categories: ["social", "life", "web"], keywords: 'クチコミ 口コミ レビュー 評判 感想 評価 価格com 食べログ reviews rating comment' },
-      { name: 'send', label: '送信・DM・Telegram', category: 'social', categories: ["social", "work", "tools"], keywords: '送信 紙飛行機 DM Telegram メッセンジャー 送る 発信 send message direct' },
-      { name: 'group', label: 'グループ・チーム・組織', category: 'social', categories: ["social", "work"], keywords: 'グループ チーム 仲間 組織 メンバー 共有 group team member' },
-      { name: 'account_circle', label: 'マイページ・会員情報', category: 'social', categories: ["social", "tools", "web"], keywords: 'マイページ 会員情報 アカウント 登録情報 ログイン ユーザー account circle mypage user' },
+      { name: 'person', label: '個人', category: 'social', categories: ["social", "tools"], keywords: '個人 人 member user person アカウント ユーザー' },
+      { name: 'account_circle', label: 'マイページ', category: 'social', categories: ["social", "tools", "web"], keywords: 'マイページ 会員情報 アカウント 登録情報 ログイン ユーザー account circle mypage user' },
+      { name: 'group', label: 'グループ', category: 'social', categories: ["social", "work"], keywords: 'グループ チーム 仲間 組織 メンバー 共有 group team member' },
+      { name: 'groups', label: '複数グループ', category: 'social', categories: ["social", "work"], keywords: 'グループ チーム 仲間 組織 メンバー 共有 group team member' },
       { name: 'notifications', label: '通知・お知らせ・速報', category: 'social', categories: ["social", "tools", "work"], keywords: '通知 ベル お知らせ 新着 アラート 速報 notification bell alert' },
       { name: 'campaign', label: '広報・お知らせ・告知', category: 'social', categories: ["social", "work"], keywords: '広報 お知らせ キャンペーン メガホン アナウンス 告知 プレスリリース campaign PR announcement' },
-      { name: 'favorite', label: 'お気に入り・推し・ファンクラブ', category: 'social', categories: ["social", "life"], keywords: 'ハート 愛 お気に入り いいね 推し 好き ファンクラブ favorite heart love like' },
       { name: 'thumb_up', label: 'いいね・高評価・ブックマーク', category: 'social', categories: ["social", "tools"], keywords: 'いいね 高評価 グッド 賛成 支持 thumb up like good' },
       { name: 'feed', label: 'タイムライン・SNS新着', category: 'social', categories: ["social", "web", "media"], keywords: 'タイムライン 投稿一覧 フィード 新着 SNS ストリーム feed stream timeline' },
       { name: 'share', label: 'シェア・共有・拡散', category: 'social', categories: ["social", "web", "tools"], keywords: 'シェア 共有 拡散 SNS ポスト 転送 share social post' },
 
-      // --- 開発・IT・クラウド (12) ---
+      // --- 開発・IT・クラウド ---
+      { name: 'smartphone', label: 'スマホ', category: 'web', categories: ["web", "social", "life"], keywords: 'スマホ iPhone Android モバイル 携帯 アプリ smartphone phone mobile app' },
+      { name: 'laptop', label: 'ノートPC', category: 'web', categories: ["web", "work", "dev"], keywords: 'ノートPC パソコン ラップトップ MacBook Windows laptop pc computer' },
+      { name: 'devices', label: '複数デバイス・同期', category: 'web', categories: ["web", "tools", "dev"], keywords: 'デバイス PC スマホ 同期 マルチデバイス devices sync mobile pc' },
       { name: 'code', label: 'GitHub・ソースコード・開発', category: 'dev', categories: ["dev", "work"], keywords: 'GitHub GitLab コード プログラミング ソース HTML CSS JS Python code dev' },
       { name: 'terminal', label: 'ターミナル・サーバー管理・CLI', category: 'dev', categories: ["dev", "tools"], keywords: 'ターミナル コンソール CLI コマンド シェル bash サーバー管理 AWS terminal cmd server' },
       { name: 'cloud', label: 'クラウド・AWS/GCP/Azure', category: 'dev', categories: ["dev", "web", "work"], keywords: 'クラウド クラウドサーバー AWS GCP Azure クラウドインフラ ホスティング cloud hosting infra' },
@@ -2197,7 +2206,7 @@
       { name: 'extension', label: '拡張機能・プラグインストア', category: 'dev', categories: ["dev", "tools", "web"], keywords: '拡張機能 プラグイン アドオン Chrome拡張 VSCode ストア extension plugin add-on store' },
       { name: 'lan', label: '社内LAN・イントラネット・VPN', category: 'dev', categories: ["dev", "work", "tools"], keywords: 'LAN ネットワーク 社内網 イントラネット VPN ローカル net lan local intranet vpn' },
 
-      // --- 仕事・ビジネス・管理 (19) ---
+      // --- 仕事・ビジネス・管理 ---
       { name: 'description', label: 'Googleドキュメント・仕様書', category: 'work', categories: ["work", "web"], keywords: 'ドキュメント Docs 仕様書 文書 書類 テキスト GoogleDocs Word description document' },
       { name: 'article', label: '記事・ブログ・note・Qiita', category: 'work', categories: ["work", "web", "media"], keywords: '記事 ブログ コラム ニュース 読み物 メディア Qiita Zenn note article blog' },
       { name: 'table_chart', label: 'スプレッドシート・Excel', category: 'work', categories: ["work", "dev", "tools"], keywords: 'スプレッドシート 表計算 エクセル GoogleSheets Excel 表 データ 集計 table chart sheet' },
@@ -2218,7 +2227,7 @@
       { name: 'show_chart', label: '株価チャート・推移・トレンド', category: 'work', categories: ["work", "life", "tools"], keywords: '折れ線グラフ グラフ トレンド 推移 株価 為替 チャート show chart trend line stock' },
       { name: 'dashboard', label: '管理画面・管理コンソール', category: 'work', categories: ["work", "dev", "tools"], keywords: 'ダッシュボード 管理画面 ポータル コントロール 管理パネル コンソール dashboard admin console' },
 
-      // --- メディア・エンタメ・動画・音楽 (15) ---
+      // --- メディア・エンタメ・動画・音楽 ---
       { name: 'play_circle', label: 'YouTube・動画再生・配信', category: 'media', categories: ["media", "web", "social"], keywords: '動画 YouTube 再生 プレイヤー ユーチューブ 動画サイト play circle movie video youtube' },
       { name: 'smart_display', label: 'Netflix・Amazon Prime・動画サブスク', category: 'media', categories: ["media", "life", "web"], keywords: '動画配信 Netflix AmazonPrime Hulu Disney VOD 映画鑑賞 smart display streaming netflix' },
       { name: 'movie', label: '映画・映画館・シネマ情報', category: 'media', categories: ["media", "life"], keywords: '映画 シネマ ムービー 映画館 上映スケジュール 劇場 Filmarks movie cinema film theater' },
@@ -2235,7 +2244,8 @@
       { name: 'art_track', label: 'pixiv・イラスト・ポートフォリオ', category: 'media', categories: ["media", "web"], keywords: 'アート イラスト pixiv 作品集 ポートフォリオ 作画 絵師 art track illustration pixiv' },
       { name: 'sports_esports', label: 'Steam・ゲーム攻略・Discord', category: 'media', categories: ["media", "social", "life"], keywords: 'ゲーム eスポーツ Steam Discord コントローラー ゲーム攻略 sports esports game steam' },
 
-      // --- 生活・買い物・マネー・交通・健康 (42) ---
+      // --- 生活・買い物・マネー・交通・健康 ---
+      { name: 'newspaper', label: 'ニュース', category: 'life', categories: ["life", "work", "media"], keywords: 'ニュース 新聞 報道 記事 朝日 日経 読売 ヤフーニュース newspaper news media article' },
       { name: 'shopping_cart', label: 'Amazon・楽天市場・ネット通販', category: 'life', categories: ["life", "web"], keywords: '通販 ネットショッピング Amazon 楽天 買い物 カート Yahooショッピング shopping cart ec amazon rakuten' },
       { name: 'shopping_bag', label: 'ZOZOTOWN・ファッション通販', category: 'life', categories: ["life", "web"], keywords: 'ショップ アパレル ブランド ファッション お買い物 ZOZOTOWN 服 shopping bag store fashion' },
       { name: 'sell', label: 'メルカリ・ヤフオク・フリマ', category: 'life', categories: ["life", "work"], keywords: 'メルカリ ヤフオク フリマ 出品 セール 値札 特売 買取 sell sale mercari auction' },
@@ -2279,7 +2289,7 @@
       { name: 'thermostat', label: '気温・熱中症情報・エアコン', category: 'life', categories: ["life", "tools"], keywords: '気温 温度 熱中症 室温 エアコン 防寒 thermostat temperature weather' },
       { name: 'pets', label: 'ペット・犬猫・動物病院', category: 'life', categories: ["life"], keywords: 'ペット 犬 猫 いぬ ねこ 動物 動物病院 トリミング pets dog cat animal clinic' },
 
-      // --- 便利ツール・システム・設定 (18) ---
+      // --- 便利ツール・システム・設定 ---
       { name: 'settings', label: '設定・マイページ・環境設定', category: 'tools', categories: ["tools", "web", "work"], keywords: '設定 システム設定 環境設定 構成 歯車 オプション settings config preferences system gear' },
       { name: 'tune', label: '調整・パラメータ・カスタマイズ', category: 'tools', categories: ["tools", "work"], keywords: '調整 パラメータ チューニング スライダー 設定 微調整 tune adjustment control' },
       { name: 'help', label: 'ヘルプ・よくある質問・FAQ', category: 'tools', categories: ["tools", "work", "web"], keywords: 'ヘルプ FAQ 使い方 ガイド マニュアル 困ったとき 質問 案内 help faq guide manual info' },
@@ -2949,7 +2959,7 @@
                 ${eventsHtml}
               </div>
               <button class="add-event-inline-btn w-full py-1.5 px-2 rounded-lg border border-dashed text-xs flex items-center justify-center gap-1 transition-all mt-2" onclick="event.stopPropagation(); showAddEventModal('${dateISOString}')" title="${d.getMonth() + 1}月${d.getDate()}日に予定を追加">
-                <span class="material-symbols-rounded" style="font-size: 14px;">add</span>
+                <span class="material-symbols-rounded" style="font-size: 14px;">calendar_add_on</span>
                 <span class="text-[0.7rem] font-medium">予定を追加</span>
               </button>
             ` : `
@@ -3751,7 +3761,7 @@
         if (f.type === 'icon-picker') {
           const selectedVal = f.value || 'language';
           const selectedIconObj = BOOKMARK_ICONS.find(ic => ic.name === selectedVal) || { name: selectedVal, label: 'カスタム', category: 'all', categories: ['all'] };
-          
+
           const catCounts = { all: BOOKMARK_ICONS.length };
           BOOKMARK_ICONS.forEach(ic => {
             const cats = ic.categories || [ic.category];
@@ -3795,7 +3805,8 @@
                  onclick="selectIconPickerItem(this)">
               <span class="material-symbols-rounded">${ic.name}</span>
             </div>
-          `;}).join('');
+          `;
+          }).join('');
 
           return `
             <div class="form-group">
