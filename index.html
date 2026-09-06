@@ -1023,6 +1023,37 @@
       color: #f97316;
     }
 
+    .task-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .task-item:hover .task-actions {
+      opacity: 1;
+    }
+
+    .task-action-btn {
+      color: var(--text-secondary);
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.25rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .task-action-btn:hover {
+      color: var(--primary);
+      background: var(--hover-bg);
+    }
+
+    .task-action-btn.delete-btn:hover {
+      color: #ef4444;
+    }
+
     .delete-task-btn {
       opacity: 0;
       color: var(--text-secondary);
@@ -1783,8 +1814,9 @@
         opacity: 0.85;
       }
 
+      .task-actions,
       .delete-task-btn {
-        opacity: 0.75;
+        opacity: 0.85;
       }
     }
 
@@ -2344,11 +2376,18 @@
       ],
       taskLists: [
         {
-          id: 'list1',
-          title: 'マイタスク',
+          listId: 'list1',
+          listTitle: 'マイタスク',
           tasks: [
             { id: 't1', title: '週報の提出', notes: '今週の進捗をまとめる', due: new Date().toISOString(), status: 'needsAction' },
             { id: 't2', title: 'メール返信', notes: '', due: new Date(Date.now() - 86400000).toISOString(), status: 'needsAction' }
+          ]
+        },
+        {
+          listId: 'list2',
+          listTitle: 'プロジェクト業務',
+          tasks: [
+            { id: 't3', title: '仕様書の確認', notes: '新機能の要件を精査する', due: new Date(Date.now() + 86400000).toISOString(), status: 'needsAction' }
           ]
         }
       ]
@@ -2403,6 +2442,82 @@
             else if (functionName === 'getGmailMessages' || functionName === 'getEmails') resolve(mockData.emails);
             else if (functionName === 'getCalendarEvents' || functionName === 'getEvents') resolve(mockData.events);
             else if (functionName === 'getTasks') resolve(mockData.taskLists);
+            else if (functionName === 'addTask') {
+              const taskListId = args[0];
+              const title = args[1];
+              const notes = args[2];
+              const dueDate = args[3];
+              let list = mockData.taskLists.find(l => l.listId === taskListId);
+              if (!list && mockData.taskLists.length > 0) list = mockData.taskLists[0];
+              const newId = 't_' + Date.now();
+              if (list) {
+                list.tasks.push({
+                  id: newId,
+                  title: title || '',
+                  notes: notes || '',
+                  due: dueDate ? new Date(dueDate).toISOString() : null,
+                  status: 'needsAction'
+                });
+              }
+              resolve({ success: true, id: newId });
+            }
+            else if (functionName === 'updateTask') {
+              const taskListId = args[0];
+              const taskId = args[1];
+              const title = args[2];
+              const notes = args[3];
+              const dueDate = args[4];
+              const newTaskListId = args[5];
+              const targetListId = newTaskListId || taskListId;
+              let foundTask = null;
+              let sourceList = null;
+
+              for (const l of mockData.taskLists) {
+                const idx = l.tasks.findIndex(t => t.id === taskId);
+                if (idx !== -1) {
+                  foundTask = l.tasks[idx];
+                  sourceList = l;
+                  if (targetListId !== l.listId) {
+                    l.tasks.splice(idx, 1);
+                  }
+                  break;
+                }
+              }
+
+              if (foundTask) {
+                foundTask.title = title !== undefined ? title : foundTask.title;
+                foundTask.notes = notes !== undefined ? notes : foundTask.notes;
+                foundTask.due = dueDate ? new Date(dueDate).toISOString() : null;
+
+                if (targetListId !== sourceList?.listId) {
+                  const targetList = mockData.taskLists.find(l => l.listId === targetListId);
+                  if (targetList) targetList.tasks.push(foundTask);
+                }
+                resolve({ success: true });
+              } else {
+                resolve({ success: false, error: 'Task not found' });
+              }
+            }
+            else if (functionName === 'deleteTask') {
+              const taskListId = args[0];
+              const taskId = args[1];
+              for (const l of mockData.taskLists) {
+                l.tasks = l.tasks.filter(t => t.id !== taskId);
+              }
+              resolve({ success: true });
+            }
+            else if (functionName === 'completeTask') {
+              const taskListId = args[0];
+              const taskId = args[1];
+              for (const l of mockData.taskLists) {
+                const t = l.tasks.find(t => t.id === taskId);
+                if (t) {
+                  t.status = 'completed';
+                  t.completed = true;
+                }
+              }
+              resolve({ success: true });
+            }
             else resolve({ success: true });
           }, 300);
         }
@@ -3234,19 +3349,24 @@
 
           return `
             <div class="task-item ${isCompleted ? 'completed' : ''} flex items-start gap-3 p-3 rounded-lg relative transition-all" data-id="${task.id}" data-list="${list.listId}">
-              <div class="task-checkbox w-5 h-5 rounded flex items-center justify-center cursor-pointer shrink-0 mt-0.5" onclick="toggleTask('${list.listId}', '${task.id}', ${!isCompleted})">
+              <div class="task-checkbox w-5 h-5 rounded flex items-center justify-center cursor-pointer shrink-0 mt-0.5" onclick="event.stopPropagation(); toggleTask('${list.listId}', '${task.id}', ${!isCompleted})">
                 <span class="material-symbols-rounded text-sm">check</span>
               </div>
-              <div class="task-content flex-1 min-w-0">
+              <div class="task-content flex-1 min-w-0 cursor-pointer" onclick="showEditTaskModal('${list.listId}', '${task.id}')" title="クリックして編集">
                 <div class="task-title font-medium text-sm transition-all">${escapeHtml(task.title)}</div>
                 ${task.notes ? `<div class="task-notes text-xs mt-1">${escapeHtml(task.notes)}</div>` : ''}
                 <div class="task-meta flex gap-2 mt-2">
                   ${dateHtml}
                 </div>
               </div>
-              <button class="delete-task-btn p-1 rounded hover:text-red-500 transition-colors" onclick="deleteTask('${list.listId}', '${task.id}')">
-                <span class="material-symbols-rounded text-base">delete</span>
-              </button>
+              <div class="task-actions flex items-center gap-1 shrink-0">
+                <button class="task-action-btn edit-task-btn p-1 rounded hover:text-primary transition-colors" onclick="event.stopPropagation(); showEditTaskModal('${list.listId}', '${task.id}')" title="編集">
+                  <span class="material-symbols-rounded text-base">edit</span>
+                </button>
+                <button class="task-action-btn delete-task-btn p-1 rounded hover:text-red-500 transition-colors" onclick="event.stopPropagation(); deleteTask('${list.listId}', '${task.id}')" title="削除">
+                  <span class="material-symbols-rounded text-base">delete</span>
+                </button>
+              </div>
             </div>
           `;
         }).join('');
@@ -3299,6 +3419,51 @@
         showToast('削除に失敗しました', 'error');
         loadTasks();
       }
+    }
+
+    function showEditTaskModal(listId, taskId) {
+      const list = state.taskLists.find(l => l.listId === listId);
+      if (!list) return;
+      const task = list.tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      const listOptions = state.taskLists.map(l => ({ label: l.listTitle, value: l.listId }));
+
+      let dueDateVal = '';
+      if (task.due) {
+        const d = new Date(task.due);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        dueDateVal = `${y}-${m}-${day}`;
+      }
+
+      showModal({
+        title: 'タスク編集',
+        submitText: '更新',
+        fields: [
+          { name: 'listId', label: 'リスト', type: 'select', options: listOptions.map(o => o.label), values: listOptions.map(o => o.value), value: listId },
+          { name: 'title', label: 'タイトル', type: 'text', required: true, value: task.title || '' },
+          { name: 'notes', label: 'メモ', type: 'textarea', rows: 3, placeholder: 'メモを入力（複数行入力可）', value: task.notes || '' },
+          { name: 'due', label: '期限', type: 'date', value: dueDateVal }
+        ],
+        onSubmit: async (data) => {
+          try {
+            const selectedIdx = listOptions.findIndex(o => o.value === data.listId || o.label === data.listId);
+            const targetListId = selectedIdx >= 0 ? listOptions[selectedIdx].value : listId;
+            const dueDate = data.due ? new Date(data.due).toISOString() : null;
+
+            const res = await callServer('updateTask', listId, taskId, data.title, data.notes, dueDate, targetListId);
+            if (res && res.error) throw new Error(res.error);
+
+            showToast('タスクを更新しました', 'success');
+            hideModal();
+            loadTasks();
+          } catch (err) {
+            showToast('更新に失敗しました', 'error');
+          }
+        }
+      });
     }
 
     function showAddTaskModal() {

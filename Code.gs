@@ -769,3 +769,53 @@ function completeTask(taskListId, taskId) {
     return { success: false, error: error.message };
   }
 }
+
+/**
+ * Google Tasksのタスクを更新する
+ * @param {string} taskListId タスクリストID
+ * @param {string} taskId タスクID
+ * @param {string} title タイトル
+ * @param {string} notes メモ
+ * @param {string} dueDate 期限(ISO文字列またはnull)
+ * @param {string} [newTaskListId] 移動先タスクリストID (省略時は同一リスト)
+ * @returns {Object} 処理結果
+ */
+function updateTask(taskListId, taskId, title, notes, dueDate, newTaskListId) {
+  try {
+    const targetListId = newTaskListId || taskListId;
+
+    if (targetListId !== taskListId) {
+      // 異なるタスクリストへの移動: 元のタスクを取得し新リストに作成後、旧タスクを削除
+      const originalTask = Tasks.Tasks.get(taskListId, taskId);
+      const newTask = {
+        title: title !== undefined ? title : originalTask.title,
+        notes: notes !== undefined ? notes : (originalTask.notes || ''),
+        status: originalTask.status || 'needsAction'
+      };
+      if (dueDate) {
+        newTask.due = new Date(dueDate).toISOString();
+      }
+      const inserted = Tasks.Tasks.insert(newTask, targetListId);
+      Tasks.Tasks.remove(taskListId, taskId);
+
+      const email = Session.getActiveUser().getEmail();
+      writeLog(email, 'タスク', 'タスクを更新・移動しました');
+      return { success: true, id: inserted.id };
+    } else {
+      // 同一リスト内での更新
+      const taskPatch = {
+        title: title,
+        notes: notes || '',
+        due: dueDate ? new Date(dueDate).toISOString() : null
+      };
+      const updated = Tasks.Tasks.patch(taskPatch, taskListId, taskId);
+
+      const email = Session.getActiveUser().getEmail();
+      writeLog(email, 'タスク', 'タスクを更新しました');
+      return { success: true, id: updated.id };
+    }
+  } catch (error) {
+    console.error('updateTask Error:', error);
+    return { success: false, error: error.message };
+  }
+}
