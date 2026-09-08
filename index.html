@@ -342,6 +342,21 @@
       color: var(--primary);
     }
 
+    .tab-link-btn {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      color: var(--text-secondary);
+      transition: var(--transition);
+      text-decoration: none;
+    }
+
+    .tab-link-btn:hover {
+      background: rgba(var(--primary-rgb), 0.12);
+      border-color: rgba(var(--primary-rgb), 0.3);
+      color: var(--primary);
+      transform: translateY(-1px);
+    }
+
     /* ========================================
        Bookmarks Widget
        ======================================== */
@@ -639,6 +654,7 @@
       margin-bottom: 0.4rem;
       display: -webkit-box;
       -webkit-line-clamp: 2;
+      line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
       line-height: 1.4;
@@ -653,6 +669,7 @@
       color: var(--text-secondary);
       display: -webkit-box;
       -webkit-line-clamp: 2;
+      line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
       line-height: 1.4;
@@ -2054,6 +2071,12 @@
               id="btn-refresh-emails" onclick="loadEmails()" title="メールを更新">
               <span class="material-symbols-rounded text-lg sm:text-xl" id="icon-refresh-emails">refresh</span>
             </button>
+            <a href="https://mail.google.com" target="_blank" rel="noopener noreferrer"
+              class="tab-link-btn py-1.5 px-3 sm:py-2 sm:px-4 rounded-full font-semibold text-xs sm:text-sm flex items-center gap-1 sm:gap-1.5"
+              title="Gmailを新しいタブで開く">
+              <span class="material-symbols-rounded text-base sm:text-lg">open_in_new</span>
+              <span>Gmailを開く</span>
+            </a>
           </div>
           <div id="tab-action-calendar" style="display:none"
             class="week-nav-group flex flex-wrap items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
@@ -2073,18 +2096,32 @@
               <span class="week-period-label text-xs sm:text-sm font-semibold mx-1 sm:mx-2 whitespace-nowrap"
                 id="week-period-label"></span>
             </div>
-            <button
-              class="add-btn py-1.5 px-3 sm:py-2 sm:px-4 rounded-full font-semibold text-xs sm:text-sm flex items-center gap-1 ml-auto sm:ml-0"
-              onclick="showAddEventModal()">
-              <span class="material-symbols-rounded text-base sm:text-lg">calendar_add_on</span> 予定追加
-            </button>
+            <div class="flex items-center gap-2 ml-auto sm:ml-0">
+              <button
+                class="add-btn py-1.5 px-3 sm:py-2 sm:px-4 rounded-full font-semibold text-xs sm:text-sm flex items-center gap-1"
+                onclick="showAddEventModal()">
+                <span class="material-symbols-rounded text-base sm:text-lg">calendar_add_on</span> 予定追加
+              </button>
+              <a href="https://calendar.google.com" target="_blank" rel="noopener noreferrer"
+                class="tab-link-btn py-1.5 px-3 sm:py-2 sm:px-4 rounded-full font-semibold text-xs sm:text-sm flex items-center gap-1 sm:gap-1.5"
+                title="Googleカレンダーを新しいタブで開く">
+                <span class="material-symbols-rounded text-base sm:text-lg">open_in_new</span>
+                <span>カレンダーを開く</span>
+              </a>
+            </div>
           </div>
-          <div id="tab-action-tasks" style="display:none">
+          <div id="tab-action-tasks" style="display:none" class="flex items-center gap-2">
             <button
               class="add-btn py-1.5 px-3 sm:py-2 sm:px-4 rounded-full font-semibold text-xs sm:text-sm flex items-center gap-1"
               onclick="showAddTaskModal()">
               <span class="material-symbols-rounded text-base sm:text-lg">add_task</span> タスク追加
             </button>
+            <a href="https://tasks.google.com" target="_blank" rel="noopener noreferrer"
+              class="tab-link-btn py-1.5 px-3 sm:py-2 sm:px-4 rounded-full font-semibold text-xs sm:text-sm flex items-center gap-1 sm:gap-1.5"
+              title="Google Tasksを新しいタブで開く">
+              <span class="material-symbols-rounded text-base sm:text-lg">open_in_new</span>
+              <span>タスクを開く</span>
+            </a>
           </div>
         </div>
       </div>
@@ -2204,6 +2241,7 @@
       // --- SNS・コミュニケーション ---
       { name: 'mail', label: 'メール', category: 'social', categories: ["social", "work", "web"], keywords: 'メール Gmail 連絡 手紙 メッセージ Outlook mail email google inbox' },
       { name: 'send', label: '送信', category: 'social', categories: ["social", "work", "tools"], keywords: '送信 紙飛行機 DM Telegram メッセンジャー 送る 発信 send message direct' },
+      { name: 'attach_file', label: '添付ファイル', category: 'social', categories: ["social", "tools"], keywords: '添付ファイル 添付 ファイル クリップ ドキュメント attach file attachment paperclip' },
       { name: 'label', label: 'ラベル', category: 'social', categories: ["social", "web", "work"], keywords: 'ラベル マーク シール 印 ラベル付け label tag mark badge' },
       { name: 'chat', label: 'チャット', category: 'social', categories: ["social", "work"], keywords: 'チャット メッセージ LINE Slack Discord Teams 会話 トーク chat talk text message' },
       { name: 'chat_bubble', label: 'チャット2', category: 'social', categories: ["social", "work"], keywords: 'チャット メッセージ LINE Slack Discord Teams 会話 トーク chat talk text message' },
@@ -2217,40 +2255,72 @@
       { name: 'groups', label: '複数グループ', category: 'social', categories: ["social", "work"], keywords: 'グループ チーム 仲間 組織 メンバー 共有 group team member' },
       { name: 'notifications', label: '通知・お知らせ・速報', category: 'social', categories: ["social", "tools", "work"], keywords: '通知 ベル お知らせ 新着 アラート 速報 notification bell alert' },
       { name: 'campaign', label: '広報・お知らせ・告知', category: 'social', categories: ["social", "work"], keywords: '広報 お知らせ キャンペーン メガホン アナウンス 告知 プレスリリース campaign PR announcement' },
-      { name: 'thumb_up', label: 'いいね・高評価・ブックマーク', category: 'social', categories: ["social", "tools"], keywords: 'いいね 高評価 グッド 賛成 支持 thumb up like good' },
+      { name: 'thumb_up', label: 'いいね・高評価', category: 'social', categories: ["social", "tools"], keywords: 'いいね 高評価 グッド 賛成 支持 thumb up like good' },
+      { name: 'thumbs_up_double', label: 'いいね・高評価', category: 'social', categories: ["social", "tools"], keywords: 'たくさんいいね たくさん高評価 thumbs up double like many' },
+      { name: 'thumb_down', label: '低評価・良くない', category: 'social', categories: ["social", "tools"], keywords: '低評価 良くない 反対 thumb down bad' },
+      { name: 'thumbs_up_down', label: '低評価・良くない', category: 'social', categories: ["social", "tools"], keywords: '低評価 良くない 反対 thumb down bad' },
       { name: 'feed', label: 'タイムライン・SNS新着', category: 'social', categories: ["social", "web", "media"], keywords: 'タイムライン 投稿一覧 フィード 新着 SNS ストリーム feed stream timeline' },
       { name: 'share', label: 'シェア・共有・拡散', category: 'social', categories: ["social", "web", "tools"], keywords: 'シェア 共有 拡散 SNS ポスト 転送 share social post' },
 
       // --- 開発・IT・クラウド ---
+      { name: 'android', label: 'Android', category: 'web', categories: ["web", "social", "life"], keywords: 'Android スマホ モバイル 携帯 アプリ android phone mobile app' },
       { name: 'smartphone', label: 'スマホ', category: 'web', categories: ["web", "social", "life"], keywords: 'スマホ iPhone Android モバイル 携帯 アプリ smartphone phone mobile app' },
+      { name: 'mobile_hand', label: 'スマホ片手持ち', category: 'web', categories: ["web", "social", "life"], keywords: 'スマホ 片手持ち スマホ片手持ち片手 モバイル片手持ち mobile hand one hand' },
+      { name: 'desktop_windows', label: 'PC・デスクトップ', category: 'web', categories: ["web", "work", "dev"], keywords: 'Windows デスクトップ パソコン WindowsデスクトップPC '},
       { name: 'laptop', label: 'ノートPC', category: 'web', categories: ["web", "work", "dev"], keywords: 'ノートPC パソコン ラップトップ MacBook Windows laptop pc computer' },
       { name: 'devices', label: '複数デバイス・同期', category: 'web', categories: ["web", "tools", "dev"], keywords: 'デバイス PC スマホ 同期 マルチデバイス devices sync mobile pc' },
-      { name: 'code', label: 'GitHub・ソースコード・開発', category: 'dev', categories: ["dev", "work"], keywords: 'GitHub GitLab コード プログラミング ソース HTML CSS JS Python code dev' },
-      { name: 'terminal', label: 'ターミナル・サーバー管理・CLI', category: 'dev', categories: ["dev", "tools"], keywords: 'ターミナル コンソール CLI コマンド シェル bash サーバー管理 AWS terminal cmd server' },
-      { name: 'cloud', label: 'クラウド・AWS/GCP/Azure', category: 'dev', categories: ["dev", "web", "work"], keywords: 'クラウド クラウドサーバー AWS GCP Azure クラウドインフラ ホスティング cloud hosting infra' },
-      { name: 'cloud_upload', label: 'クラウドアップロード・保存', category: 'dev', categories: ["dev", "tools", "work"], keywords: 'アップロード クラウド保存 送信 ドライブ バックアップ cloud upload backup storage' },
-      { name: 'cloud_download', label: 'ダウンロード・配布サイト', category: 'dev', categories: ["dev", "tools", "work"], keywords: 'ダウンロード クラウド取得 引出 読み込み 配布 ファイル取得 cloud download fetch pull' },
-      { name: 'database', label: 'データベース・SQL・管理画面', category: 'dev', categories: ["dev", "work"], keywords: 'データベース DB SQL MySQL PostgreSQL Supabase phpMyAdmin database storage table' },
-      { name: 'api', label: 'Web API・Postman・ドキュメント', category: 'dev', categories: ["dev", "web", "work"], keywords: 'API REST GraphQL エンドポイント WebAPI Postman Swagger api endpoint service docs' },
-      { name: 'bug_report', label: 'Issue・課題管理・Jira', category: 'dev', categories: ["dev", "work"], keywords: 'バグ 不具合 Issue トラブル エラー チケット Jira Backlog bug report issue ticket' },
-      { name: 'psychology_alt', label: '生成AI・Claude・ChatGPT', category: 'dev', categories: ["dev", "work", "tools"], keywords: '生成AI LLM ChatGPT Claude Gemini Perplexity 思考 AIアシスタント psychology alt ai llm' },
+      { name: 'code', label: 'ソースコード', category: 'dev', categories: ["dev", "work"], keywords: 'GitHub GitLab コード プログラミング ソース HTML CSS JS Python code dev' },
+      { name: 'code_blocks', label: 'ソースコード・ブロック', category: 'dev', categories: ["dev", "work"], keywords: 'コード ブロック code blocks'},
+      { name: 'code_xml', label: 'XML', category: 'dev', categories: ["dev", "work"], keywords: 'XML code xml'},
+      { name: 'data_array', label: '配列・リスト', category: 'dev', categories: ["dev", "work"], keywords: '配列 リスト JSON data array list'},
+      { name: 'data_object', label: 'オブジェクト・辞書', category: 'dev', categories: ["dev", "work"], keywords: 'オブジェクト 辞書 object data'},
+      { name: 'terminal', label: 'ターミナル・CLI', category: 'dev', categories: ["dev", "tools"], keywords: 'ターミナル コンソール CLI コマンド シェル bash サーバー管理 AWS terminal cmd server' },
+      { name: 'terminal_2', label: 'ターミナル・CLI', category: 'dev', categories: ["dev", "tools"], keywords: 'ターミナル コンソール CLI コマンド シェル bash サーバー管理 AWS terminal cmd server' },
+      { name: 'cloud', label: 'クラウド', category: 'dev', categories: ["dev", "web", "work"], keywords: 'クラウド 雲 クラウドサーバー AWS GCP Azure クラウドインフラ ホスティング cloud hosting infra' },
+      { name: 'cloud_sync', label: '同期・連携', category: 'dev', categories: ["dev", "work", "tools"], keywords: '同期 連携 cloud sync'},
+      { name: 'backup', label: 'バックアップ・保存', category: 'dev', categories: ["dev", "work", "tools"], keywords: 'バックアップ 保存 バックアップ先 backup cloud save storage'},
+      { name: 'database', label: 'データベース', category: 'dev', categories: ["dev", "work"], keywords: 'データベース DB SQL MySQL PostgreSQL phpMyAdmin database storage table' },
+      { name: 'data_table', label: 'テーブル・データ', category: 'dev', categories: ["dev", "work", "tools"], keywords: 'テーブル データ data table'},
+      { name: 'api', label: 'Web API', category: 'dev', categories: ["dev", "web", "work"], keywords: 'API REST GraphQL エンドポイント WebAPI Postman Swagger api endpoint service docs' },
+      { name: 'bug_report', label: 'バグ', category: 'dev', categories: ["dev", "work"], keywords: 'バグ 不具合 Issue トラブル エラー チケット Jira Backlog bug report issue ticket' },
+      { name: 'error', label: 'エラー', category: 'dev', categories: ["dev", "work"], keywords: 'エラー 警告 失敗 error warning fail' },
+      { name: 'network_intelligence', label: 'ニューラルネットワーク', category: 'dev', categories: ["dev", "work"], keywords: 'ニューラルネットワーク 人工知能 AI intelligence neural network'},
+      { name: 'psychology', label: '生成AI', category: 'dev', categories: ["dev", "work", "tools"], keywords: '生成AI LLM ChatGPT Claude Gemini Perplexity 思考 AIアシスタント psychology alt ai llm' },
       { name: 'smart_toy', label: 'AI・ボット・自動化', category: 'dev', categories: ["dev", "work", "tools"], keywords: 'AI ボット ロボット ChatGPT 人工知能 自動化 smart toy robot bot chatgpt' },
+      { name: 'lan', label: 'LAN', category: 'dev', categories: ["dev", "work", "tools"], keywords: 'LAN ネットワーク 社内網 イントラネット VPN ローカル net lan local intranet vpn' },
       { name: 'extension', label: '拡張機能・プラグインストア', category: 'dev', categories: ["dev", "tools", "web"], keywords: '拡張機能 プラグイン アドオン Chrome拡張 VSCode ストア extension plugin add-on store' },
-      { name: 'lan', label: '社内LAN・イントラネット・VPN', category: 'dev', categories: ["dev", "work", "tools"], keywords: 'LAN ネットワーク 社内網 イントラネット VPN ローカル net lan local intranet vpn' },
 
       // --- 仕事・ビジネス・管理 ---
-      { name: 'description', label: 'Googleドキュメント・仕様書', category: 'work', categories: ["work", "web"], keywords: 'ドキュメント Docs 仕様書 文書 書類 テキスト GoogleDocs Word description document' },
-      { name: 'article', label: '記事・ブログ・note・Qiita', category: 'work', categories: ["work", "web", "media"], keywords: '記事 ブログ コラム ニュース 読み物 メディア Qiita Zenn note article blog' },
+      { name: 'description', label: 'ドキュメント・Word', category: 'work', categories: ["work", "web"], keywords: 'ドキュメント Docs 仕様書 文書 書類 テキスト GoogleDocs Word description document' },
+      { name: 'article', label: '記事・ブログ', category: 'work', categories: ["work", "web", "media"], keywords: '記事 ブログ コラム ニュース 読み物 メディア Qiita Zenn note article blog' },
       { name: 'table_chart', label: 'スプレッドシート・Excel', category: 'work', categories: ["work", "dev", "tools"], keywords: 'スプレッドシート 表計算 エクセル GoogleSheets Excel 表 データ 集計 table chart sheet' },
-      { name: 'slideshow', label: 'プレゼン・PowerPoint・スライド', category: 'work', categories: ["work", "media"], keywords: 'プレゼン スライド 資料 パワポ PowerPoint GoogleSlides 発表 slideshow presentation' },
-      { name: 'edit_note', label: 'Notion・Evernote・ノート', category: 'work', categories: ["work", "dev", "tools"], keywords: 'ノート メモ 記録 手帳 Notion Evernote 日記 議事録 edit note memo' },
-      { name: 'task_alt', label: 'ToDo・タスク管理・Trello', category: 'work', categories: ["work", "life", "tools"], keywords: 'タスク ToDo チェック 完了 業務 やること Trello Asana task alt check todo done' },
-      { name: 'calendar_today', label: 'Googleカレンダー・本日の予定', category: 'work', categories: ["work", "life"], keywords: 'カレンダー 今日 予定 スケジュール 日程 本日 Googleカレンダー calendar today schedule' },
-      { name: 'calendar_month', label: '月間予定表・スケジュール', category: 'work', categories: ["work", "life"], keywords: 'カレンダー 月間 マンスリー 月別 スケジュール 予定表 行事 calendar month monthly' },
-      { name: 'schedule', label: '時計・勤怠管理・タイムカード', category: 'work', categories: ["work", "tools", "life"], keywords: '時計 時間 時刻 スケジュール 勤怠 タイムカード 打刻 シフト schedule clock time attendance' },
-      { name: 'folder', label: 'Googleドライブ・共有フォルダ', category: 'work', categories: ["work", "tools"], keywords: 'フォルダ ドライブ GoogleDrive Dropbox OneDrive 共有フォルダ 保管庫 folder drive storage' },
+      { name: 'slideshow', label: 'PowerPoint・スライド', category: 'work', categories: ["work", "media"], keywords: 'プレゼン スライド 資料 パワポ PowerPoint GoogleSlides 発表 slideshow presentation' },
+      { name: 'note_alt', label: 'ノート', category: 'work', categories: ["work", "dev", "tools"], keywords: 'ノート メモ 記録 手帳 Notion Evernote 日記 議事録 edit note memo'},
+      { name: 'edit_note', label: 'ノート', category: 'work', categories: ["work", "dev", "tools"], keywords: 'ノート メモ 記録 手帳 Notion Evernote 日記 議事録 edit note memo' },
+      { name: 'stylus_note', label: 'スタイラスノート', category: 'work', categories: ["work", "dev", "tools"], keywords: 'スタイラスノート メモ 記録 手帳 Notion Evernote 日記 議事録 edit note memo'},
+      { name: 'sticky_note_2', label: 'スタイラスノート', category: 'work', categories: ["work", "dev", "tools"], keywords: '付箋 メモ 記録 手帳 Notion Evernote 日記 議事録 sticky note memo'},
+      { name: 'task', label: 'ToDo・タスク', category: 'work', categories: ["work", "life", "tools"], keywords: 'タスク ToDo チェック 完了 業務 やること Trello Asana task alt check todo done' },
+      { name: 'task_alt', label: 'ToDo・タスク', category: 'work', categories: ["work", "life", "tools"], keywords: 'タスク ToDo チェック 完了 業務 やること Trello Asana task alt check todo done' },
+      { name: 'checklist', label: 'チェックリスト', category: 'work', categories: ["work", "life", "tools"], keywords: 'タスク ToDo チェック 完了 業務 やること Trello Asana task alt check todo done'},
+      { name: 'list', label: 'リスト', category: 'work', categories: ["work", "life", "tools"], keywords: 'タスク ToDo チェック 完了 業務 やること Trello Asana task alt check todo done'},
+      { name: 'list_alt', label: 'リスト', category: 'work', categories: ["work", "life", "tools"], keywords: 'タスク ToDo チェック 完了 業務 やること Trello Asana task alt check todo done'},
+      { name: 'calendar_today', label: 'カレンダー', category: 'work', categories: ["work", "life"], keywords: 'カレンダー 今日 予定 スケジュール 日程 本日 Googleカレンダー calendar today schedule' },
+      { name: 'calendar_month', label: 'カレンダー', category: 'work', categories: ["work", "life"], keywords: 'カレンダー 月間 マンスリー 月別 スケジュール 予定表 行事 calendar month monthly' },
+      { name: 'today', label: 'カレンダー', category: 'work', categories: ["work", "life"], keywords: 'カレンダー 今日 予定 スケジュール 日程 本日 Googleカレンダー calendar today schedule' },
+      { name: 'schedule', label: '時計', category: 'work', categories: ["work", "tools", "life"], keywords: '時計 時間 時刻 スケジュール 勤怠 タイムカード 打刻 シフト schedule clock time attendance' },
+      { name: 'alarm', label: '時計・アラーム', category: 'work', categories: ["work", "life"], keywords: '時計 時間 時刻 スケジュール 勤怠 タイムカード 打刻 シフト schedule clock time attendance'},
+      { name: 'watch', label: '時計', category: 'work', categories: ["work", "life"], keywords: '時計 時間 時刻 スケジュール 勤怠 タイムカード 打刻 シフト schedule clock time attendance'},
+      { name: 'folder', label: 'フォルダ', category: 'work', categories: ["work", "tools"], keywords: 'フォルダ ドライブ GoogleDrive Dropbox OneDrive 共有フォルダ 保管庫 folder drive storage' },
+      { name: 'folder_code', label: 'フォルダ', category: 'work', categories: ["work", "tools"], keywords: 'フォルダ ドライブ GoogleDrive Dropbox OneDrive 共有フォルダ 保管庫 folder drive storage folder コード code'},
+      { name: 'folder_data', label: 'フォルダ', category: 'work', categories: ["work", "tools"], keywords: 'フォルダ ドライブ GoogleDrive Dropbox OneDrive 共有フォルダ 保管庫 folder drive storage データ folder data'},
+      { name: 'folder_delete', label: 'フォルダ', category: 'work', categories: ["work", "tools"], keywords: 'フォルダ ドライブ GoogleDrive Dropbox OneDrive 共有フォルダ 保管庫 folder drive storage 削除 folder delete'},
+      { name: 'folder_managed', label: 'フォルダ', category: 'work', categories: ["work", "tools"], keywords: 'フォルダ ドライブ GoogleDrive Dropbox OneDrive 共有フォルダ 保管庫 folder drive storage 組織 folder managed 設定'},
+      { name: 'folder_shared', label: 'フォルダ', category: 'work', categories: ["work", "tools"], keywords: 'フォルダ ドライブ GoogleDrive Dropbox OneDrive 共有フォルダ 保管庫 folder drive storage 共有 folder shared 設定'},
+      { name: 'folder_zip', label: 'フォルダ', category: 'work', categories: ["work", "tools"], keywords: 'フォルダ ドライブ GoogleDrive Dropbox OneDrive 共有フォルダ 保管庫 folder drive storage folder ジップ zip'},
+      { name: 'workspaces', label: 'ワークスペース', category: 'work', categories: ["work", "tools"], keywords: 'ワークスペース workspace'},
       { name: 'work', label: '仕事・グループウェア・社内システム', category: 'work', categories: ["work", "web"], keywords: '仕事 ビジネス 業務 会社 グループウェア サイボウズ 社内システム work job business office' },
       { name: 'business_center', label: '営業・案件管理・Salesforce', category: 'work', categories: ["work"], keywords: 'ビジネス 案件 取引 営業 商談 Salesforce CRM 出張 ブリーフケース business sales crm' },
+      { name: 'home_work', label: '在宅勤務・リモートワーク', category: 'work', categories: ["work", "life"], keywords: '在宅勤務 リモートワーク テレワーク 自宅 会社 外出 自宅待機 home work remote'},
       { name: 'contract', label: '電子契約・クラウドサイン', category: 'work', categories: ["work"], keywords: '契約書 電子契約 クラウドサイン クラウド 合意 規約 締結 約款 contract agreement legal' },
       { name: 'receipt', label: '請求書・領収書・freee', category: 'work', categories: ["work", "life"], keywords: '領収書 請求書 インボイス レシート 経理 伝票 freee マネーフォワード receipt invoice bill' },
       { name: 'request_quote', label: '見積書・受発注システム', category: 'work', categories: ["work", "life"], keywords: '見積 見積書 提案書 概算 受発注 発注 案件 request quote estimate proposal' },
