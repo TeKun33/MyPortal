@@ -244,12 +244,27 @@ function getTermsAgreement(email) {
 }
 
 /**
+ * ユーザーが利用規約に同意しているかを検証する
+ * 未同意の場合はエラーをスローし、APIアクセスを遮断する
+ * @param {string} [email] ユーザーのメールアドレス (省略時は実行中アカウント)
+ */
+function assertTermsAgreed(email) {
+  if (!email) email = getUserEmail();
+  const agreement = getTermsAgreement(email);
+  if (!agreement.termsAgreed) {
+    throw new Error('利用規約に同意していないため、この操作は許可されていません。');
+  }
+}
+
+
+/**
  * ブックマーク一覧を取得する
  * @param {string} email ユーザーのメールアドレス
  * @returns {Array} ブックマークオブジェクトの配列
  */
 function getBookmarks(email) {
   try {
+    assertTermsAgreed(email);
     const sheet = getOrCreateUserSheet(email);
     const lastRow = sheet.getLastRow();
     
@@ -293,6 +308,7 @@ function getBookmarks(email) {
  */
 function addBookmark(email, title, url, category, icon) {
   try {
+    assertTermsAgreed(email);
     const sheet = getOrCreateUserSheet(email);
     
     const iconName = icon || (category && !category.includes('/') ? category : 'language');
@@ -326,6 +342,7 @@ function addBookmark(email, title, url, category, icon) {
  */
 function updateBookmark(email, index, title, url, category, icon) {
   try {
+    assertTermsAgreed(email);
     const sheet = getOrCreateUserSheet(email);
     const rowToUpdate = index + 3;
     
@@ -353,6 +370,7 @@ function updateBookmark(email, index, title, url, category, icon) {
 
 function deleteBookmark(email, index) {
   try {
+    assertTermsAgreed(email);
     const sheet = getOrCreateUserSheet(email);
     const rowToDelete = index + 3;
     
@@ -376,6 +394,7 @@ function deleteBookmark(email, index) {
  */
 function saveAllBookmarks(email, bookmarks) {
   try {
+    assertTermsAgreed(email);
     const sheet = getOrCreateUserSheet(email);
     const lastRow = sheet.getLastRow();
     
@@ -408,6 +427,7 @@ function saveAllBookmarks(email, bookmarks) {
  */
 function reorderBookmarks(email, newOrder) {
   try {
+    assertTermsAgreed(email);
     const bookmarks = getBookmarks(email);
     if (bookmarks.length === 0) return { success: true };
     
@@ -435,6 +455,7 @@ function reorderBookmarks(email, newOrder) {
  */
 function getGmailMessages() {
   try {
+    assertTermsAgreed();
     const threads = GmailApp.getInboxThreads(0, 50);
     const messages = [];
     
@@ -474,6 +495,7 @@ function getGmailMessages() {
  */
 function getCalendarEvents(weekOffset) {
   try {
+    assertTermsAgreed();
     const calendar = CalendarApp.getDefaultCalendar();
     if (!calendar) return [];
     
@@ -532,6 +554,7 @@ function getCalendarEvents(weekOffset) {
  */
 function addCalendarEvent(title, startTime, endTime, description, color, isAllDay) {
   try {
+    assertTermsAgreed();
     const calendar = CalendarApp.getDefaultCalendar();
     const start = new Date(startTime);
     const end = new Date(endTime);
@@ -581,6 +604,7 @@ function addCalendarEvent(title, startTime, endTime, description, color, isAllDa
  */
 function deleteCalendarEvent(eventId) {
   try {
+    assertTermsAgreed();
     const calendar = CalendarApp.getDefaultCalendar();
     const event = calendar.getEventById(eventId);
     
@@ -612,6 +636,7 @@ function deleteCalendarEvent(eventId) {
  */
 function updateCalendarEvent(eventId, title, startTime, endTime, description, color, isAllDay) {
   try {
+    assertTermsAgreed();
     const calendar = CalendarApp.getDefaultCalendar();
     const event = calendar.getEventById(eventId);
     if (!event) {
@@ -661,6 +686,7 @@ function updateCalendarEvent(eventId, title, startTime, endTime, description, co
  */
 function getTasks() {
   try {
+    assertTermsAgreed();
     const taskLists = Tasks.Tasklists.list();
     if (!taskLists.items) {
       return [];
@@ -713,6 +739,7 @@ function getTasks() {
  */
 function addTask(taskListId, title, notes, dueDate) {
   try {
+    assertTermsAgreed();
     const newTask = {
       title: title,
       notes: notes || ''
@@ -740,6 +767,7 @@ function addTask(taskListId, title, notes, dueDate) {
  */
 function deleteTask(taskListId, taskId) {
   try {
+    assertTermsAgreed();
     Tasks.Tasks.remove(taskListId, taskId);
     const email = Session.getActiveUser().getEmail();
     writeLog(email, 'タスク', 'タスクを削除しました');
@@ -758,6 +786,7 @@ function deleteTask(taskListId, taskId) {
  */
 function completeTask(taskListId, taskId) {
   try {
+    assertTermsAgreed();
     const task = Tasks.Tasks.get(taskListId, taskId);
     task.status = 'completed';
     Tasks.Tasks.patch(task, taskListId, taskId);
@@ -782,6 +811,7 @@ function completeTask(taskListId, taskId) {
  */
 function updateTask(taskListId, taskId, title, notes, dueDate, newTaskListId) {
   try {
+    assertTermsAgreed();
     const targetListId = newTaskListId || taskListId;
 
     if (targetListId !== taskListId) {

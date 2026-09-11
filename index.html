@@ -1086,6 +1086,59 @@
     }
 
     /* ========================================
+       Terms Gate (Access Control Overlay)
+       ======================================== */
+    .terms-gate {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 9999;
+      background: rgba(10, 15, 29, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body.terms-already-agreed .terms-gate {
+      display: none !important;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .terms-gate.hidden-gate {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .terms-gate-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-2xl, 1.5rem);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      animation: termsGateCardEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes termsGateCardEnter {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* ========================================
        Modals
        ======================================== */
     .modal-overlay {
@@ -1935,6 +1988,14 @@
 </head>
 
 <body data-theme="ocean" data-mode="light">
+  <script>
+    // 高速初期判定: 同意済みの場合は即座にフラグを付与し、画面のちらつきを防止
+    try {
+      if (localStorage.getItem('myportal_has_agreed_terms') === 'true') {
+        document.body.classList.add('terms-already-agreed');
+      }
+    } catch (e) {}
+  </script>
 
   <div class="bg-gradient fixed top-0 left-0 w-screen h-screen -z-10"></div>
 
@@ -1945,7 +2006,7 @@
         <h1 class="text-xl sm:text-2xl font-bold tracking-tight">マイポータル</h1>
         <span
           class="version-tag text-xs font-semibold py-0.5 px-2.5 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
-          onclick="showUpdateInfoModal()" title="アップデート情報を確認">v1.1.0</span>
+          onclick="showUpdateInfoModal()" title="アップデート情報を確認">v1.1.3_beta</span>
       </div>
       <!-- モバイル用クイック設定（テーマ & ダークモード） -->
       <div class="header-mobile-controls flex items-center gap-2 md:hidden">
@@ -2183,9 +2244,117 @@
       <span class="sm:hidden text-primary user-email-footer" id="user-email-footer"></span>
     </div>
     <div>
-      © 2026 マイポータル (v1.1.0) by TeKun33.
+      © 2026 マイポータル (v1.1.3_beta) by TeKun33.
     </div>
   </footer>
+
+  <!-- Terms Gate (Access Control Overlay) -->
+  <div class="terms-gate" id="terms-gate" role="dialog" aria-modal="true" aria-labelledby="terms-gate-title">
+    <div class="terms-gate-card w-[95%] max-w-[660px] p-5 sm:p-7 flex flex-col max-h-[92vh]">
+      
+      <!-- 1. 同意確認ビュー (Agreement View) -->
+      <div id="terms-gate-agreement-view" class="flex flex-col flex-1 min-h-0">
+        <div class="flex items-center gap-3.5 mb-4 pb-3 flex-shrink-0" style="border-bottom: 1px solid var(--border-color);">
+          <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style="background: linear-gradient(135deg, var(--primary), var(--primary-light, var(--primary))); color: #fff; box-shadow: 0 4px 14px rgba(var(--primary-rgb), 0.35);">
+            <span class="material-symbols-rounded text-2xl sm:text-3xl">verified_user</span>
+          </div>
+          <div>
+            <h2 class="text-base sm:text-lg font-bold tracking-tight" id="terms-gate-title" style="color: var(--text-primary);">利用規約・プライバシー方針への同意</h2>
+            <p class="text-xs mt-0.5" style="color: var(--text-secondary);">マイポータルをご利用いただくには、以下の利用規約への同意が必要です。</p>
+          </div>
+        </div>
+
+        <!-- スクロール可能な規約本文 -->
+        <div class="terms-gate-content overflow-y-auto pr-2 space-y-4 text-xs leading-relaxed rounded-xl p-3.5 flex-1" style="background: var(--hover-bg); border: 1px solid var(--border-color); color: var(--text-primary); max-height: calc(88vh - 210px);">
+          <section>
+            <h4 class="font-bold mb-1 flex items-center gap-1.5 text-sm" style="color: var(--primary);">
+              <span class="material-symbols-rounded text-base">apps</span> 第1条（本アプリについて）
+            </h4>
+            <p class="text-xs leading-relaxed" style="color: var(--text-primary);">「マイポータル」は、利用者の Google アカウント（Gmail、Google カレンダー、Google Tasks）および個人用ブックマークを統合管理するためのパーソナルポータル Web アプリケーションです。本アプリは Google Apps Script (GAS) 環境上で動作します。</p>
+          </section>
+
+          <section>
+            <h4 class="font-bold mb-1 flex items-center gap-1.5 text-sm" style="color: var(--primary);">
+              <span class="material-symbols-rounded text-base">database</span> 第2条（保存および保持するデータについて）
+            </h4>
+            <p class="text-xs mb-2 leading-relaxed" style="color: var(--text-primary);">本アプリでは、利便性とセキュリティを両立するため、以下の場所およびデータのみを安全に保持・管理します：</p>
+            <div class="p-3 rounded-xl space-y-2.5 text-xs" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+              <div>
+                <strong class="font-semibold" style="color: var(--primary);">1. Google スプレッドシート（専用保存領域）:</strong>
+                <ul class="list-disc list-inside ml-2 mt-1 space-y-1" style="color: var(--text-primary);">
+                  <li>ユーザー設定（テーマ色、ダークモード選択状態、利用規約同意フラグ・日時）</li>
+                  <li>ブックマーク一覧（タイトル、URL、表示順序）</li>
+                  <li>利用規約同意一覧（<code class="px-1.5 py-0.5 rounded font-mono text-[0.75rem]" style="background: var(--hover-bg); border: 1px solid var(--border-color); color: var(--primary);">__TERMS__</code> シート）</li>
+                  <li>操作ログ（操作日時、実行アカウント、操作内容および詳細パラメータ）を <code class="px-1.5 py-0.5 rounded font-mono text-[0.75rem]" style="background: var(--hover-bg); border: 1px solid var(--border-color); color: var(--primary);">__LOG__</code> シートに自動記録します。</li>
+                </ul>
+              </div>
+              <div>
+                <strong class="font-semibold" style="color: var(--primary);">2. ブラウザローカルストレージ (LocalStorage):</strong>
+                <ul class="list-disc list-inside ml-2 mt-1 space-y-1" style="color: var(--text-primary);">
+                  <li>画面テーマおよびカラーモード設定の高速初期復元用データ</li>
+                </ul>
+              </div>
+              <div>
+                <strong class="font-semibold" style="color: var(--primary);">3. Google 連携データ (Gmail / カレンダー / Tasks):</strong>
+                <ul class="list-disc list-inside ml-2 mt-1 space-y-1" style="color: var(--text-primary);">
+                  <li>Google 公式 API 経由で直接読み書きされます。外部の第三者サーバー等へ送信・蓄積されることは一切ありません。</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h4 class="font-bold mb-1 flex items-center gap-1.5 text-sm" style="color: var(--primary);">
+              <span class="material-symbols-rounded text-base">security</span> 第3条（個人情報の保護とセキュリティ）
+            </h4>
+            <p class="text-xs leading-relaxed" style="color: var(--text-primary);">取得および表示されるすべてのデータ（メール、予定、タスク、ブックマーク等）は、利用者自身の Google アカウント権限領域および紐付けられたスプレッドシート内のみで保護されます。</p>
+          </section>
+
+          <section>
+            <h4 class="font-bold mb-1 flex items-center gap-1.5 text-sm" style="color: var(--primary);">
+              <span class="material-symbols-rounded text-base">gavel</span> 第4条（免責事項）
+            </h4>
+            <p class="text-xs leading-relaxed" style="color: var(--text-primary);">本アプリは利用者の生産性向上のために提供されます。Google 側の通信障害や仕様変更により、一時的に同期・表示が制限される場合があります。</p>
+          </section>
+        </div>
+
+        <!-- チェックボックス & フッターアクション -->
+        <div class="mt-4 pt-3 flex flex-col gap-3 flex-shrink-0" style="border-top: 1px solid var(--border-color);">
+          <label class="flex items-center gap-2.5 cursor-pointer text-xs sm:text-sm select-none" style="color: var(--text-primary);">
+            <input type="checkbox" id="terms-gate-checkbox" class="w-4 h-4 rounded cursor-pointer accent-[var(--primary)]" onchange="toggleTermsGateButton()">
+            <span class="font-medium">上記の利用規約およびプライバシー方針の内容を確認し、同意します</span>
+          </label>
+          
+          <div class="flex items-center justify-end gap-3 pt-1">
+            <button type="button" class="btn btn-secondary text-xs sm:text-sm py-2 px-4" onclick="handleDeclineTermsGate()">同意しない</button>
+            <button type="button" id="terms-gate-submit-btn" class="btn btn-primary text-xs sm:text-sm py-2 px-5 opacity-50 cursor-not-allowed" disabled onclick="handleAcceptTermsGate()">
+              <span class="material-symbols-rounded text-base mr-1">check_circle</span>
+              <span>同意して利用を開始する</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. アクセス拒否ビュー (Declined View) -->
+      <div id="terms-gate-declined-view" class="flex flex-col items-center justify-center text-center p-4 sm:p-8 space-y-4 my-auto" style="display: none;">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl flex items-center justify-center text-rose-500 bg-rose-500/10 border border-rose-500/20 mb-2">
+          <span class="material-symbols-rounded text-4xl sm:text-5xl">lock</span>
+        </div>
+        <h3 class="text-lg sm:text-xl font-bold" style="color: var(--text-primary);">Webアプリへのアクセスが制限されています</h3>
+        <p class="text-xs sm:text-sm max-w-md leading-relaxed" style="color: var(--text-secondary);">
+          利用規約に同意いただけない場合は、マイポータルの全機能（Gmail・カレンダー・タスク・ブックマーク等）をご利用いただくことができません。<br><br>
+          ご利用を終了する場合は、このブラウザのタブまたはウィンドウを閉じてください。
+        </p>
+        <div class="pt-4 flex flex-col sm:flex-row gap-3">
+          <button type="button" class="btn btn-secondary text-xs sm:text-sm py-2.5 px-5 flex items-center justify-center gap-1.5" onclick="handleReviewTermsGate()">
+            <span class="material-symbols-rounded text-base">arrow_back</span>
+            利用規約を再度確認する
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
   <!-- Reusable Modal -->
   <div class="modal-overlay fixed inset-0 w-screen h-screen flex items-center justify-center z-[1000] p-3 sm:p-4"
@@ -2244,7 +2413,7 @@
       { name: 'attach_file', label: '添付ファイル', category: 'social', categories: ["social", "tools"], keywords: '添付ファイル 添付 ファイル クリップ ドキュメント attach file attachment paperclip' },
       { name: 'label', label: 'ラベル', category: 'social', categories: ["social", "web", "work"], keywords: 'ラベル マーク シール 印 ラベル付け label tag mark badge' },
       { name: 'chat', label: 'チャット', category: 'social', categories: ["social", "work"], keywords: 'チャット メッセージ LINE Slack Discord Teams 会話 トーク chat talk text message' },
-      { name: 'chat_bubble', label: 'チャット2', category: 'social', categories: ["social", "work"], keywords: 'チャット メッセージ LINE Slack Discord Teams 会話 トーク chat talk text message' },
+      { name: 'chat_bubble', label: 'チャット', category: 'social', categories: ["social", "work"], keywords: 'チャット メッセージ LINE Slack Discord Teams 会話 トーク chat talk text message' },
       { name: 'sms', label: 'ショートメッセージ', category: 'social', categories: ["social", "work", "web"], keywords: 'SMS ショートメッセージ 連絡 手紙 メッセージ LINE Slack Discord Teams 会話 トーク chat talk text message' },
       { name: 'forum', label: '掲示板・コミュニティ', category: 'social', categories: ["social", "web"], keywords: '掲示板 フォーラム コミュニティ スレッド 談話室 5ch Reddit forum board thread' },
       { name: 'alternate_email', label: '@マーク', category: 'social', categories: ["social", "web"], keywords: '@ アットマーク メンション X Twitter SNS ツイッター alternate email mention handle' },
@@ -2650,14 +2819,45 @@
         applySettings();
       }
 
-      // データの並列取得（1つの失敗が他をブロックしないように独立実行）
-      loadBookmarks().catch(e => console.error('loadBookmarks error:', e));
-      loadEmails().catch(e => console.error('loadEmails error:', e));
-      loadEvents().catch(e => console.error('loadEvents error:', e));
-      loadTasks().catch(e => console.error('loadTasks error:', e));
+      // 利用規約の同意確認
+      const agreedServer = state.settings && (state.settings.termsAgreed === true || state.settings.termsAgreed === 'true');
+      const agreedLocal = localStorage.getItem('myportal_has_agreed_terms') === 'true';
+      const hasAgreed = agreedServer || agreedLocal;
 
-      // 初回アクセスの利用規約判定
-      checkFirstVisitTerms();
+      if (!hasAgreed) {
+        // ★ 未同意の場合：Webアプリへのアクセスを遮断し、個人データは取得しない ★
+        document.body.classList.remove('terms-already-agreed');
+        const gate = document.getElementById('terms-gate');
+        if (gate) {
+          gate.classList.remove('hidden-gate');
+          gate.style.display = 'flex';
+          const agreementView = document.getElementById('terms-gate-agreement-view');
+          const declinedView = document.getElementById('terms-gate-declined-view');
+          if (agreementView) agreementView.style.display = 'flex';
+          if (declinedView) declinedView.style.display = 'none';
+        }
+        return; // データロードは行わずに停止
+      }
+
+      // 同意済みの場合はゲートを解除
+      document.body.classList.add('terms-already-agreed');
+      const gate = document.getElementById('terms-gate');
+      if (gate) {
+        gate.classList.add('hidden-gate');
+        gate.style.display = 'none';
+      }
+
+      // 同意状態の同期（片方のみ true の場合）
+      if (agreedServer && !agreedLocal) {
+        localStorage.setItem('myportal_has_agreed_terms', 'true');
+      } else if (!agreedServer && agreedLocal) {
+        callServer('saveTermsAgreement', state.email, true).catch(err => {
+          console.warn('Background saveTermsAgreement failed:', err);
+        });
+      }
+
+      // 同意済みユーザーのみアプリデータをロード
+      loadAppData();
     }
 
     // 即時起動
@@ -3762,30 +3962,81 @@
 
     let currentModalSubmit = null;
 
-    function checkFirstVisitTerms() {
-      const agreedLocal = localStorage.getItem('myportal_has_agreed_terms') === 'true';
-      const agreedServer = state.settings && (state.settings.termsAgreed === true || state.settings.termsAgreed === 'true');
+    /* ========================================
+       Terms Gate Handlers & Data Loading
+       ======================================== */
+    function toggleTermsGateButton() {
+      const checkbox = document.getElementById('terms-gate-checkbox');
+      const submitBtn = document.getElementById('terms-gate-submit-btn');
+      if (!submitBtn) return;
+      if (checkbox && checkbox.checked) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      } else {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      }
+    }
 
-      if (agreedServer) {
-        // スプレッドシート側で既に同意済みの場合、localStorageも同期
-        if (!agreedLocal) {
-          localStorage.setItem('myportal_has_agreed_terms', 'true');
+    function handleDeclineTermsGate() {
+      const agreementView = document.getElementById('terms-gate-agreement-view');
+      const declinedView = document.getElementById('terms-gate-declined-view');
+      if (agreementView) agreementView.style.display = 'none';
+      if (declinedView) declinedView.style.display = 'flex';
+    }
+
+    function handleReviewTermsGate() {
+      const agreementView = document.getElementById('terms-gate-agreement-view');
+      const declinedView = document.getElementById('terms-gate-declined-view');
+      if (declinedView) declinedView.style.display = 'none';
+      if (agreementView) agreementView.style.display = 'flex';
+    }
+
+    async function handleAcceptTermsGate() {
+      const submitBtn = document.getElementById('terms-gate-submit-btn');
+      const originalHtml = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="inline-block animate-spin mr-1.5">⌛</span> 同意処理中...';
+      }
+
+      try {
+        localStorage.setItem('myportal_has_agreed_terms', 'true');
+        if (state.settings) {
+          state.settings.termsAgreed = true;
+          state.settings.termsAgreedAt = new Date().toLocaleString();
         }
-        return;
-      }
 
-      if (agreedLocal) {
-        // localStorageで同意済みだがスプレッドシート側が未同意の場合、バックグラウンド同期
-        callServer('saveTermsAgreement', state.email, true).catch(err => {
-          console.warn('Background saveTermsAgreement failed:', err);
-        });
-        return;
-      }
+        // スプレッドシートへ保存
+        await callServer('saveTermsAgreement', state.email, true);
 
-      // どちらも未同意の場合は初回利用規約モーダルを表示
-      setTimeout(() => {
-        showTermsModal(true);
-      }, 500);
+        // 同意ゲートを解除
+        document.body.classList.add('terms-already-agreed');
+        const gate = document.getElementById('terms-gate');
+        if (gate) {
+          gate.classList.add('hidden-gate');
+          setTimeout(() => { gate.style.display = 'none'; }, 350);
+        }
+
+        showToast('利用規約に同意しました。マイポータルへようこそ！', 'success');
+
+        // ここで初めてアプリの全データを読み込み開始
+        loadAppData();
+      } catch (err) {
+        console.error('saveTermsAgreement error:', err);
+        showToast('同意状態の保存に失敗しました: ' + (err.message || err), 'error');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalHtml;
+        }
+      }
+    }
+
+    function loadAppData() {
+      loadBookmarks().catch(e => console.error('loadBookmarks error:', e));
+      loadEmails().catch(e => console.error('loadEmails error:', e));
+      loadEvents().catch(e => console.error('loadEvents error:', e));
+      loadTasks().catch(e => console.error('loadTasks error:', e));
     }
 
     function showCustomInfoModal(title, htmlContent, actionConfig = null) {
@@ -3814,6 +4065,66 @@
 
     function showUpdateInfoModal() {
       const content = `
+        <div class="pb-3" style="border-bottom: 1px solid var(--border-color);">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="version-tag text-xs font-semibold py-0.5 px-2.5 rounded-full">v1.1.3</span>
+            <span class="text-xs font-medium opacity-70" style="color: var(--text-secondary);">2026/9/11</span>
+          </div>
+          <div class="space-y-2.5 text-xs" style="color: var(--text-primary);">
+            <div>
+              <p class="font-semibold mb-1" style="color: var(--primary);">🔒 利用規約同意ゲートとセキュリティ・アクセス制御の強化</p>
+              <ul class="list-disc list-inside space-y-0.5 pl-1 opacity-90 leading-relaxed">
+                <li>初回アクセス時または未同意ユーザーに対して全画面同意オーバーレイ（Terms Gate）を表示し、同意するまでアプリデータの読み込みを完全停止</li>
+                <li>同意チェックボックス必須化、同意拒否時の案内ビューおよび再検討フローを実装</li>
+                <li>バックエンド (Code.js) に assertTermsAgreed を実装し、すべてのデータ取得・操作 API でサーバー側未同意アクセスを完全遮断</li>
+                <li>localStorage とスプレッドシート（個別設定行および __TERMS__ 集約シート）間での同意状態の高速判定＆双方向同期</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold mb-1" style="color: var(--primary);">📝 Google Tasks (タスク) の編集機能追加</p>
+              <ul class="list-disc list-inside space-y-0.5 pl-1 opacity-90 leading-relaxed">
+                <li>タスク各行の編集ボタンまたはタスククリックから編集モーダルを開いて編集可能に</li>
+                <li>タイトル、詳細メモ、期限、所属タスクリストの変更およびリスト間移動に対応</li>
+                <li>開発・プレビュー環境のモックデータでもタスクの追加・編集・削除・完了トグルに対応</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold mb-1" style="color: var(--primary);">🔗 Google サービスとの外部連携ボタン追加</p>
+              <ul class="list-disc list-inside space-y-0.5 pl-1 opacity-90 leading-relaxed">
+                <li>カレンダーおよびタスクのヘッダーに、Google カレンダー/Google Tasks を新しいタブで開くリンクボタンを追加</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold mb-1" style="color: var(--primary);">🎨 ブックマーク用アイコンカタログの拡充 & 操作性改善</p>
+              <ul class="list-disc list-inside space-y-0.5 pl-1 opacity-90 leading-relaxed">
+                <li>実務・開発・学習・生活・Web・メディアなど多岐にわたる用途を網羅する 140 種以上の実用アイコンを厳選・拡充（複数カテゴリ所属）</li>
+                <li>アイコンピッカーのテキスト選択防止 (user-select: none)、スクロールバー安定化、検索性向上</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-semibold mb-1" style="color: var(--primary);">✨ UI/UX の視認性・操作性の統一と洗練</p>
+              <ul class="list-disc list-inside space-y-0.5 pl-1 opacity-90 leading-relaxed">
+                <li>ブックマークカードおよびカレンダー予定の削除ボタンアイコンをゴミ箱アイコンに統一し視認性を向上</li>
+                <li>カレンダー日付セルの「予定を追加」ボタンアイコンを直感的なデザインに変更</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="pb-3" style="border-bottom: 1px solid var(--border-color);">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="version-tag text-xs font-semibold py-0.5 px-2.5 rounded-full">v1.1.2</span>
+            <span class="text-xs font-medium opacity-70" style="color: var(--text-secondary);">2026/9/5</span>
+          </div>
+          <div class="space-y-2.5 text-xs" style="color: var(--text-primary);">
+            <div>
+              <p class="font-semibold mb-1" style="color: var(--primary);">🏷️ アイコンのカテゴリ切り替え操作を改善</p>
+              <ul class="list-disc list-inside space-y-0.5 pl-1 opacity-90 leading-relaxed">
+                <li>アイコンピッカーのカテゴリタブにドラッグスクロールや横スクロールバー表示を対応</li>
+                <li>カテゴリ選択セレクトボックスの追加とタブ連動により、目的のカテゴリへ素早く切り替え可能に</li>
+              </ul>
+            </div>
+          </div>
+        </div>
         <div class="pb-3" style="border-bottom: 1px solid var(--border-color);">
           <div class="flex items-center gap-2 mb-2">
             <span class="version-tag text-xs font-semibold py-0.5 px-2.5 rounded-full">v1.1.0</span>
@@ -3877,15 +4188,9 @@
       showCustomInfoModal('🎉 アップデート情報', content);
     }
 
-    function showTermsModal(isFirstVisit = false) {
+    function showTermsModal() {
       const content = `
         <div class="space-y-4" style="color: var(--text-primary);">
-          ${isFirstVisit ? `
-            <div class="p-3 rounded-xl mb-3 font-semibold text-xs text-center flex items-center justify-center gap-1.5" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary); border: 1px solid rgba(var(--primary-rgb), 0.2);">
-              <span class="material-symbols-rounded text-base">verified_user</span>
-              マイポータルへようこそ！ご利用前に利用規約をご確認ください。
-            </div>
-          ` : ''}
           <section>
             <h4 class="font-bold mb-1 flex items-center gap-1.5 text-sm" style="color: var(--primary);">
               <span class="material-symbols-rounded text-base">apps</span> 第1条（本アプリについて）
@@ -3938,30 +4243,7 @@
           </section>
         </div>
       `;
-
-      if (isFirstVisit) {
-        showCustomInfoModal('📜 利用規約・プライバシー方針（初回確認）', content, {
-          submitText: '同意して利用を開始する',
-          onSubmit: async () => {
-            localStorage.setItem('myportal_has_agreed_terms', 'true');
-            if (state.settings) {
-              state.settings.termsAgreed = true;
-              state.settings.termsAgreedAt = new Date().toLocaleString();
-            }
-            hideModal();
-            showToast('利用規約に同意しました。マイポータルへようこそ！', 'success');
-
-            // スプレッドシートに同意状態を保存
-            try {
-              await callServer('saveTermsAgreement', state.email, true);
-            } catch (e) {
-              console.error('saveTermsAgreement error:', e);
-            }
-          }
-        });
-      } else {
-        showCustomInfoModal('📜 利用規約・プライバシー方針', content);
-      }
+      showCustomInfoModal('📜 利用規約・プライバシー方針', content);
     }
 
     function showModal(config) {
