@@ -360,7 +360,7 @@ function updateBookmark(email, index, title, url, category, icon) {
       iconName
     ]]);
     
-    writeLog(email, 'ブックマーク', 'ブックマーク「' + title + '」を更新しました');
+    writeLog(email, 'ブックマーク', 'ブックマークを更新しました');
     return { success: true };
   } catch (error) {
     console.error('updateBookmark Error:', error);
@@ -414,7 +414,7 @@ function saveAllBookmarks(email, bookmarks) {
     });
     
     sheet.getRange(3, 1, rows.length, 6).setValues(rows);
-    writeLog(email, 'ブックマーク', 'ブックマークを' + rows.length + ' 件の並び順を更新しました');
+    writeLog(email, 'ブックマーク', 'ブックマークの並び順を更新しました');
     return { success: true };
   } catch (error) {
     console.error('saveAllBookmarks Error:', error);
