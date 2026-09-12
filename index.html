@@ -1,3 +1,27 @@
+<!--
+  ==========================================================================
+  マイポータル (MyPortal) - クライアントサイド SPA (Single Page Application)
+  ==========================================================================
+  
+  【システム概要】
+  本ファイルは「マイポータル」のフロントエンド全体（HTML構造、スタイルCSS、
+  クライアントJavaScript）を包含する単一ファイルテンプレートです。
+  Google Apps Script (GAS) の HtmlService から配信され、モダンなSPAとして動作します。
+  
+  【技術構成】
+  - HTML5 : セマンティックなマークアップ
+  - CSS3  : CSS変数、グラスモーフィズム (backdrop-filter)、Tailwind CSS (v4 CDN)
+  - JS    : Vanilla JavaScript (フレームワーク非依存で高速動作)
+  - アイコン: Material Symbols Rounded (Google Fonts)
+  - QR生成: qrcodejs CDN
+  
+  【ファイル内構成】
+  1. <head>    : メタ設定、Webフォント、Tailwind CSS、QRCode.js
+  2. <style>   : テーマ変数、各ウィジェットのデザイン、レスポンシブスタイル
+  3. <body>    : ダッシュボードUI、ウィジェット、規約ゲート、モーダル、トースト
+  4. <script>  : 状態管理、GASサーバー通信、各機能のUI制御ロジック
+  ==========================================================================
+-->
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -18,10 +42,16 @@
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
+  <!-- QR Code Library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
   <style>
-    /* ========================================
-       CSS Variables & Themes
-       ======================================== */
+    /* ==========================================================================
+       1. CSS変数・テーマ定義 (カラーパレット & ライト/ダークモード)
+       ==========================================================================
+       - 5つのカラーテーマ (ocean, sunset, forest, lavender, rose)
+       - ライトモード & ダークモードのベースカラー・グラスモーフィズム設定
+       */
     :root {
       /* Shared values */
       --font-sans: 'Inter', 'Noto Sans JP', sans-serif;
@@ -120,9 +150,9 @@
       --skeleton-2: var(--glass-bg);
     }
 
-    /* ========================================
-       Reset & Base
-       ======================================== */
+    /* ==========================================================================
+       2. リセット & 基本スタイル (Reset & Base Styles)
+       ========================================================================== */
     html,
     body {
       overflow-x: hidden;
@@ -150,9 +180,9 @@
       vertical-align: middle;
     }
 
-    /* ========================================
-       Animated Background
-       ======================================== */
+    /* ==========================================================================
+       3. 背景アニメーション (Animated Ambient Gradient)
+       ========================================================================== */
     .bg-gradient {
       background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
       opacity: 0.05;
@@ -178,9 +208,9 @@
       }
     }
 
-    /* ========================================
-       Layout & Header
-       ======================================== */
+    /* ==========================================================================
+       4. 全体レイアウト & ヘッダーナビゲーション (Layout & Header)
+       ========================================================================== */
     header {
       background: var(--glass-bg);
       backdrop-filter: blur(20px);
@@ -262,9 +292,9 @@
       background: #f43f5e;
     }
 
-    /* ========================================
-       Dashboard Grid
-       ======================================== */
+    /* ==========================================================================
+       5. ダッシュボードグリッド & ウィジェットコンテナ (Dashboard Grid)
+       ========================================================================== */
     .dashboard {
       grid-template-columns: 1fr;
     }
@@ -357,9 +387,9 @@
       transform: translateY(-1px);
     }
 
-    /* ========================================
-       Bookmarks Widget
-       ======================================== */
+    /* ==========================================================================
+       6. ブックマークウィジェット (カードUI, ホバーアクション, アイコンピッカー)
+       ========================================================================== */
     .bookmark-grid {
       grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     }
@@ -525,9 +555,9 @@
       box-shadow: 0 2px 6px rgba(var(--primary-rgb), 0.4);
     }
 
-    /* ========================================
-       Gmail Widget
-       ======================================== */
+    /* ==========================================================================
+       7. Gmail ウィジェット (メール一覧カード, 未読インジケーター, アバター)
+       ========================================================================== */
     .email-list {
       grid-template-columns: 1fr;
     }
@@ -686,9 +716,9 @@
       box-shadow: 0 0 6px rgba(var(--primary-rgb), 0.5);
     }
 
-    /* ========================================
-       Calendar Widget
-       ======================================== */
+    /* ==========================================================================
+       8. Google カレンダーウィジェット (7日グリッド, 予定チップ, 終日予定)
+       ========================================================================== */
     .calendar-view {
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
@@ -829,6 +859,7 @@
       margin-top: 0.25rem;
       display: -webkit-box;
       -webkit-line-clamp: 2;
+      line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
       line-height: 1.3;
@@ -907,9 +938,9 @@
       font-size: 14px;
     }
 
-    /* ========================================
-       Tasks Widget
-       ======================================== */
+    /* ==========================================================================
+       9. Google Tasks ウィジェット (タスクリスト, 完了チェック, 期限表示)
+       ========================================================================== */
     .tasks-list {
       grid-template-columns: 1fr;
     }
@@ -1085,9 +1116,9 @@
       color: var(--accent);
     }
 
-    /* ========================================
-       Terms Gate (Access Control Overlay)
-       ======================================== */
+    /* ==========================================================================
+       10. 利用規約ゲート (初回同意確認オーバーレイ & スクロール本文)
+       ========================================================================== */
     .terms-gate {
       position: fixed;
       inset: 0;
@@ -1138,9 +1169,9 @@
       }
     }
 
-    /* ========================================
-       Modals
-       ======================================== */
+    /* ==========================================================================
+       11. 汎用動的モーダル (入力フォーム, ドロップダウン, スウォッチ)
+       ========================================================================== */
     .modal-overlay {
       background: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(5px);
@@ -1613,9 +1644,9 @@
       box-shadow: 0 4px 10px rgba(var(--primary-rgb), 0.3);
     }
 
-    /* ========================================
-       Toasts
-       ======================================== */
+    /* ==========================================================================
+       12. トースト通知 (成功/エラー/情報通知ポップアップ & プログレスバー)
+       ========================================================================== */
     /* .toast-container layout handled by Tailwind */
 
     .toast-container {
@@ -1699,9 +1730,9 @@
       }
     }
 
-    /* ========================================
-       Skeletons (Loading)
-       ======================================== */
+    /* ==========================================================================
+       13. スケルトンローディング & 空状態 (Shimmer Loading Animation)
+       ========================================================================== */
     @keyframes shimmer {
       0% {
         background-position: -200% 0;
@@ -1758,9 +1789,9 @@
       opacity: 0.5;
     }
 
-    /* ========================================
-       Tab System
-       ======================================== */
+    /* ==========================================================================
+       14. タブ切り替えバー (スライディングインジケーターアニメーション)
+       ========================================================================== */
     .tab-bar {
       background: var(--bg-secondary);
       border-radius: var(--radius-lg);
@@ -1822,9 +1853,9 @@
       }
     }
 
-    /* ========================================
-       Drag & Drop Bookmarks
-       ======================================== */
+    /* ==========================================================================
+       15. ドラッグ＆ドロップ並び替えスタイル (Dragging, Drag-Over)
+       ========================================================================== */
     .bookmark-card[draggable="true"] {
       cursor: grab;
     }
@@ -1867,9 +1898,9 @@
       font-size: 18px;
     }
 
-    /* ========================================
-       Responsive Design & Touch Optimization
-       ======================================== */
+    /* ==========================================================================
+       16. レスポンシブ対応 & タッチ最適化 (Mobile / Tablet Layouts)
+       ========================================================================== */
     @media (hover: none),
     (max-width: 768px) {
       .delete-bookmark-btn {
@@ -1984,6 +2015,161 @@
         font-size: 0.85rem;
       }
     }
+
+
+    /* ==========================================================================
+       17. QRコード生成ツールスタイル (プレビュー, スライダー, カラーピッカー)
+       ========================================================================== */
+    .qr-preview-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      border-radius: var(--radius-lg);
+      background:
+        repeating-conic-gradient(rgba(0,0,0,0.06) 0% 25%, transparent 0% 50%) 0 0 / 16px 16px;
+      border: 1px solid var(--border-color);
+      min-height: 180px;
+      transition: var(--transition);
+    }
+
+    [data-mode="dark"] .qr-preview-area {
+      background:
+        repeating-conic-gradient(rgba(255,255,255,0.06) 0% 25%, transparent 0% 50%) 0 0 / 16px 16px;
+    }
+
+    .qr-preview-area canvas,
+    .qr-preview-area img {
+      border-radius: 8px;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .qr-settings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .qr-color-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .qr-color-input-wrapper input[type="color"] {
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      background: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .qr-color-input-wrapper input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 2px;
+    }
+
+    .qr-color-input-wrapper input[type="color"]::-webkit-color-swatch {
+      border: none;
+      border-radius: 4px;
+    }
+
+    .qr-size-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--border-color);
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .qr-size-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: transform 0.15s ease;
+    }
+
+    .qr-size-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    .qr-size-slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .qr-save-btns {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .qr-save-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1rem;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.8125rem;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+    }
+
+    .qr-save-btn.local {
+      background: var(--primary);
+      color: var(--text-inverse);
+    }
+
+    .qr-save-btn.local:hover:not(:disabled) {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .qr-save-btn.drive {
+      background: rgba(var(--primary-rgb), 0.12);
+      color: var(--primary);
+      border: 1px solid rgba(var(--primary-rgb), 0.25);
+    }
+
+    .qr-save-btn.drive:hover:not(:disabled) {
+      background: rgba(var(--primary-rgb), 0.2);
+      transform: translateY(-1px);
+    }
+
+    .qr-save-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    @media (max-width: 768px) {
+      .qr-settings-grid {
+        grid-template-columns: 1fr;
+      }
+      .qr-save-btns {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 
@@ -1999,6 +2185,9 @@
 
   <div class="bg-gradient fixed top-0 left-0 w-screen h-screen -z-10"></div>
 
+  <!-- ==========================================================================
+       ヘッダーバー: ロゴ、バージョン、時計、テーマ切替、ユーザー情報
+       ========================================================================== -->
   <header
     class="flex flex-wrap md:flex-nowrap justify-between items-center py-3.5 px-4 sm:px-6 md:px-8 sticky top-0 z-[100] gap-3">
     <div class="header-left flex items-center justify-between w-full md:w-auto">
@@ -2074,9 +2263,15 @@
     </div>
   </header>
 
+  <!-- ==========================================================================
+       メインダッシュボード: ウィジェット配置コンテナ
+       ========================================================================== -->
   <main class="dashboard max-w-[1600px] mx-auto p-3 sm:p-6 lg:p-8 grid gap-4 sm:gap-6 lg:gap-8">
     <!-- Bookmarks Widget -->
-    <section class="widget bookmarks-widget col-span-full p-4 sm:p-6 flex flex-col overflow-hidden"
+    <!-- --------------------------------------------------------------------------
+         セクション 1: ブックマークウィジェット (一覧表示・追加・編集・並び替え)
+         -------------------------------------------------------------------------- -->
+      <section class="widget bookmarks-widget col-span-full p-4 sm:p-6 flex flex-col overflow-hidden"
       id="widget-bookmarks">
       <div class="widget-header flex justify-between items-center mb-4 sm:mb-6">
         <h2 class="text-lg sm:text-xl font-semibold flex items-center gap-2"><span
@@ -2098,7 +2293,10 @@
     </section>
 
     <!-- Tabbed Widget: Gmail / Calendar / Tasks -->
-    <section class="widget tabbed-widget col-span-full p-4 sm:p-6 flex flex-col overflow-hidden" id="widget-tabbed">
+    <!-- --------------------------------------------------------------------------
+         セクション 2: タブ統合ウィジェット (Gmail / カレンダー / Tasks / QRコード)
+         -------------------------------------------------------------------------- -->
+      <section class="widget tabbed-widget col-span-full p-4 sm:p-6 flex flex-col overflow-hidden" id="widget-tabbed">
       <div class="widget-header flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div class="tab-bar flex relative p-1" id="tab-bar">
           <button
@@ -2115,6 +2313,11 @@
             class="tab flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2.5 sm:py-3 px-2 sm:px-5 text-xs sm:text-sm font-medium relative z-10 whitespace-nowrap"
             data-tab="tasks" onclick="switchTab('tasks')">
             <span class="material-symbols-rounded text-base sm:text-xl">task_alt</span> タスク
+          </button>
+          <button
+            class="tab flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2.5 sm:py-3 px-2 sm:px-5 text-xs sm:text-sm font-medium relative z-10 whitespace-nowrap"
+            data-tab="qrcode" onclick="switchTab('qrcode')">
+            <span class="material-symbols-rounded text-base sm:text-xl">qr_code_2</span> QRコード
           </button>
           <div class="tab-indicator" id="tab-indicator"></div>
         </div>
@@ -2184,10 +2387,13 @@
               <span>タスクを開く</span>
             </a>
           </div>
+          <div id="tab-action-qrcode" style="display:none" class="flex items-center gap-2">
+          </div>
         </div>
       </div>
 
       <div class="tab-panels relative min-h-[350px]">
+        <!-- [タブパネル 1] Gmail 最新メッセージ一覧 -->
         <div class="tab-panel active" id="panel-gmail">
           <div class="email-list grid gap-3 max-h-[500px] overflow-y-auto pr-2 pb-2" id="emails-container">
             <div class="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-medium"
@@ -2221,13 +2427,98 @@
             </div>
           </div>
         </div>
+        <!-- [タブパネル 2] Google カレンダー (週表示 & 予定追加/編集) -->
         <div class="tab-panel" id="panel-calendar">
           <div class="calendar-view flex gap-2 overflow-x-auto pb-2 min-h-[300px]" id="calendar-container"></div>
         </div>
+        <!-- [タブパネル 3] Google Tasks (タスク一覧 & 完了トグル) -->
         <div class="tab-panel" id="panel-tasks">
           <div class="tasks-list grid gap-4" id="tasks-container">
             <div class="skeleton skeleton-card" style="height: 150px;"></div>
             <div class="skeleton skeleton-card" style="height: 150px;"></div>
+          </div>
+        </div>
+        <!-- [タブパネル 4] QRコード生成ツール (プレビュー・ダウンロード・Drive保存) -->
+        <div class="tab-panel" id="panel-qrcode">
+          <div class="space-y-4 sm:space-y-5 max-w-[560px] mx-auto">
+            <!-- Text Input -->
+            <div class="form-group" style="margin-bottom:0">
+              <label>テキスト / URL</label>
+              <input type="text" class="form-control" id="qr-text" placeholder="URLやテキストを入力" oninput="generateQRPreview()">
+            </div>
+
+            <!-- Preview -->
+            <div class="qr-preview-area" id="qr-preview">
+              <div class="flex flex-col items-center gap-2 opacity-40">
+                <span class="material-symbols-rounded" style="font-size:48px;">qr_code_2</span>
+                <span class="text-xs">テキストを入力するとプレビューが表示されます</span>
+              </div>
+            </div>
+
+            <!-- Settings Grid -->
+            <div class="qr-settings-grid">
+              <!-- Size -->
+              <div class="form-group" style="margin-bottom:0; grid-column: 1 / -1;">
+                <label class="flex justify-between items-center">
+                  <span>サイズ</span>
+                  <span class="text-xs font-mono px-2 py-0.5 rounded" style="background: rgba(var(--primary-rgb),0.1); color: var(--primary);" id="qr-size-label">256px</span>
+                </label>
+                <input type="range" class="qr-size-slider" id="qr-size" min="128" max="512" step="8" value="256" oninput="updateQRSizeLabel(); generateQRPreview()">
+              </div>
+
+              <!-- Foreground Color -->
+              <div class="form-group" style="margin-bottom:0">
+                <label>前景色</label>
+                <div class="qr-color-input-wrapper">
+                  <input type="color" id="qr-fg-color" value="#000000" onchange="syncQRColorFromPicker('fg'); generateQRPreview()">
+                  <input type="text" class="form-control" id="qr-fg-hex" value="#000000" style="font-family:monospace; font-size:0.8rem; padding:0.5rem 0.75rem;"
+                    oninput="syncQRColor('fg')">
+                </div>
+              </div>
+
+              <!-- Background Color -->
+              <div class="form-group" style="margin-bottom:0">
+                <label>背景色</label>
+                <div class="qr-color-input-wrapper">
+                  <input type="color" id="qr-bg-color" value="#ffffff" onchange="syncQRColorFromPicker('bg'); generateQRPreview()">
+                  <input type="text" class="form-control" id="qr-bg-hex" value="#ffffff" style="font-family:monospace; font-size:0.8rem; padding:0.5rem 0.75rem;"
+                    oninput="syncQRColor('bg')">
+                </div>
+              </div>
+
+              <!-- Error Correction Level -->
+              <div class="form-group" style="margin-bottom:0">
+                <label>エラー訂正レベル</label>
+                <select class="form-control" id="qr-ec-level" onchange="generateQRPreview()" style="padding:0.5rem 0.75rem; font-size:0.8rem;">
+                  <option value="L">L（低 〜7%）</option>
+                  <option value="M" selected>M（中 〜15%）</option>
+                  <option value="Q">Q（高 〜25%）</option>
+                  <option value="H">H（最高 〜30%）</option>
+                </select>
+              </div>
+
+              <!-- Save Format -->
+              <div class="form-group" style="margin-bottom:0">
+                <label>保存形式</label>
+                <select class="form-control" id="qr-save-format" style="padding:0.5rem 0.75rem; font-size:0.8rem;">
+                  <option value="png" selected>PNG</option>
+                  <option value="jpeg">JPEG</option>
+                  <option value="svg">SVG</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Save Buttons -->
+            <div class="qr-save-btns">
+              <button class="qr-save-btn local" id="qr-save-local-btn" onclick="saveQRCodeLocal()" disabled>
+                <span class="material-symbols-rounded text-lg">download</span>
+                ローカルに保存
+              </button>
+              <button class="qr-save-btn drive" id="qr-save-drive-btn" onclick="saveQRCodeToDrive()" disabled>
+                <span class="material-symbols-rounded text-lg">cloud_upload</span>
+                Google Driveに保存
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -2249,6 +2540,9 @@
   </footer>
 
   <!-- Terms Gate (Access Control Overlay) -->
+  <!-- ==========================================================================
+       利用規約ゲート: 初回アクセス時の同意確認オーバーレイ
+       ========================================================================== -->
   <div class="terms-gate" id="terms-gate" role="dialog" aria-modal="true" aria-labelledby="terms-gate-title">
     <div class="terms-gate-card w-[95%] max-w-[660px] p-5 sm:p-7 flex flex-col max-h-[92vh]">
       
@@ -2357,6 +2651,9 @@
   </div>
 
   <!-- Reusable Modal -->
+  <!-- ==========================================================================
+       汎用動的モーダルダイアログ (ブックマーク/カレンダー/タスクの追加・編集)
+       ========================================================================== -->
   <div class="modal-overlay fixed inset-0 w-screen h-screen flex items-center justify-center z-[1000] p-3 sm:p-4"
     id="modal">
     <div class="modal-card w-[95%] max-w-[500px] p-5 sm:p-8 max-h-[92vh] flex flex-col">
@@ -2378,14 +2675,17 @@
   </div>
 
   <!-- Toast Container -->
+  <!-- ==========================================================================
+       トースト通知コンテナ (画面右下の操作フィードバック通知)
+       ========================================================================== -->
   <div
     class="toast-container fixed bottom-4 right-4 left-4 sm:left-auto sm:bottom-8 sm:right-8 flex flex-col gap-3 sm:gap-4 z-[2000] pointer-events-none sm:max-w-sm"
     id="toasts"></div>
 
   <script>
-    /* ========================================
-       Bookmark Icons Catalog (140 Curated Icons, Multi-Category)
-       ======================================== */
+    /* ==========================================================================
+       1. ブックマーク用アイコンカタログ (140種類の厳選アイコン & カテゴリ・検索キーワード)
+       ========================================================================== */
     const BOOKMARK_ICONS = [
       // --- Web・ポータル・検索 ---
       { name: 'language', label: 'Web・一般', category: 'web', categories: ["web", "tools"], keywords: 'Web 一般 ホーム サイト 公式 インターネット ホームページ language global site official' },
@@ -2429,12 +2729,14 @@
       { name: 'thumb_down', label: '低評価・良くない', category: 'social', categories: ["social", "tools"], keywords: '低評価 良くない 反対 thumb down bad' },
       { name: 'thumbs_up_down', label: '低評価・良くない', category: 'social', categories: ["social", "tools"], keywords: '低評価 良くない 反対 thumb down bad' },
       { name: 'feed', label: 'タイムライン・SNS新着', category: 'social', categories: ["social", "web", "media"], keywords: 'タイムライン 投稿一覧 フィード 新着 SNS ストリーム feed stream timeline' },
+      { name: 'view_timeline', label: 'タイムライン', category: 'social', categories: ["social", "web", "media"], keywords: 'タイムライン 投稿一覧 フィード 新着 SNS ストリーム feed stream timeline' },
       { name: 'share', label: 'シェア・共有・拡散', category: 'social', categories: ["social", "web", "tools"], keywords: 'シェア 共有 拡散 SNS ポスト 転送 share social post' },
 
       // --- 開発・IT・クラウド ---
       { name: 'android', label: 'Android', category: 'web', categories: ["web", "social", "life"], keywords: 'Android スマホ モバイル 携帯 アプリ android phone mobile app' },
       { name: 'smartphone', label: 'スマホ', category: 'web', categories: ["web", "social", "life"], keywords: 'スマホ iPhone Android モバイル 携帯 アプリ smartphone phone mobile app' },
       { name: 'mobile_hand', label: 'スマホ片手持ち', category: 'web', categories: ["web", "social", "life"], keywords: 'スマホ 片手持ち スマホ片手持ち片手 モバイル片手持ち mobile hand one hand' },
+      { name: 'apps', label: 'アプリ・アプリストア', category: 'web', categories: ["web", "social", "life"], keywords: 'アプリ アプリストア スマホ iPhone Android モバイル 携帯 アプリ apps phone mobile app' },
       { name: 'desktop_windows', label: 'PC・デスクトップ', category: 'web', categories: ["web", "work", "dev"], keywords: 'Windows デスクトップ パソコン WindowsデスクトップPC '},
       { name: 'laptop', label: 'ノートPC', category: 'web', categories: ["web", "work", "dev"], keywords: 'ノートPC パソコン ラップトップ MacBook Windows laptop pc computer' },
       { name: 'devices', label: '複数デバイス・同期', category: 'web', categories: ["web", "tools", "dev"], keywords: 'デバイス PC スマホ 同期 マルチデバイス devices sync mobile pc' },
@@ -2445,6 +2747,7 @@
       { name: 'data_object', label: 'オブジェクト・辞書', category: 'dev', categories: ["dev", "work"], keywords: 'オブジェクト 辞書 object data'},
       { name: 'terminal', label: 'ターミナル・CLI', category: 'dev', categories: ["dev", "tools"], keywords: 'ターミナル コンソール CLI コマンド シェル bash サーバー管理 AWS terminal cmd server' },
       { name: 'terminal_2', label: 'ターミナル・CLI', category: 'dev', categories: ["dev", "tools"], keywords: 'ターミナル コンソール CLI コマンド シェル bash サーバー管理 AWS terminal cmd server' },
+      { name: 'deployed_code', label: 'デプロイ・公開', category: 'dev', categories: ["dev", "web", "work"], keywords: 'デプロイ cloud deployed code'},
       { name: 'cloud', label: 'クラウド', category: 'dev', categories: ["dev", "web", "work"], keywords: 'クラウド 雲 クラウドサーバー AWS GCP Azure クラウドインフラ ホスティング cloud hosting infra' },
       { name: 'cloud_sync', label: '同期・連携', category: 'dev', categories: ["dev", "work", "tools"], keywords: '同期 連携 cloud sync'},
       { name: 'backup', label: 'バックアップ・保存', category: 'dev', categories: ["dev", "work", "tools"], keywords: 'バックアップ 保存 バックアップ先 backup cloud save storage'},
@@ -2581,9 +2884,12 @@
       { name: 'emoji_events', label: 'ランキング・表彰・コンテスト', category: 'tools', categories: ["tools", "work", "life"], keywords: 'トロフィー 優勝 1位 表彰 功績 コンテスト ランキング emoji events trophy award' }
     ];
 
-    /* ========================================
-       State Management
-       ======================================== */
+    /* ==========================================================================
+       2. アプリケーション状態管理 (State Management)
+       ==========================================================================
+       - アプリ全体で共有するリアクティブな状態オブジェクト (state)
+       - メール、カレンダー、タスク、ブックマーク、設定等のデータを一元管理します。
+       */
     const state = {
       email: '',
       settings: { theme: 'ocean', darkMode: false, termsAgreed: false, termsAgreedAt: '' },
@@ -2594,9 +2900,12 @@
       weekOffset: 0
     };
 
-    /* ========================================
-       Mock Data for Development (Fallback if google.script.run fails/undefined)
-       ======================================== */
+    /* ==========================================================================
+       3. 開発・ローカルテスト用モックデータ (Mock Data)
+       ==========================================================================
+       - Google Apps Script 外部（ローカルブラウザなど）で開いた際に
+         エラーにならず動作確認ができるよう、ダミーデータを提供します。
+       */
     const mockData = {
       email: 'example@gmail.com',
       settings: { theme: 'ocean', darkMode: false, termsAgreed: false, termsAgreedAt: '' },
@@ -2632,9 +2941,18 @@
       ]
     };
 
-    /* ========================================
-       Server Communication Wrapper
-       ======================================== */
+    /* ==========================================================================
+       4. サーバー通信ラッパー (Server Communication Wrapper)
+       ========================================================================== */
+    /**
+     * サーバー側 (GAS) の関数を非同期呼び出しする汎用ラッパー
+     * - google.script.run が有効な環境ではサーバー関数を実行
+     * - ローカル開発環境では mockData を用いて疑似レスポンスを返却
+     * 
+     * @param {string} functionName - 呼び出すGASサーバー関数名
+     * @param {...*} args - サーバー関数に渡す引数リスト
+     * @returns {Promise<*>} サーバーからの戻り値
+     */
     function callServer(functionName, ...args) {
       return new Promise((resolve, reject) => {
         if (typeof google !== 'undefined' && google.script && google.script.run) {
@@ -2757,15 +3075,21 @@
               }
               resolve({ success: true });
             }
+            else if (functionName === 'saveQRCodeToDrive') {
+              resolve({ success: true, url: 'https://drive.google.com/file/d/mock-qr-id/view' });
+            }
             else resolve({ success: true });
           }, 300);
         }
       });
     }
 
-    /* ========================================
-       Initialization & Clock
-       ======================================== */
+    /* ==========================================================================
+       5. アプリケーション初期化 & 時計・日時更新 (Initialization & Clock)
+       ========================================================================== */
+    /**
+     * リアルタイム時計の更新タイマーを開始する (毎秒実行)
+     */
     function startClock() {
       const days = ['日', '月', '火', '水', '木', '金', '土'];
 
@@ -2790,6 +3114,10 @@
       setInterval(update, 1000);
     }
 
+    /**
+     * アプリケーション全体の起動エントリーポイント
+     * - 時計起動、利用規約同意状態チェック、初期データロードを実行します。
+     */
     async function init() {
       startClock();
       setupBookmarkDragAndDrop();
@@ -2869,9 +3197,12 @@
 
 
 
-    /* ========================================
-       Theme & Settings
-       ======================================== */
+    /* ==========================================================================
+       6. テーマ & デザイン設定 (Theme & Settings)
+       ========================================================================== */
+    /**
+     * 現在の状態 (state) に保存されているテーマとダークモードを DOM に適用する
+     */
     function applySettings() {
       setTheme(state.settings.theme, false);
       if (state.settings.darkMode) {
@@ -2883,6 +3214,12 @@
       }
     }
 
+    /**
+     * カラーテーマを変更する (ocean, sunset, forest, lavender, rose)
+     *
+     * @param {string} themeName - テーマ識別名
+     * @param {boolean} [save=true] - サーバーへ設定を保存するかどうか
+     */
     function setTheme(themeName, save = true) {
       document.body.setAttribute('data-theme', themeName);
       state.settings.theme = themeName;
@@ -2897,6 +3234,9 @@
       }
     }
 
+    /**
+     * ライトモードとダークモードを切り替え、設定をサーバーに保存する
+     */
     function toggleDarkMode() {
       state.settings.darkMode = !state.settings.darkMode;
       const mode = state.settings.darkMode ? 'dark' : 'light';
@@ -2911,9 +3251,12 @@
         .catch(() => showToast('設定の保存に失敗しました', 'error'));
     }
 
-    /* ========================================
-       Bookmarks
-       ======================================== */
+    /* ==========================================================================
+       7. ブックマーク機能 (Bookmarks CRUD & Rendering)
+       ========================================================================== */
+    /**
+     * サーバーからブックマーク一覧を取得し、画面に再描画する
+     */
     async function loadBookmarks() {
       try {
         state.bookmarks = await callServer('getBookmarks', state.email);
@@ -2923,6 +3266,9 @@
       }
     }
 
+    /**
+     * state.bookmarks のデータをもとにブックマークカード一覧をHTML描画する
+     */
     function renderBookmarks() {
       const container = document.getElementById('bookmarks-container');
       if (!state.bookmarks || state.bookmarks.length === 0) {
@@ -2962,6 +3308,13 @@
     }
 
     let isJustDragged = false;
+    /**
+     * ブックマークカードクリック時のリンク遷移処理
+     * (ドラッグ中やアクションボタンのクリック時は遷移を防止)
+     * 
+     * @param {MouseEvent} e - クリックイベント
+     * @param {string} url - 遷移先URL
+     */
     function handleBookmarkClick(e, url) {
       if (isJustDragged) {
         isJustDragged = false;
@@ -2970,11 +3323,20 @@
       window.open(url, '_blank');
     }
 
+    /**
+     * XSS脆弱性を防ぐためのHTMLエスケープユーティリティ
+     * 
+     * @param {string} str - エスケープ前の文字列
+     * @returns {string} サニタイズされた文字列
+     */
     function escapeHtml(str) {
       if (!str) return '';
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
+    /**
+     * 新規ブックマーク追加用モーダルを表示する
+     */
     function showAddBookmarkModal() {
       showModal({
         title: 'ブックマーク追加',
@@ -2997,6 +3359,11 @@
       });
     }
 
+    /**
+     * 既存ブックマークの編集モーダルを表示する
+     *
+     * @param {number} index - 編集対象ブックマークのインデックス
+     */
     function showEditBookmarkModal(index) {
       const bm = state.bookmarks && state.bookmarks[index];
       if (!bm) return;
@@ -3023,6 +3390,11 @@
       });
     }
 
+    /**
+     * 指定インデックスのブックマークを削除する
+     *
+     * @param {number} index - 削除対象ブックマークのインデックス
+     */
     async function deleteBookmark(index) {
       if (!confirm('削除しますか？')) return;
       try {
@@ -3039,9 +3411,12 @@
     }
 
 
-    /* ========================================
-       Gmail
-       ======================================== */
+    /* ==========================================================================
+       8. Gmail 連携機能 (Gmail Messages Fetch & Rendering)
+       ========================================================================== */
+    /**
+     * Gmailから最新の受信メール一覧を取得し、描画を更新する
+     */
     async function loadEmails() {
       const container = document.getElementById('emails-container');
       const btnRefresh = document.getElementById('btn-refresh-emails');
@@ -3131,6 +3506,12 @@
       }
     }
 
+    /**
+     * Gmailの送信者ヘッダー ("名前 <email@example.com>") から表示名を抽出する
+     *
+     * @param {string} fromStr - 送信者ヘッダー文字列
+     * @returns {string} 抽出された送信者表示名
+     */
     function parseSenderName(fromStr) {
       if (!fromStr) return '不明';
       // Format: "Name <email>" or just "email"
@@ -3139,6 +3520,9 @@
       return fromStr.replace(/<.*>/, '').trim() || fromStr;
     }
 
+    /**
+     * state.emails のデータをもとにGmailメッセージカード一覧を描画する
+     */
     function renderEmails() {
       const container = document.getElementById('emails-container');
       if (!state.emails || state.emails.length === 0) {
@@ -3174,9 +3558,12 @@
       }).join('');
     }
 
-    /* ========================================
-       Calendar
-       ======================================== */
+    /* ==========================================================================
+       9. Google カレンダー連携機能 (Calendar Events & Modal)
+       ========================================================================== */
+    /**
+     * Googleカレンダーから指定週の予定一覧を取得し、描画を更新する
+     */
     async function loadEvents() {
       const container = document.getElementById('calendar-container');
       container.innerHTML = `<div class="skeleton skeleton-card" style="grid-column: 1 / -1; height: 250px;"></div>`;
@@ -3191,6 +3578,11 @@
       }
     }
 
+    /**
+     * カレンダーの表示週を前週・今週・次週へ切り替える
+     *
+     * @param {number} direction - 週の移動方向 (-1: 前週, 0: 今週, 1: 次週)
+     */
     function navigateWeek(direction) {
       if (direction === 0) {
         state.weekOffset = 0;
@@ -3214,6 +3606,13 @@
       '11': '#d50000'
     };
 
+    /**
+     * カレンダーイベントの開始・終了時刻を適切な表示形式の文字列に変換する
+     *
+     * @param {Object} e - イベントオブジェクト
+     * @param {Date} d - 表示対象の日付
+     * @returns {string} フォーマット済み時刻文字列 (例: '10:00 - 11:30', '全日')
+     */
     function formatEventTimeDisplay(e, d) {
       if (e.isAllDay) return '全日';
 
@@ -3237,6 +3636,9 @@
       }
     }
 
+    /**
+     * 7日間の週間カレンダーグリッドと予定チップを描画する
+     */
     function renderEvents() {
       const container = document.getElementById('calendar-container');
       container.innerHTML = '';
@@ -3381,6 +3783,11 @@
       { label: 'トマト', value: '11', hex: '#d50000' }
     ];
 
+    /**
+     * 予定作成モーダルで「終日」チェックの有無に応じて日時入力欄の表示形式を切り替える
+     *
+     * @param {boolean} isAllDay - 終日イベントかどうか
+     */
     function toggleAllDayInputs(isAllDay) {
       const timeStartGroup = document.getElementById('group-start-time');
       const timeEndGroup = document.getElementById('group-end-time');
@@ -3421,10 +3828,20 @@
       }
     }
 
+    /**
+     * Googleカレンダー予定新規追加モーダルを表示する
+     *
+     * @param {string|null} [defaultDate=null] - 初期選択する日付 (YYYY-MM-DD)
+     */
     function showAddEventModal(defaultDate = null) {
       showCalendarEventModal(null, defaultDate);
     }
 
+    /**
+     * 既存のGoogleカレンダー予定の編集モーダルを表示する
+     *
+     * @param {string} eventId - 編集対象イベントID
+     */
     function showEditEventModal(eventId) {
       const eventObj = (state.events || []).find(e => e.id === eventId);
       if (!eventObj) return;
@@ -3552,6 +3969,11 @@
       }, 50);
     }
 
+    /**
+     * Googleカレンダーの予定を削除する
+     *
+     * @param {string} eventId - 削除対象イベントID
+     */
     async function deleteEvent(eventId) {
       if (!confirm('削除しますか？')) return;
       try {
@@ -3563,9 +3985,12 @@
       }
     }
 
-    /* ========================================
-       Tasks
-       ======================================== */
+    /* ==========================================================================
+       10. Google Tasks 連携機能 (Tasks CRUD & Toggle)
+       ========================================================================== */
+    /**
+     * Google Tasksから全タスクリストとタスクを取得し、描画を更新する
+     */
     async function loadTasks() {
       try {
         const result = await callServer('getTasks');
@@ -3580,6 +4005,9 @@
       }
     }
 
+    /**
+     * state.taskLists のデータをもとにタスクリスト・項目一覧を描画する
+     */
     function renderTasks() {
       const container = document.getElementById('tasks-container');
       if (!state.taskLists || state.taskLists.length === 0) {
@@ -3655,6 +4083,13 @@
       }).join('');
     }
 
+    /**
+     * タスクの完了／未完了チェック状態を切り替える
+     *
+     * @param {string} taskListId - 所属タスクリストID
+     * @param {string} taskId - 対象タスクID
+     * @param {boolean} isComplete - 切り替え後の完了フラグ
+     */
     async function toggleTask(listId, taskId, isComplete) {
       const list = state.taskLists.find(l => l.listId === listId);
       if (!list) return;
@@ -3677,6 +4112,12 @@
       }
     }
 
+    /**
+     * Google Tasksのタスクを削除する
+     *
+     * @param {string} listId - タスクリストID
+     * @param {string} taskId - 削除対象タスクID
+     */
     async function deleteTask(listId, taskId) {
       if (!confirm('タスクを削除しますか？')) return;
       try {
@@ -3691,6 +4132,12 @@
       }
     }
 
+    /**
+     * Google Tasksの既存タスク編集モーダルを表示する
+     *
+     * @param {string} listId - 所属タスクリストID
+     * @param {string} taskId - 編集対象タスクID
+     */
     function showEditTaskModal(listId, taskId) {
       const list = state.taskLists.find(l => l.listId === listId);
       if (!list) return;
@@ -3736,6 +4183,9 @@
       });
     }
 
+    /**
+     * 新規タスク追加用モーダルを表示する
+     */
     function showAddTaskModal() {
       const listOptions = state.taskLists.map(l => ({ label: l.listTitle, value: l.listId }));
       if (listOptions.length === 0) {
@@ -3767,9 +4217,15 @@
       });
     }
 
-    /* ========================================
-       UI Helpers
-       ======================================== */
+    /* ==========================================================================
+       11. UIヘルパー & アイコンピッカー制御 (UI Helpers & Icon Picker)
+       ========================================================================== */
+    /**
+     * 日時文字列を「たった今」「5分前」「昨日」等の相対時間表記にフォーマットする
+     *
+     * @param {string} dateString - ISO日付文字列
+     * @returns {string} 人間が読みやすい相対時間
+     */
     function formatRelativeTime(dateString) {
       const d = new Date(dateString);
       const now = new Date();
@@ -3786,6 +4242,11 @@
       return `${d.getMonth() + 1}/${d.getDate()}`;
     }
 
+    /**
+     * 予定作成モーダル内のカラーパレットで特定の色を選択した時の処理
+     *
+     * @param {HTMLElement} el - クリックされたカラースウォッチ要素
+     */
     function selectColorSwatch(el) {
       const group = el.parentElement;
       group.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
@@ -3795,6 +4256,11 @@
       if (input) input.value = el.dataset.value;
     }
 
+    /**
+     * アイコンピッカー内で特定のアイコンをクリック・選択した時の処理
+     *
+     * @param {HTMLElement} el - 選択されたアイコン要素
+     */
     function selectIconPickerItem(el) {
       const fieldName = el.dataset.name;
       const iconName = el.dataset.icon;
@@ -3819,6 +4285,12 @@
       if (nameEl) nameEl.textContent = iconName;
     }
 
+    /**
+     * アイコンピッカーのカテゴリタブをクリックした時のカテゴリ切り替え処理
+     *
+     * @param {HTMLElement} tabBtn - クリックされたタブ要素
+     * @param {string} fieldName - 対象フォームフィールド名
+     */
     function handleIconPickerTabClick(tabBtn, fieldName) {
       if (tabBtn._preventClick) {
         tabBtn._preventClick = false;
@@ -3837,6 +4309,12 @@
       filterIconPickerItems(fieldName);
     }
 
+    /**
+     * モバイル用カテゴリードロップダウン選択時のアイコン切り替え処理
+     *
+     * @param {HTMLSelectElement} selectEl - セレクトボックス要素
+     * @param {string} fieldName - 対象フォームフィールド名
+     */
     function handleIconPickerCategorySelect(selectEl, fieldName) {
       const catId = selectEl.value;
       const container = document.getElementById(`icon-picker-container-${fieldName}`);
@@ -3851,6 +4329,12 @@
       filterIconPickerItems(fieldName);
     }
 
+    /**
+     * アイコンピッカーのタブバーを左右にスクロールする
+     *
+     * @param {string} fieldName - フィールド名
+     * @param {number} offset - スクロール量 (px)
+     */
     function scrollIconPickerTabs(fieldName, offset) {
       const tabsEl = document.getElementById(`icon-tabs-${fieldName}`);
       if (tabsEl) {
@@ -3858,6 +4342,11 @@
       }
     }
 
+    /**
+     * アイコンピッカーのタブバーにマウスホイール横スクロールおよびドラッグ操作を設定する
+     *
+     * @param {HTMLElement} tabsEl - タブコンテナ要素
+     */
     function initIconPickerTabsMouseControl(tabsEl) {
       if (!tabsEl || tabsEl._hasMouseControl) return;
       tabsEl._hasMouseControl = true;
@@ -3915,6 +4404,11 @@
       filterIconPickerItems(fieldName);
     }
 
+    /**
+     * 選択中のカテゴリと検索キーワードに基づいてアイコンをフィルタリング表示する
+     *
+     * @param {string} fieldName - 対象フォームフィールド名
+     */
     function filterIconPickerItems(fieldName) {
       const container = document.getElementById(`icon-picker-container-${fieldName}`);
       if (!container) return;
@@ -3962,9 +4456,12 @@
 
     let currentModalSubmit = null;
 
-    /* ========================================
-       Terms Gate Handlers & Data Loading
-       ======================================== */
+    /* ==========================================================================
+       12. 利用規約ゲート・共通モーダル・トースト制御 (Terms Gate & Modals & Toasts)
+       ========================================================================== */
+    /**
+     * 利用規約ゲートの同意チェックボックスの状態に応じて「同意して利用を開始」ボタンの有効/無効を切り替える
+     */
     function toggleTermsGateButton() {
       const checkbox = document.getElementById('terms-gate-checkbox');
       const submitBtn = document.getElementById('terms-gate-submit-btn');
@@ -3978,6 +4475,9 @@
       }
     }
 
+    /**
+     * 利用規約に「同意しない」を選択した時の処理 (アクセス拒否ビューを表示)
+     */
     function handleDeclineTermsGate() {
       const agreementView = document.getElementById('terms-gate-agreement-view');
       const declinedView = document.getElementById('terms-gate-declined-view');
@@ -3985,6 +4485,9 @@
       if (declinedView) declinedView.style.display = 'flex';
     }
 
+    /**
+     * アクセス拒否ビューから再度利用規約の確認ビューに戻る処理
+     */
     function handleReviewTermsGate() {
       const agreementView = document.getElementById('terms-gate-agreement-view');
       const declinedView = document.getElementById('terms-gate-declined-view');
@@ -3992,6 +4495,9 @@
       if (agreementView) agreementView.style.display = 'flex';
     }
 
+    /**
+     * 利用規約に同意し、サーバーへ永続保存してメイン画面を表示する処理
+     */
     async function handleAcceptTermsGate() {
       const submitBtn = document.getElementById('terms-gate-submit-btn');
       const originalHtml = submitBtn ? submitBtn.innerHTML : '';
@@ -4032,6 +4538,9 @@
       }
     }
 
+    /**
+     * 利用規約同意後に全ウィジェット (ブックマーク, Gmail, カレンダー, タスク) のデータを並行取得する
+     */
     function loadAppData() {
       loadBookmarks().catch(e => console.error('loadBookmarks error:', e));
       loadEmails().catch(e => console.error('loadEmails error:', e));
@@ -4039,6 +4548,13 @@
       loadTasks().catch(e => console.error('loadTasks error:', e));
     }
 
+    /**
+     * 任意のHTMLコンテンツを表示できる汎用情報ダイアログを表示する
+     *
+     * @param {string} title - ダイアログのタイトル
+     * @param {string} htmlContent - 表示するHTMLコンテンツ文字列
+     * @param {Object|null} [actionConfig=null] - アクションボタンの設定
+     */
     function showCustomInfoModal(title, htmlContent, actionConfig = null) {
       document.getElementById('modal-title').textContent = title;
       const body = document.getElementById('modal-body');
@@ -4063,6 +4579,9 @@
       document.getElementById('modal').classList.add('active');
     }
 
+    /**
+     * バージョン更新履歴・アップデート情報モーダルを表示する
+     */
     function showUpdateInfoModal() {
       const content = `
         <div class="pb-3" style="border-bottom: 1px solid var(--border-color);">
@@ -4188,6 +4707,9 @@
       showCustomInfoModal('🎉 アップデート情報', content);
     }
 
+    /**
+     * フッターリンク等から利用規約を閲覧するためのモーダルを表示する
+     */
     function showTermsModal() {
       const content = `
         <div class="space-y-4" style="color: var(--text-primary);">
@@ -4246,6 +4768,12 @@
       showCustomInfoModal('📜 利用規約・プライバシー方針', content);
     }
 
+    /**
+     * フォーム入力用共通モーダルを動的に組み立てて表示する汎用モーダルエンジン
+     *
+     * @param {Object} config - モーダル設定オブジェクト
+     *        { title, fields: [{ name, label, type, value, required, ... }], onSubmit }
+     */
     function showModal(config) {
       const btnSubmit = document.getElementById('modal-submit');
       if (btnSubmit) {
@@ -4474,6 +5002,9 @@
       body.querySelectorAll('.icon-picker-tabs').forEach(initIconPickerTabsMouseControl);
     }
 
+    /**
+     * 表示中の汎用モーダルを閉じる
+     */
     function hideModal() {
       document.getElementById('modal').classList.remove('active');
       const btnSubmit = document.getElementById('modal-submit');
@@ -4482,6 +5013,12 @@
       }
     }
 
+    /**
+     * 画面右下にトースト通知メッセージをポップアップ表示する (3秒後に自動消去)
+     *
+     * @param {string} message - 表示メッセージ
+     * @param {'info'|'success'|'error'} [type='info'] - トーストの種類
+     */
     function showToast(message, type = 'info') {
       const container = document.getElementById('toasts');
       const toast = document.createElement('div');
@@ -4509,9 +5046,14 @@
       }, 3000);
     }
 
-    /* ========================================
-       Tab Switching
-       ======================================== */
+    /* ==========================================================================
+       13. タブ切り替え制御 (Tab System Switching & Indicator Animation)
+       ========================================================================== */
+    /**
+     * ダッシュボードのタブ (Gmail / カレンダー / タスク / QRコード) を切り替える
+     *
+     * @param {'gmail'|'calendar'|'tasks'|'qrcode'} tabName - 切り替え先のタブ識別名
+     */
     function switchTab(tabName) {
       // Update tab buttons
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -4526,12 +5068,15 @@
       document.getElementById(`panel-${tabName}`).classList.add('active');
 
       // Switch action buttons
-      ['gmail', 'calendar', 'tasks'].forEach(name => {
+      ['gmail', 'calendar', 'tasks', 'qrcode'].forEach(name => {
         const action = document.getElementById(`tab-action-${name}`);
         if (action) action.style.display = name === tabName ? '' : 'none';
       });
     }
 
+    /**
+     * 現在アクティブなタブ要素に合わせて背景スライディングインジケーターの位置と幅を追従更新する
+     */
     function updateTabIndicator() {
       const bar = document.getElementById('tab-bar');
       const activeTab = bar.querySelector('.tab.active');
@@ -4553,11 +5098,291 @@
       setTimeout(updateTabIndicator, 150);
     });
 
-    /* ========================================
-       Bookmark Drag & Drop
-       ======================================== */
+
+    /* ==========================================================================
+       14. QRコード生成ツール (QR Code Generator, Local Export & Drive Save)
+       ========================================================================== */
+    let qrInstance = null;
+
+    /**
+     * QRコードサイズ変更スライダーの操作に合わせて「256px」などの数値を更新する
+     */
+    function updateQRSizeLabel() {
+      const size = document.getElementById('qr-size').value;
+      document.getElementById('qr-size-label').textContent = size + 'px';
+    }
+
+    /**
+     * カラーコード入力欄 (HEX) の変更をカラーピッカーに同期してQRコードを再描画する
+     *
+     * @param {'fg'|'bg'} type - 'fg'(前景色) または 'bg'(背景色)
+     */
+    function syncQRColor(type) {
+      const hex = document.getElementById(`qr-${type}-hex`).value;
+      if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+        document.getElementById(`qr-${type}-color`).value = hex;
+        generateQRPreview();
+      }
+    }
+
+    /**
+     * カラーピッカーの変更をカラーコード入力欄 (HEX) に同期してQRコードを再描画する
+     *
+     * @param {'fg'|'bg'} type - 'fg'(前景色) または 'bg'(背景色)
+     */
+    function syncQRColorFromPicker(type) {
+      const val = document.getElementById(`qr-${type}-color`).value;
+      document.getElementById(`qr-${type}-hex`).value = val;
+    }
+
+    let qrDebounceTimer = null;
+    /**
+     * QRコードプレビューの再生成をトリガーする (デバウンス処理付き)
+     */
+    function generateQRPreview() {
+      clearTimeout(qrDebounceTimer);
+      qrDebounceTimer = setTimeout(_generateQRPreviewImmediate, 150);
+    }
+
+    /**
+     * QRCode.js ライブラリを使用してプレビュー領域にQRコードを即時描画する
+     */
+    function _generateQRPreviewImmediate() {
+      const text = document.getElementById('qr-text').value.trim();
+      const preview = document.getElementById('qr-preview');
+
+      if (!text) {
+        preview.innerHTML = `
+          <div class="flex flex-col items-center gap-2 opacity-40">
+            <span class="material-symbols-rounded" style="font-size:48px;">qr_code_2</span>
+            <span class="text-xs">テキストを入力するとプレビューが表示されます</span>
+          </div>`;
+        document.getElementById('qr-save-local-btn').disabled = true;
+        document.getElementById('qr-save-drive-btn').disabled = true;
+        return;
+      }
+
+      const size = parseInt(document.getElementById('qr-size').value);
+      const fgColor = document.getElementById('qr-fg-color').value;
+      const bgColor = document.getElementById('qr-bg-color').value;
+      const ecLevel = document.getElementById('qr-ec-level').value;
+
+      // Clear previous
+      preview.innerHTML = '';
+
+      const ecMap = { L: QRCode.CorrectLevel.L, M: QRCode.CorrectLevel.M, Q: QRCode.CorrectLevel.Q, H: QRCode.CorrectLevel.H };
+
+      try {
+        qrInstance = new QRCode(preview, {
+          text: text,
+          width: size,
+          height: size,
+          colorDark: fgColor,
+          colorLight: bgColor,
+          correctLevel: ecMap[ecLevel] || QRCode.CorrectLevel.M
+        });
+
+        document.getElementById('qr-save-local-btn').disabled = false;
+        document.getElementById('qr-save-drive-btn').disabled = false;
+      } catch (err) {
+        preview.innerHTML = `
+          <div class="flex flex-col items-center gap-2 text-red-500">
+            <span class="material-symbols-rounded" style="font-size:36px;">error</span>
+            <span class="text-xs">QRコードの生成に失敗しました</span>
+          </div>`;
+        document.getElementById('qr-save-local-btn').disabled = true;
+        document.getElementById('qr-save-drive-btn').disabled = true;
+      }
+    }
+
+    /**
+     * プレビュー領域に生成されたQRコードの HTMLCanvasElement を取得する
+     *
+     * @returns {HTMLCanvasElement|null} Canvas要素
+     */
+    function getQRCanvas() {
+      const preview = document.getElementById('qr-preview');
+      return preview.querySelector('canvas');
+    }
+
+    /**
+     * 生成されたQRコードのCanvasピクセルデータを解析し、拡大縮小に強いベクターSVGコードを生成する
+     *
+     * @returns {string} SVG形式のXML文字列
+     */
+    function generateSVGString() {
+      const canvas = getQRCanvas();
+      if (!canvas) return null;
+
+      const size = canvas.width;
+      const ctx = canvas.getContext('2d');
+      const imageData = ctx.getImageData(0, 0, size, size);
+      const fgColor = document.getElementById('qr-fg-color').value;
+      const bgColor = document.getElementById('qr-bg-color').value;
+
+      // Detect module size by finding the first QR module
+      let moduleSize = 1;
+      const data = imageData.data;
+
+      // Find the module size by looking for color transitions
+      // The QR code modules have a consistent block size
+      for (let x = 0; x < size; x++) {
+        const idx = x * 4;
+        const r = data[idx], g = data[idx + 1], b = data[idx + 2];
+        const isLight = (r + g + b) / 3 > 128;
+        if (!isLight) {
+          // Found first dark pixel, now find how wide the block is
+          let endX = x;
+          for (let nx = x + 1; nx < size; nx++) {
+            const nIdx = nx * 4;
+            const nr = data[nIdx], ng = data[nIdx + 1], nb = data[nIdx + 2];
+            const nIsLight = (nr + ng + nb) / 3 > 128;
+            if (nIsLight) {
+              endX = nx;
+              break;
+            }
+          }
+          moduleSize = endX - x;
+          if (moduleSize < 1) moduleSize = 1;
+          break;
+        }
+      }
+
+      const modules = Math.round(size / moduleSize);
+      let svgRects = '';
+      for (let row = 0; row < modules; row++) {
+        for (let col = 0; col < modules; col++) {
+          const px = Math.floor(col * moduleSize + moduleSize / 2);
+          const py = Math.floor(row * moduleSize + moduleSize / 2);
+          if (px < size && py < size) {
+            const idx = (py * size + px) * 4;
+            const r = data[idx], g = data[idx + 1], b = data[idx + 2];
+            const isLight = (r + g + b) / 3 > 128;
+            if (!isLight) {
+              svgRects += `<rect x="${col}" y="${row}" width="1" height="1" fill="${fgColor}"/>\n`;
+            }
+          }
+        }
+      }
+
+      return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${modules} ${modules}" width="${size}" height="${size}" shape-rendering="crispEdges">
+  <rect width="${modules}" height="${modules}" fill="${bgColor}"/>
+  ${svgRects}
+</svg>`;
+    }
+
+    /**
+     * 生成したQRコード画像をローカルPCにダウンロード保存する (PNG / JPEG / SVG 対応)
+     */
+    function saveQRCodeLocal() {
+      const format = document.getElementById('qr-save-format').value;
+      const text = document.getElementById('qr-text').value.trim();
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      const baseName = `qr_${timestamp}`;
+
+      if (format === 'svg') {
+        const svgString = generateSVGString();
+        if (!svgString) {
+          showToast('SVGの生成に失敗しました', 'error');
+          return;
+        }
+        const blob = new Blob([svgString], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = baseName + '.svg';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('SVGファイルを保存しました', 'success');
+        return;
+      }
+
+      const canvas = getQRCanvas();
+      if (!canvas) {
+        showToast('QRコードが生成されていません', 'error');
+        return;
+      }
+
+      const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+      const ext = format === 'jpeg' ? '.jpg' : '.png';
+
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          showToast('画像の生成に失敗しました', 'error');
+          return;
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = baseName + ext;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast(`${format.toUpperCase()}ファイルを保存しました`, 'success');
+      }, mimeType, format === 'jpeg' ? 0.92 : undefined);
+    }
+
+    /**
+     * 生成したQRコード画像を Google Apps Script 経由で Google Drive の専用フォルダに保存する
+     */
+    async function saveQRCodeToDrive() {
+      const format = document.getElementById('qr-save-format').value;
+      const text = document.getElementById('qr-text').value.trim();
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      const baseName = `qr_${timestamp}`;
+
+      const driveBtn = document.getElementById('qr-save-drive-btn');
+      const originalHTML = driveBtn.innerHTML;
+      driveBtn.disabled = true;
+      driveBtn.innerHTML = `<span class="material-symbols-rounded text-lg animate-spin">sync</span> 保存中...`;
+
+      try {
+        let base64Data, fileName, mimeType;
+
+        if (format === 'svg') {
+          const svgString = generateSVGString();
+          if (!svgString) throw new Error('SVG生成失敗');
+          base64Data = btoa(unescape(encodeURIComponent(svgString)));
+          fileName = baseName + '.svg';
+          mimeType = 'image/svg+xml';
+        } else {
+          const canvas = getQRCanvas();
+          if (!canvas) throw new Error('QRコード未生成');
+
+          mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+          const ext = format === 'jpeg' ? '.jpg' : '.png';
+          fileName = baseName + ext;
+
+          const dataUrl = canvas.toDataURL(mimeType, format === 'jpeg' ? 0.92 : undefined);
+          base64Data = dataUrl.split(',')[1];
+        }
+
+        const res = await callServer('saveQRCodeToDrive', state.email, base64Data, fileName, mimeType);
+        if (res && res.error) throw new Error(res.error);
+
+        if (res && res.url) {
+          showToast('Google Driveに保存しました', 'success');
+        } else {
+          showToast('Google Driveに保存しました', 'success');
+        }
+      } catch (err) {
+        console.error('Drive save error:', err);
+        showToast('Google Driveへの保存に失敗しました', 'error');
+      } finally {
+        driveBtn.disabled = false;
+        driveBtn.innerHTML = originalHTML;
+      }
+    }
+
+    /* ==========================================================================
+       15. ブックマーク ドラッグ＆ドロップ並び替え (Bookmark Drag & Drop)
+       ========================================================================== */
     let dragSrcIndex = null;
 
+    /**
+     * ブックマークカード群にドラッグ＆ドロップ並び替えイベントリスナーを設定する
+     * (並び替え完了時はローカルstate更新後、サーバーに新しい順序を一括保存)
+     */
     function setupBookmarkDragAndDrop() {
       const container = document.getElementById('bookmarks-container');
       if (!container) return;
