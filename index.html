@@ -5206,11 +5206,52 @@
     }
 
     /**
-     * 生成されたQRコードのCanvasピクセルデータを解析し、拡大縮小に強いベクターSVGコードを生成する
+     * QRCode.js の内部データ (_oQRCode) を直接参照し、正確なベクターSVGコードを生成する
+     * - ピクセル解析ではなくモジュールデータを直接使用するため、確実に読み取り可能なQRコードを出力します
      *
      * @returns {string} SVG形式のXML文字列
      */
     function generateSVGString() {
+      const fgColor = document.getElementById('qr-fg-color').value;
+      const bgColor = document.getElementById('qr-bg-color').value;
+      const size = parseInt(document.getElementById('qr-size').value);
+
+      // QRCode.js の内部 QRCodeModel オブジェクトから直接モジュールデータを取得
+      if (!qrInstance || !qrInstance._oQRCode) {
+        // フォールバック: _oQRCode が利用できない場合はcanvasベースで生成
+        return _generateSVGStringFromCanvas();
+      }
+
+      const qrModel = qrInstance._oQRCode;
+      const moduleCount = qrModel.getModuleCount();
+
+      // quiet zone (余白) を4モジュール分追加（QRコード仕様準拠）
+      const quietZone = 4;
+      const totalModules = moduleCount + quietZone * 2;
+
+      let svgRects = '';
+      for (let row = 0; row < moduleCount; row++) {
+        for (let col = 0; col < moduleCount; col++) {
+          if (qrModel.isDark(row, col)) {
+            svgRects += `<rect x="${col + quietZone}" y="${row + quietZone}" width="1" height="1" fill="${fgColor}"/>\n`;
+          }
+        }
+      }
+
+      return "<" + "?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalModules} ${totalModules}" width="${size}" height="${size}" shape-rendering="crispEdges">
+  <rect width="${totalModules}" height="${totalModules}" fill="${bgColor}"/>
+  ${svgRects}
+</svg>`;
+    }
+
+    /**
+     * フォールバック: Canvas のピクセルデータからSVGを生成する（_oQRCode が利用できない場合）
+     * - 全ピクセル行を走査してモジュールサイズを正確に検出します
+     *
+     * @returns {string|null} SVG形式のXML文字列、またはnull
+     */
+    function _generateSVGStringFromCanvas() {
       const canvas = getQRCanvas();
       if (!canvas) return null;
 
@@ -5219,32 +5260,32 @@
       const imageData = ctx.getImageData(0, 0, size, size);
       const fgColor = document.getElementById('qr-fg-color').value;
       const bgColor = document.getElementById('qr-bg-color').value;
-
-      // Detect module size by finding the first QR module
-      let moduleSize = 1;
       const data = imageData.data;
 
-      // Find the module size by looking for color transitions
-      // The QR code modules have a consistent block size
-      for (let x = 0; x < size; x++) {
-        const idx = x * 4;
-        const r = data[idx], g = data[idx + 1], b = data[idx + 2];
-        const isLight = (r + g + b) / 3 > 128;
-        if (!isLight) {
-          // Found first dark pixel, now find how wide the block is
-          let endX = x;
-          for (let nx = x + 1; nx < size; nx++) {
-            const nIdx = nx * 4;
-            const nr = data[nIdx], ng = data[nIdx + 1], nb = data[nIdx + 2];
-            const nIsLight = (nr + ng + nb) / 3 > 128;
-            if (nIsLight) {
-              endX = nx;
-              break;
+      // 全ピクセルを走査してモジュールサイズを検出する（y=0 だけでなく全行を探索）
+      let moduleSize = 1;
+      let found = false;
+      for (let y = 0; y < size && !found; y++) {
+        for (let x = 0; x < size; x++) {
+          const idx = (y * size + x) * 4;
+          const r = data[idx], g = data[idx + 1], b = data[idx + 2];
+          const isLight = (r + g + b) / 3 > 128;
+          if (!isLight) {
+            // 暗いピクセルを発見。同じ行で連続する暗いピクセルの幅を測定
+            let blockWidth = 1;
+            for (let nx = x + 1; nx < size; nx++) {
+              const nIdx = (y * size + nx) * 4;
+              const nr = data[nIdx], ng = data[nIdx + 1], nb = data[nIdx + 2];
+              const nIsLight = (nr + ng + nb) / 3 > 128;
+              if (nIsLight) break;
+              blockWidth++;
             }
+            if (blockWidth >= 1) {
+              moduleSize = blockWidth;
+              found = true;
+            }
+            break;
           }
-          moduleSize = endX - x;
-          if (moduleSize < 1) moduleSize = 1;
-          break;
         }
       }
 
@@ -5271,6 +5312,7 @@
   ${svgRects}
 </svg>`;
     }
+
 
     /**
      * 生成したQRコード画像をローカルPCにダウンロード保存する (PNG / JPEG / SVG 対応)
