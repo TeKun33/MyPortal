@@ -871,6 +871,8 @@
     }
 
     .event-actions {
+      z-index: 2;
+      pointer-events: none;
       position: absolute;
       top: 0.25rem;
       right: 0.25rem;
@@ -882,6 +884,7 @@
 
     .event-chip:hover .event-actions {
       opacity: 1;
+      pointer-events: auto;
     }
 
     .event-action-btn {
@@ -889,7 +892,9 @@
       border: none;
       color: var(--text-primary);
       cursor: pointer;
-      padding: 3px;
+      padding: 4px;
+      min-width: 24px;
+      min-height: 24px;
       border-radius: 4px;
       display: flex;
       align-items: center;
@@ -1913,6 +1918,7 @@
 
       .event-actions {
         opacity: 0.85;
+        pointer-events: auto;
       }
 
       .task-actions,
@@ -3693,7 +3699,7 @@
             const descHtml = e.description ? `<div class="event-desc" title="${escapeHtml(e.description)}">${escapeHtml(e.description)}</div>` : '';
             return `
               <div class="event-chip all-day" style="background: ${hex};" onclick="showEditEventModal('${escapeHtml(e.id)}')">
-                <div class="event-actions">
+                <div class="event-actions" onclick="event.stopPropagation()">
                   <button class="event-action-btn" onclick="event.stopPropagation(); showEditEventModal('${escapeHtml(e.id)}')" title="編集">
                     <span class="material-symbols-rounded">edit</span>
                   </button>
@@ -3715,7 +3721,7 @@
 
             return `
               <div class="event-chip" style="${chipStyle}" onclick="showEditEventModal('${escapeHtml(e.id)}')">
-                <div class="event-actions">
+                <div class="event-actions" onclick="event.stopPropagation()">
                   <button class="event-action-btn" onclick="event.stopPropagation(); showEditEventModal('${escapeHtml(e.id)}')" title="編集">
                     <span class="material-symbols-rounded">edit</span>
                   </button>
