@@ -564,6 +564,8 @@
       position: relative;
       z-index: 1;
       user-select: none;
+      -webkit-user-select: none;
+      -webkit-user-drag: element;
       display: flex;
       align-items: center;
       gap: 0.375rem;
@@ -573,6 +575,7 @@
 
     .bookmark-category-tab[draggable="true"] {
       cursor: grab;
+      -webkit-user-drag: element;
     }
 
     .bookmark-category-tab[draggable="true"]:active {
@@ -626,6 +629,7 @@
       transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 0;
       box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.3);
+      pointer-events: none;
     }
 
     .bookmark-category-manage-btn {
@@ -3615,12 +3619,15 @@
      */
     async function saveCategoryOrder(newOrder) {
       if (!state.settings) state.settings = {};
-      state.settings.categoryOrder = newOrder;
+      state.settings.categoryOrder = [...newOrder];
 
       // ローカルストレージに即時反映
       try {
         localStorage.setItem('myportal_category_order_' + (state.email || 'user'), JSON.stringify(newOrder));
       } catch (e) { }
+
+      // 画面上のタブバーを即座に再描画！
+      renderBookmarkCategoryTabs();
 
       // サーバーに非同期保存
       try {
@@ -3731,6 +3738,7 @@
       renderBookmarks();
     }
 
+    let catDragSrcKey = null;
     let catDragSrcIndex = null;
 
     /**
@@ -3743,17 +3751,23 @@
       container.addEventListener('dragstart', (e) => {
         const tab = e.target.closest('.bookmark-category-tab');
         if (!tab) return;
+        catDragSrcKey = tab.dataset.category;
         catDragSrcIndex = parseInt(tab.dataset.catIndex, 10);
         tab.classList.add('dragging');
         e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', tab.dataset.category || '');
+        e.dataTransfer.setData('text/plain', tab.dataset.category || 'cat');
       });
 
-      container.addEventListener('dragend', (e) => {
-        const tab = e.target.closest('.bookmark-category-tab');
-        if (tab) tab.classList.remove('dragging');
+      container.addEventListener('dragend', () => {
+        document.querySelectorAll('.bookmark-category-tab.dragging').forEach(t => t.classList.remove('dragging'));
         document.querySelectorAll('.bookmark-category-tab.drag-over').forEach(t => t.classList.remove('drag-over'));
-        setTimeout(() => { isCategoryJustDragged = false; }, 80);
+        catDragSrcKey = null;
+        catDragSrcIndex = null;
+        setTimeout(() => { isCategoryJustDragged = false; }, 100);
+      });
+
+      container.addEventListener('dragenter', (e) => {
+        e.preventDefault();
       });
 
       container.addEventListener('dragover', (e) => {
@@ -3761,36 +3775,56 @@
         e.dataTransfer.dropEffect = 'move';
         const tab = e.target.closest('.bookmark-category-tab');
         if (!tab) return;
-        const targetIndex = parseInt(tab.dataset.catIndex, 10);
-        if (isNaN(targetIndex) || targetIndex === catDragSrcIndex) return;
+        if (tab.dataset.category === catDragSrcKey) return;
         document.querySelectorAll('.bookmark-category-tab.drag-over').forEach(t => t.classList.remove('drag-over'));
         tab.classList.add('drag-over');
       });
 
       container.addEventListener('dragleave', (e) => {
-        const tab = e.target.closest('.bookmark-category-tab');
-        if (tab) tab.classList.remove('drag-over');
+        if (!container.contains(e.relatedTarget)) {
+          document.querySelectorAll('.bookmark-category-tab.drag-over').forEach(t => t.classList.remove('drag-over'));
+        }
       });
 
       container.addEventListener('drop', async (e) => {
         e.preventDefault();
-        const targetTab = e.target.closest('.bookmark-category-tab');
+        e.stopPropagation();
+
+        let targetTab = e.target.closest('.bookmark-category-tab');
+        if (!targetTab) {
+          const tabs = Array.from(container.querySelectorAll('.bookmark-category-tab'));
+          targetTab = tabs.find(t => {
+            const r = t.getBoundingClientRect();
+            return e.clientX >= r.left && e.clientX <= r.right;
+          });
+        }
+
         document.querySelectorAll('.bookmark-category-tab.drag-over').forEach(t => t.classList.remove('drag-over'));
+        document.querySelectorAll('.bookmark-category-tab.dragging').forEach(t => t.classList.remove('dragging'));
         if (!targetTab) return;
 
-        const targetIndex = parseInt(targetTab.dataset.catIndex, 10);
-        if (isNaN(catDragSrcIndex) || isNaN(targetIndex) || catDragSrcIndex === targetIndex) return;
+        const targetKey = targetTab.dataset.category;
+        const srcKey = catDragSrcKey || (isNaN(catDragSrcIndex) ? null : (getOrderedBookmarkTabs()[catDragSrcIndex] || {}).key);
+
+        if (!srcKey || !targetKey || srcKey === targetKey) return;
 
         isCategoryJustDragged = true;
 
         const currentTabs = getOrderedBookmarkTabs();
-        const moved = currentTabs.splice(catDragSrcIndex, 1)[0];
-        currentTabs.splice(targetIndex, 0, moved);
+        const fromIdx = currentTabs.findIndex(t => t.key === srcKey);
+        const toIdx = currentTabs.findIndex(t => t.key === targetKey);
+
+        if (fromIdx === -1 || toIdx === -1 || fromIdx === toIdx) return;
+
+        const moved = currentTabs.splice(fromIdx, 1)[0];
+        currentTabs.splice(toIdx, 0, moved);
 
         const newOrder = currentTabs.map(t => t.key);
-        renderBookmarkCategoryTabs();
+
         await saveCategoryOrder(newOrder);
         showToast('カテゴリの並び順を保存しました', 'success');
+
+        catDragSrcKey = null;
         catDragSrcIndex = null;
       });
     }
