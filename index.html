@@ -518,6 +518,216 @@
       font-size: 14px;
     }
 
+    /* ==========================================================================
+       6.1 ブックマークカテゴリタブバー (Category Tab Bar)
+       ========================================================================== */
+    .bookmark-category-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .bookmark-category-tabs-wrapper {
+      flex: 1;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .bookmark-category-tabs-wrapper::-webkit-scrollbar {
+      display: none;
+    }
+
+    .bookmark-category-tabs {
+      display: flex;
+      gap: 0.375rem;
+      padding: 3px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      position: relative;
+      min-width: min-content;
+    }
+
+    .bookmark-category-tab {
+      padding: 0.4rem 0.85rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-radius: calc(var(--radius-lg) - 4px);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: var(--transition);
+      position: relative;
+      z-index: 1;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      border: none;
+      background: none;
+    }
+
+    .bookmark-category-tab[draggable="true"] {
+      cursor: grab;
+    }
+
+    .bookmark-category-tab[draggable="true"]:active {
+      cursor: grabbing;
+    }
+
+    .bookmark-category-tab.dragging {
+      opacity: 0.4;
+      transform: scale(0.95);
+      cursor: grabbing !important;
+    }
+
+    .bookmark-category-tab.drag-over {
+      box-shadow: 0 0 0 2px var(--primary), 0 2px 8px rgba(var(--primary-rgb), 0.25);
+      background: rgba(var(--primary-rgb), 0.15);
+      border-radius: calc(var(--radius-lg) - 4px);
+    }
+
+    .bookmark-category-tab:hover {
+      color: var(--text-primary);
+      background: var(--hover-bg);
+    }
+
+    .bookmark-category-tab.active {
+      color: #ffffff;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    }
+
+    .bookmark-category-tab .cat-count {
+      font-size: 0.65rem;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.05rem 0.35rem;
+      border-radius: 999px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .bookmark-category-tab:not(.active) .cat-count {
+      background: var(--hover-bg);
+      color: var(--text-secondary);
+    }
+
+    .bookmark-category-indicator {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      height: calc(100% - 6px);
+      border-radius: calc(var(--radius-lg) - 4px);
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 0;
+      box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.3);
+    }
+
+    .bookmark-category-manage-btn {
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      border-radius: 50%;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+
+    .bookmark-category-manage-btn:hover {
+      color: var(--primary);
+      border-color: rgba(var(--primary-rgb), 0.5);
+      background: rgba(var(--primary-rgb), 0.08);
+      transform: scale(1.05);
+    }
+
+    .bookmark-category-manage-btn .material-symbols-rounded {
+      font-size: 18px;
+    }
+
+    .bookmark-category-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.65rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(var(--primary-rgb), 0.1);
+      color: var(--primary);
+      font-weight: 600;
+      white-space: nowrap;
+      margin-top: 0.125rem;
+    }
+
+    @media (max-width: 640px) {
+      .bookmark-category-tab {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.72rem;
+      }
+    }
+
+    /* Category select in modal */
+    .category-select-wrapper {
+      position: relative;
+    }
+    
+    .category-datalist-input {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      transition: var(--transition);
+    }
+    
+    .category-datalist-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.15);
+    }
+
+    .category-datalist-input::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.6;
+    }
+
+    .category-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+      margin-top: 0.5rem;
+    }
+
+    .category-suggestion-chip {
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+      border-radius: 999px;
+      background: var(--hover-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .category-suggestion-chip:hover,
+    .category-suggestion-chip.selected {
+      background: rgba(var(--primary-rgb), 0.15);
+      color: var(--primary);
+      border-color: rgba(var(--primary-rgb), 0.4);
+    }
+
     .icon-picker-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
@@ -2289,6 +2499,17 @@
           <span class="material-symbols-rounded text-base sm:text-lg">bookmark_add</span> 追加
         </button>
       </div>
+      <!-- カテゴリタブバー -->
+      <div class="bookmark-category-bar" id="bookmark-category-bar" style="display: none;">
+        <div class="bookmark-category-tabs-wrapper">
+          <div class="bookmark-category-tabs" id="bookmark-category-tabs">
+            <div class="bookmark-category-indicator" id="bookmark-category-indicator"></div>
+          </div>
+        </div>
+        <button class="bookmark-category-manage-btn" onclick="showCategoryManageModal()" title="カテゴリ管理・並び替え">
+          <span class="material-symbols-rounded">tune</span>
+        </button>
+      </div>
       <div class="bookmark-grid grid gap-3 sm:gap-4" id="bookmarks-container">
         <!-- Skeleton -->
         <div class="skeleton skeleton-card"></div>
@@ -2909,7 +3130,8 @@
       emails: [],
       events: [],
       taskLists: [],
-      weekOffset: 0
+      weekOffset: 0,
+      activeBookmarkCategory: null
     };
 
     /* ==========================================================================
@@ -2922,9 +3144,9 @@
       email: 'example@gmail.com',
       settings: { theme: 'ocean', darkMode: false, termsAgreed: false, termsAgreedAt: '' },
       bookmarks: [
-        { title: 'Google', url: 'https://google.com', icon: 'search' },
-        { title: 'GitHub', url: 'https://github.com', icon: 'code' },
-        { title: 'YouTube', url: 'https://youtube.com', icon: 'play_circle' }
+        { title: 'Google', url: 'https://google.com', category: '検索・情報', icon: 'search' },
+        { title: 'GitHub', url: 'https://github.com', category: '開発', icon: 'code' },
+        { title: 'YouTube', url: 'https://youtube.com', category: 'メディア', icon: 'play_circle' }
       ],
       emails: [
         { id: '1', senderName: 'Taro Yamada', subject: '明日の会議について', snippet: '明日の会議の資料を添付します...', date: new Date().toISOString(), isUnread: true, permalink: '#' },
@@ -2984,12 +3206,17 @@
               mockData.settings.termsAgreedAt = new Date().toLocaleString();
               resolve({ success: true, termsAgreed: mockData.settings.termsAgreed, termsAgreedAt: mockData.settings.termsAgreedAt });
             }
+            else if (functionName === 'saveCategoryOrder') {
+              if (!mockData.settings) mockData.settings = {};
+              mockData.settings.categoryOrder = args[1] || [];
+              resolve({ success: true });
+            }
             else if (functionName === 'addBookmark') {
               const title = args[1];
               const url = args[2];
               const cat = args[3];
               const icon = args[4] || (cat && !cat.includes('/') ? cat : 'language');
-              mockData.bookmarks.push({ title, url, icon: icon || 'language' });
+              mockData.bookmarks.push({ title, url, category: cat || '', icon: icon || 'language' });
               resolve({ success: true });
             }
             else if (functionName === 'updateBookmark') {
@@ -2999,6 +3226,7 @@
                 mockData.bookmarks[idx].url = args[3];
                 const cat = args[4];
                 const icon = args[5] || (cat && !cat.includes('/') ? cat : 'language');
+                mockData.bookmarks[idx].category = cat || '';
                 mockData.bookmarks[idx].icon = icon || 'language';
               }
               resolve({ success: true });
@@ -3133,6 +3361,7 @@
     async function init() {
       startClock();
       setupBookmarkDragAndDrop();
+      setupCategoryDragAndDrop();
 
       // 初期タブをGmailに強制切り替え
       try { switchTab('gmail'); } catch (e) { }
@@ -3272,6 +3501,7 @@
     async function loadBookmarks() {
       try {
         state.bookmarks = await callServer('getBookmarks', state.email);
+        renderBookmarkCategoryTabs();
         renderBookmarks();
       } catch (err) {
         document.getElementById('bookmarks-container').innerHTML = '<div class="empty-state">エラーが発生しました</div>';
@@ -3279,7 +3509,430 @@
     }
 
     /**
+     * ローカルストレージにキャッシュされたカテゴリ順序を取得する
+     * @returns {string[]}
+     */
+    function getSavedCategoryOrderLocal() {
+      try {
+        const raw = localStorage.getItem('myportal_category_order_' + (state.email || 'user'));
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    /**
+     * ブックマークデータからカテゴリ一覧を順序通りに抽出する
+     * （「未分類」を除いたカスタムカテゴリ名の配列）
+     * @returns {string[]} 並び順が反映されたカテゴリ名の配列
+     */
+    function getBookmarkCategories() {
+      const existingCategories = new Set();
+      (state.bookmarks || []).forEach(bm => {
+        if (bm.category && bm.category.trim()) {
+          existingCategories.add(bm.category.trim());
+        }
+      });
+
+      const savedOrder = (state.settings && Array.isArray(state.settings.categoryOrder) && state.settings.categoryOrder.length > 0)
+        ? state.settings.categoryOrder
+        : getSavedCategoryOrderLocal();
+
+      const result = [];
+      // 1. 保存された並び順に存在するカテゴリを追加
+      savedOrder.forEach(key => {
+        if (key && key !== '__uncategorized__' && key !== '__all__' && existingCategories.has(key) && !result.includes(key)) {
+          result.push(key);
+        }
+      });
+
+      // 2. ブックマークにはあるが保存順序に未登録のカテゴリを末尾に追加（文字コード昇順）
+      const remaining = Array.from(existingCategories).filter(k => !result.includes(k)).sort();
+      result.push(...remaining);
+
+      // 3. ブックマーク件数は0件だがユーザーが明示的に作成したカテゴリ（savedOrderに含まれるもの）も保持
+      savedOrder.forEach(key => {
+        if (key && key !== '__uncategorized__' && key !== '__all__' && !result.includes(key)) {
+          result.push(key);
+        }
+      });
+
+      return result;
+    }
+
+    /**
+     * タブバーに表示する全タブオブジェクト（カスタムカテゴリ＋未分類）を並び順通りに生成する
+     * @returns {Array<{ key: string, label: string, count: number, isUncategorized: boolean }>}
+     */
+    function getOrderedBookmarkTabs() {
+      const categories = getBookmarkCategories();
+      const uncategorizedCount = (state.bookmarks || []).filter(bm => !bm.category || !bm.category.trim()).length;
+
+      // 現在表示可能な全キー（未分類はブックマークがある場合のみ含める）
+      const availableKeys = [...categories];
+      if (uncategorizedCount > 0) {
+        availableKeys.push('__uncategorized__');
+      }
+
+      if (availableKeys.length === 0) return [];
+
+      const savedOrder = (state.settings && Array.isArray(state.settings.categoryOrder) && state.settings.categoryOrder.length > 0)
+        ? state.settings.categoryOrder
+        : getSavedCategoryOrderLocal();
+
+      const orderedKeys = [];
+      // 保存順に従って並べる
+      savedOrder.forEach(key => {
+        if (key && key !== '__all__' && availableKeys.includes(key) && !orderedKeys.includes(key)) {
+          orderedKeys.push(key);
+        }
+      });
+      // 未登録のキーを末尾に追加
+      availableKeys.forEach(key => {
+        if (!orderedKeys.includes(key)) {
+          orderedKeys.push(key);
+        }
+      });
+
+      return orderedKeys.map(key => {
+        const isUncat = key === '__uncategorized__';
+        const label = isUncat ? '未分類' : key;
+        const count = isUncat
+          ? uncategorizedCount
+          : (state.bookmarks || []).filter(bm => bm.category && bm.category.trim() === key).length;
+        return {
+          key,
+          label,
+          count,
+          isUncategorized: isUncat
+        };
+      });
+    }
+
+    /**
+     * カテゴリの並び順をローカルおよびサーバーに保存する
+     * @param {string[]} newOrder - カテゴリキーの並び順配列
+     */
+    async function saveCategoryOrder(newOrder) {
+      if (!state.settings) state.settings = {};
+      state.settings.categoryOrder = newOrder;
+
+      // ローカルストレージに即時反映
+      try {
+        localStorage.setItem('myportal_category_order_' + (state.email || 'user'), JSON.stringify(newOrder));
+      } catch (e) { }
+
+      // サーバーに非同期保存
+      try {
+        const res = await callServer('saveCategoryOrder', state.email, newOrder);
+        if (res && res.error) throw new Error(res.error);
+      } catch (err) {
+        console.warn('saveCategoryOrder failed, fallback to saveUserSettings:', err);
+        try {
+          await callServer('saveUserSettings', state.email, state.settings);
+        } catch (e2) {
+          console.error('Failed to save category order to server:', e2);
+        }
+      }
+    }
+
+    /**
+     * カテゴリタブバーを再描画する
+     * - 「すべて」タブなし
+     * - 並び順反映
+     * - ドラッグ＆ドロップ用属性 (draggable, data-cat-index) 付与
+     */
+    function renderBookmarkCategoryTabs() {
+      const tabsContainer = document.getElementById('bookmark-category-tabs');
+      const bar = document.getElementById('bookmark-category-bar');
+      if (!tabsContainer) return;
+
+      const tabs = getOrderedBookmarkTabs();
+
+      // カテゴリが1つもない場合はバー自体を非表示
+      if (tabs.length === 0) {
+        if (bar) bar.style.display = 'none';
+        state.activeBookmarkCategory = null;
+        renderBookmarks();
+        return;
+      }
+
+      if (bar) bar.style.display = 'flex';
+
+      // アクティブなカテゴリが無効または未設定の場合は先頭タブを選択
+      if (!state.activeBookmarkCategory || !tabs.some(t => t.key === state.activeBookmarkCategory)) {
+        state.activeBookmarkCategory = tabs[0].key;
+      }
+
+      let tabsHTML = tabs.map((t, idx) => {
+        const isActive = state.activeBookmarkCategory === t.key;
+        return `
+          <button class="bookmark-category-tab ${isActive ? 'active' : ''}" 
+                  draggable="true"
+                  data-category="${escapeHtml(t.key)}" 
+                  data-cat-index="${idx}"
+                  onclick="switchBookmarkCategory('${escapeHtml(t.key)}')"
+                  title="${escapeHtml(t.label)} (ドラッグで並び替え)">
+            <span class="material-symbols-rounded cat-drag-icon" style="font-size: 13px; opacity: 0.45; margin-right: -2px; pointer-events: none;">drag_indicator</span>
+            <span class="cat-label" style="pointer-events: none;">${escapeHtml(t.label)}</span>
+            <span class="cat-count" style="pointer-events: none;">${t.count}</span>
+          </button>`;
+      }).join('');
+
+      tabsHTML += '<div class="bookmark-category-indicator" id="bookmark-category-indicator"></div>';
+      tabsContainer.innerHTML = tabsHTML;
+
+      // インジケーター位置を更新
+      requestAnimationFrame(() => updateBookmarkCategoryIndicator());
+    }
+
+    /**
+     * カテゴリタブのスライディングインジケーターを正確に更新する
+     */
+    function updateBookmarkCategoryIndicator() {
+      const indicator = document.getElementById('bookmark-category-indicator');
+      const activeTab = document.querySelector('.bookmark-category-tab.active');
+      if (!indicator) return;
+      if (!activeTab) {
+        indicator.style.width = '0px';
+        return;
+      }
+
+      const tabsContainer = document.getElementById('bookmark-category-tabs');
+      if (!tabsContainer) return;
+
+      // offsetLeft を基準に正確な位置を算出 (padding: 3px を考慮)
+      indicator.style.width = activeTab.offsetWidth + 'px';
+      indicator.style.transform = `translateX(${activeTab.offsetLeft - 3}px)`;
+
+      // アクティブタブが見えるよう水平スクロール
+      activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    }
+
+    let isCategoryJustDragged = false;
+
+    /**
+     * ブックマークカテゴリタブを切り替える
+     * @param {string} category - カテゴリ名
+     */
+    function switchBookmarkCategory(category) {
+      if (isCategoryJustDragged) {
+        isCategoryJustDragged = false;
+        return;
+      }
+      state.activeBookmarkCategory = category;
+
+      // アクティブタブのクラスを更新
+      document.querySelectorAll('.bookmark-category-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.category === category);
+      });
+
+      updateBookmarkCategoryIndicator();
+      renderBookmarks();
+    }
+
+    let catDragSrcIndex = null;
+
+    /**
+     * カテゴリタブにドラッグ＆ドロップ並び替えリスナーを設定する
+     */
+    function setupCategoryDragAndDrop() {
+      const container = document.getElementById('bookmark-category-tabs');
+      if (!container) return;
+
+      container.addEventListener('dragstart', (e) => {
+        const tab = e.target.closest('.bookmark-category-tab');
+        if (!tab) return;
+        catDragSrcIndex = parseInt(tab.dataset.catIndex, 10);
+        tab.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', tab.dataset.category || '');
+      });
+
+      container.addEventListener('dragend', (e) => {
+        const tab = e.target.closest('.bookmark-category-tab');
+        if (tab) tab.classList.remove('dragging');
+        document.querySelectorAll('.bookmark-category-tab.drag-over').forEach(t => t.classList.remove('drag-over'));
+        setTimeout(() => { isCategoryJustDragged = false; }, 80);
+      });
+
+      container.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        const tab = e.target.closest('.bookmark-category-tab');
+        if (!tab) return;
+        const targetIndex = parseInt(tab.dataset.catIndex, 10);
+        if (isNaN(targetIndex) || targetIndex === catDragSrcIndex) return;
+        document.querySelectorAll('.bookmark-category-tab.drag-over').forEach(t => t.classList.remove('drag-over'));
+        tab.classList.add('drag-over');
+      });
+
+      container.addEventListener('dragleave', (e) => {
+        const tab = e.target.closest('.bookmark-category-tab');
+        if (tab) tab.classList.remove('drag-over');
+      });
+
+      container.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        const targetTab = e.target.closest('.bookmark-category-tab');
+        document.querySelectorAll('.bookmark-category-tab.drag-over').forEach(t => t.classList.remove('drag-over'));
+        if (!targetTab) return;
+
+        const targetIndex = parseInt(targetTab.dataset.catIndex, 10);
+        if (isNaN(catDragSrcIndex) || isNaN(targetIndex) || catDragSrcIndex === targetIndex) return;
+
+        isCategoryJustDragged = true;
+
+        const currentTabs = getOrderedBookmarkTabs();
+        const moved = currentTabs.splice(catDragSrcIndex, 1)[0];
+        currentTabs.splice(targetIndex, 0, moved);
+
+        const newOrder = currentTabs.map(t => t.key);
+        renderBookmarkCategoryTabs();
+        await saveCategoryOrder(newOrder);
+        showToast('カテゴリの並び順を保存しました', 'success');
+        catDragSrcIndex = null;
+      });
+    }
+
+    /**
+     * カテゴリ管理・並び替えモーダルを表示する
+     */
+    function showCategoryManageModal() {
+      const tabs = getOrderedBookmarkTabs();
+
+      const listHTML = `
+        <div class="category-manage-container" style="display: flex; flex-direction: column; gap: 0.85rem;">
+          <div class="category-add-row" style="display: flex; gap: 0.5rem; align-items: center;">
+            <input type="text" id="manage-new-category-input" class="form-input" placeholder="新しいカテゴリ名" style="flex: 1; padding: 0.55rem 0.8rem; font-size: 0.875rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary);">
+            <button type="button" class="btn btn-primary" onclick="handleAddCategoryFromModal()" style="padding: 0.55rem 1rem; font-size: 0.875rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 0.25rem;">
+              <span class="material-symbols-rounded" style="font-size: 18px;">add</span> 追加
+            </button>
+          </div>
+
+          <div style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4; display: flex; align-items: center; gap: 0.35rem;">
+            <span class="material-symbols-rounded" style="font-size: 15px; color: var(--primary);">swap_vert</span>
+            <span>上下矢印ボタンで順番を並び替えられます（タブを直接ドラッグも可能）</span>
+          </div>
+
+          <div class="category-manage-list" id="category-manage-list" style="display: flex; flex-direction: column; gap: 0.4rem; max-height: 300px; overflow-y: auto; padding-right: 2px;">
+            ${tabs.length === 0 ? '<div style="text-align: center; padding: 1.5rem; color: var(--text-secondary); font-size: 0.85rem;">カテゴリがありません</div>' : ''}
+            ${tabs.map((t, idx) => `
+              <div class="category-manage-item" style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.8rem; background: var(--bg-secondary); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 0; flex: 1;">
+                  <span class="material-symbols-rounded" style="font-size: 18px; color: var(--text-secondary); opacity: 0.7; flex-shrink: 0;">
+                    ${t.isUncategorized ? 'folder_open' : 'label'}
+                  </span>
+                  <span style="font-size: 0.875rem; font-weight: 500; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    ${escapeHtml(t.label)}
+                  </span>
+                  <span class="cat-count" style="font-size: 0.7rem; background: var(--hover-bg); padding: 0.1rem 0.45rem; border-radius: 999px; color: var(--text-secondary); font-weight: 600; flex-shrink: 0;">
+                    ${t.count}件
+                  </span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.3rem; flex-shrink: 0;">
+                  <button type="button" onclick="moveCategoryModal(${idx}, -1)" ${idx === 0 ? 'disabled style="opacity: 0.3; cursor: not-allowed; width: 30px; height: 30px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-primary); display: flex; align-items: center; justify-content: center;"' : 'style="width: 30px; height: 30px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); cursor: pointer; display: flex; align-items: center; justify-content: center;"'} title="上へ移動">
+                    <span class="material-symbols-rounded" style="font-size: 18px;">keyboard_arrow_up</span>
+                  </button>
+                  <button type="button" onclick="moveCategoryModal(${idx}, 1)" ${idx === tabs.length - 1 ? 'disabled style="opacity: 0.3; cursor: not-allowed; width: 30px; height: 30px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-primary); display: flex; align-items: center; justify-content: center;"' : 'style="width: 30px; height: 30px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); cursor: pointer; display: flex; align-items: center; justify-content: center;"'} title="下へ移動">
+                    <span class="material-symbols-rounded" style="font-size: 18px;">keyboard_arrow_down</span>
+                  </button>
+                  ${!t.isUncategorized && t.count === 0 ? `
+                    <button type="button" onclick="deleteEmptyCategory('${escapeHtml(t.key)}')" style="width: 30px; height: 30px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-primary); color: #ef4444; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="削除">
+                      <span class="material-symbols-rounded" style="font-size: 18px;">delete</span>
+                    </button>
+                  ` : ''}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      showModal({
+        title: 'カテゴリ管理・並び替え',
+        fields: [],
+        submitText: '完了',
+        onSubmit: () => {
+          hideModal();
+        },
+        customContent: listHTML
+      });
+    }
+
+    /**
+     * モーダル内でのカテゴリ並び替え（上下移動）
+     * @param {number} index - 対象インデックス
+     * @param {number} direction - -1 (上) または +1 (下)
+     */
+    async function moveCategoryModal(index, direction) {
+      const tabs = getOrderedBookmarkTabs();
+      const targetIndex = index + direction;
+      if (targetIndex < 0 || targetIndex >= tabs.length) return;
+
+      const moved = tabs.splice(index, 1)[0];
+      tabs.splice(targetIndex, 0, moved);
+
+      const newOrder = tabs.map(t => t.key);
+      await saveCategoryOrder(newOrder);
+      renderBookmarkCategoryTabs();
+      showCategoryManageModal(); // モーダル内のリストを再描画
+    }
+
+    /**
+     * モーダルから新しいカテゴリを追加する
+     */
+    async function handleAddCategoryFromModal() {
+      const input = document.getElementById('manage-new-category-input');
+      if (!input) return;
+      const catName = input.value.trim();
+      if (!catName) {
+        showToast('カテゴリ名を入力してください', 'error');
+        return;
+      }
+      if (catName === '__all__' || catName === '__uncategorized__') {
+        showToast('この名前は使用できません', 'error');
+        return;
+      }
+
+      const currentCategories = getBookmarkCategories();
+      if (currentCategories.includes(catName)) {
+        showToast('そのカテゴリは既に存在します', 'error');
+        return;
+      }
+
+      const tabs = getOrderedBookmarkTabs();
+      const newOrder = tabs.map(t => t.key);
+      newOrder.push(catName);
+
+      await saveCategoryOrder(newOrder);
+      state.activeBookmarkCategory = catName;
+      renderBookmarkCategoryTabs();
+      renderBookmarks();
+      showToast(`カテゴリ「${catName}」を追加しました`, 'success');
+      showCategoryManageModal(); // モーダル内のリストを再描画
+    }
+
+    /**
+     * 件数が0件のカテゴリを削除する
+     * @param {string} catKey - カテゴリ名
+     */
+    async function deleteEmptyCategory(catKey) {
+      const tabs = getOrderedBookmarkTabs();
+      const newOrder = tabs.map(t => t.key).filter(k => k !== catKey);
+      await saveCategoryOrder(newOrder);
+      if (state.activeBookmarkCategory === catKey) {
+        state.activeBookmarkCategory = null;
+      }
+      renderBookmarkCategoryTabs();
+      renderBookmarks();
+      showToast('カテゴリを削除しました', 'success');
+      showCategoryManageModal();
+    }
+
+    /**
      * state.bookmarks のデータをもとにブックマークカード一覧をHTML描画する
+     * アクティブなカテゴリでフィルタリングを行う
      */
     function renderBookmarks() {
       const container = document.getElementById('bookmarks-container');
@@ -3292,8 +3945,29 @@
         return;
       }
 
-      container.innerHTML = state.bookmarks.map((bm, idx) => {
+      // カテゴリでフィルタリング
+      const activeCat = state.activeBookmarkCategory;
+      const filteredBookmarks = state.bookmarks.map((bm, idx) => ({ ...bm, originalIndex: idx })).filter(bm => {
+        if (!activeCat) return true;
+        if (activeCat === '__uncategorized__') return !bm.category || !bm.category.trim();
+        return bm.category && bm.category.trim() === activeCat;
+      });
+
+      if (filteredBookmarks.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state flex flex-col items-center justify-center p-8 text-center gap-2 col-span-full">
+            <span class="material-symbols-rounded text-4xl opacity-50">filter_list_off</span>
+            <p class="text-sm font-medium">このカテゴリにブックマークがありません</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = filteredBookmarks.map((bm) => {
         const iconName = bm.icon || 'language';
+        const idx = bm.originalIndex;
+        const categoryBadge = bm.category && bm.category.trim() 
+          ? `<div class="bookmark-category-badge">${escapeHtml(bm.category.trim())}</div>` 
+          : '';
         return `
           <div class="bookmark-card" draggable="true" data-bm-index="${idx}" onclick="handleBookmarkClick(event, '${escapeHtml(bm.url)}')">
             <div class="bookmark-actions flex items-center gap-1">
@@ -3310,7 +3984,7 @@
               </div>
               <div class="bookmark-title font-semibold text-sm truncate flex-1" title="${escapeHtml(bm.title)}">${escapeHtml(bm.title)}</div>
             </div>
-
+            ${categoryBadge}
             <div class="drag-handle" title="ドラッグで並び替え">
               <span class="material-symbols-rounded">drag_indicator</span>
             </div>
@@ -3350,16 +4024,49 @@
      * 新規ブックマーク追加用モーダルを表示する
      */
     function showAddBookmarkModal() {
+      const categories = getBookmarkCategories();
+      const defaultCategory = (state.activeBookmarkCategory && state.activeBookmarkCategory !== '__uncategorized__')
+        ? state.activeBookmarkCategory
+        : '';
+
+      const options = ['なし（未分類）', ...categories, '＋ 新しいカテゴリを入力...'];
+      const values = ['', ...categories, '__custom_new__'];
+
+      const customInputHTML = `
+        <div id="new-category-field-wrapper" style="display: none; margin-top: 0.5rem;">
+          <input type="text" id="modal-new-category-input" class="form-control" placeholder="新規カテゴリ名を入力...">
+        </div>
+      `;
+
       showModal({
         title: 'ブックマーク追加',
         fields: [
           { name: 'title', label: 'タイトル', type: 'text', required: true, placeholder: '例: Google' },
           { name: 'url', label: 'URL', type: 'url', required: true, placeholder: 'https://google.com' },
+          { name: 'category', label: 'カテゴリ', type: 'select', options, values, value: defaultCategory },
           { name: 'icon', label: 'アイコン', type: 'icon-picker', value: 'language', required: true }
         ],
         onSubmit: async (data) => {
           try {
-            const res = await callServer('addBookmark', state.email, data.title, data.url, '', data.icon);
+            let category = data.category ? data.category.trim() : '';
+            if (category === '__custom_new__') {
+              const newCatInput = document.getElementById('modal-new-category-input');
+              const newCat = newCatInput ? newCatInput.value.trim() : '';
+              if (!newCat) {
+                showToast('新しいカテゴリ名を入力してください', 'error');
+                if (newCatInput) newCatInput.focus();
+                return;
+              }
+              category = newCat;
+              // 新しいカテゴリを並び順配列にも登録
+              const tabs = getOrderedBookmarkTabs();
+              const newOrder = tabs.map(t => t.key);
+              if (!newOrder.includes(category)) {
+                newOrder.push(category);
+                await saveCategoryOrder(newOrder);
+              }
+            }
+            const res = await callServer('addBookmark', state.email, data.title, data.url, category, data.icon);
             if (res && res.error) throw new Error(res.error);
             showToast('追加しました', 'success');
             hideModal();
@@ -3367,18 +4074,52 @@
           } catch (err) {
             showToast('追加に失敗しました', 'error');
           }
-        }
+        },
+        customContent: customInputHTML,
+        customContentAfterField: 'category'
       });
+
+      // プルダウン変更リスナー（新規カテゴリ入力欄の開閉）
+      const categorySelect = document.querySelector('select[name="category"]');
+      const newCatWrapper = document.getElementById('new-category-field-wrapper');
+      const newCatInput = document.getElementById('modal-new-category-input');
+      if (categorySelect && newCatWrapper) {
+        categorySelect.addEventListener('change', () => {
+          if (categorySelect.value === '__custom_new__') {
+            newCatWrapper.style.display = 'block';
+            if (newCatInput) newCatInput.focus();
+          } else {
+            newCatWrapper.style.display = 'none';
+          }
+        });
+      }
     }
 
     /**
      * 既存ブックマークの編集モーダルを表示する
-     *
+     * 
      * @param {number} index - 編集対象ブックマークのインデックス
      */
     function showEditBookmarkModal(index) {
       const bm = state.bookmarks && state.bookmarks[index];
       if (!bm) return;
+
+      const categories = getBookmarkCategories();
+      const currentCat = bm.category ? bm.category.trim() : '';
+
+      const allCategories = [...categories];
+      if (currentCat && !allCategories.includes(currentCat)) {
+        allCategories.push(currentCat);
+      }
+
+      const options = ['なし（未分類）', ...allCategories, '＋ 新しいカテゴリを入力...'];
+      const values = ['', ...allCategories, '__custom_new__'];
+
+      const customInputHTML = `
+        <div id="new-category-field-wrapper" style="display: none; margin-top: 0.5rem;">
+          <input type="text" id="modal-new-category-input" class="form-control" placeholder="新規カテゴリ名を入力...">
+        </div>
+      `;
 
       showModal({
         title: 'ブックマーク編集',
@@ -3386,11 +4127,30 @@
         fields: [
           { name: 'title', label: 'タイトル', type: 'text', value: bm.title || '', required: true },
           { name: 'url', label: 'URL', type: 'url', value: bm.url || '', required: true },
+          { name: 'category', label: 'カテゴリ', type: 'select', options, values, value: currentCat },
           { name: 'icon', label: 'アイコン', type: 'icon-picker', value: bm.icon || 'language', required: true }
         ],
         onSubmit: async (data) => {
           try {
-            const res = await callServer('updateBookmark', state.email, index, data.title, data.url, '', data.icon);
+            let category = data.category ? data.category.trim() : '';
+            if (category === '__custom_new__') {
+              const newCatInput = document.getElementById('modal-new-category-input');
+              const newCat = newCatInput ? newCatInput.value.trim() : '';
+              if (!newCat) {
+                showToast('新しいカテゴリ名を入力してください', 'error');
+                if (newCatInput) newCatInput.focus();
+                return;
+              }
+              category = newCat;
+              // 新しいカテゴリを並び順配列にも登録
+              const tabs = getOrderedBookmarkTabs();
+              const newOrder = tabs.map(t => t.key);
+              if (!newOrder.includes(category)) {
+                newOrder.push(category);
+                await saveCategoryOrder(newOrder);
+              }
+            }
+            const res = await callServer('updateBookmark', state.email, index, data.title, data.url, category, data.icon);
             if (res && res.error) throw new Error(res.error);
             showToast('ブックマークを更新しました', 'success');
             hideModal();
@@ -3398,13 +4158,31 @@
           } catch (err) {
             showToast('更新に失敗しました', 'error');
           }
-        }
+        },
+        customContent: customInputHTML,
+        customContentAfterField: 'category'
       });
+
+      // プルダウン変更リスナー（新規カテゴリ入力欄の開閉）
+      const categorySelect = document.querySelector('select[name="category"]');
+      const newCatWrapper = document.getElementById('new-category-field-wrapper');
+      const newCatInput = document.getElementById('modal-new-category-input');
+      if (categorySelect && newCatWrapper) {
+        categorySelect.addEventListener('change', () => {
+          if (categorySelect.value === '__custom_new__') {
+            newCatWrapper.style.display = 'block';
+            if (newCatInput) newCatInput.focus();
+          } else {
+            newCatWrapper.style.display = 'none';
+          }
+        });
+      }
     }
+
 
     /**
      * 指定インデックスのブックマークを削除する
-     *
+     * 
      * @param {number} index - 削除対象ブックマークのインデックス
      */
     async function deleteBookmark(index) {
@@ -4921,12 +5699,12 @@
           const opts = f.options.map((o, idx) => {
             const val = f.values ? f.values[idx] : o;
             const selected = f.value !== undefined && (String(f.value) === String(val) || String(f.value) === String(o)) ? 'selected' : '';
-            return `<option value="${val}" ${selected}>${o}</option>`;
+            return `<option value="${escapeHtml(val)}" ${selected}>${escapeHtml(o)}</option>`;
           }).join('');
           return `
             <div class="form-group">
               <label>${f.label} ${reqBadge}</label>
-              <select name="${f.name}" class="form-control">${opts}</select>
+              <select name="${f.name}" class="form-control" style="cursor: pointer;">${opts}</select>
             </div>
           `;
         }
@@ -4940,13 +5718,27 @@
           `;
         }
         const valStr = f.value !== undefined ? escapeHtml(f.value) : '';
+        const phAttr = f.placeholder ? `placeholder="${escapeHtml(f.placeholder)}"` : '';
         return `
           <div class="form-group">
             <label>${f.label} ${reqBadge}</label>
-            <input type="${f.type}" name="${f.name}" class="form-control" value="${valStr}" ${f.required ? 'required' : ''}>
+            <input type="${f.type}" name="${f.name}" class="form-control" value="${valStr}" ${phAttr} ${f.required ? 'required' : ''}>
           </div>
         `;
       }).join('');
+
+      // カスタムコンテンツをフィールドの後に挿入
+      if (config.customContent && config.customContentAfterField) {
+        const targetInput = body.querySelector('[name="' + config.customContentAfterField + '"]');
+        if (targetInput) {
+          const formGroup = targetInput.closest('.form-group');
+          if (formGroup) {
+            formGroup.insertAdjacentHTML('beforeend', config.customContent);
+          }
+        }
+      } else if (config.customContent) {
+        body.insertAdjacentHTML('beforeend', config.customContent);
+      }
 
       // 入力時にバリデーションエラーを解除
       body.querySelectorAll('input, select, textarea').forEach(el => {
@@ -5103,11 +5895,20 @@
 
     // Initialize tab indicator after DOM ready
     window.addEventListener('load', () => {
-      setTimeout(updateTabIndicator, 100);
+      setTimeout(() => {
+        updateTabIndicator();
+        updateBookmarkCategoryIndicator();
+      }, 100);
     });
-    window.addEventListener('resize', updateTabIndicator);
+    window.addEventListener('resize', () => {
+      updateTabIndicator();
+      updateBookmarkCategoryIndicator();
+    });
     window.addEventListener('orientationchange', () => {
-      setTimeout(updateTabIndicator, 150);
+      setTimeout(() => {
+        updateTabIndicator();
+        updateBookmarkCategoryIndicator();
+      }, 150);
     });
 
 

@@ -175,8 +175,8 @@ function getOrCreateUserSheet(email) {
     // シートがまだ存在しない場合は作成し、初期フォーマットをセットアップ
     if (!sheet) {
       sheet = SS.insertSheet(email);
-      // Row 1: 設定情報（テーマ名、ダークモードフラグ、規約同意フラグ、同意日時）
-      sheet.getRange(1, 1, 1, 9).setValues([['__SETTINGS__', 'theme', 'ocean', 'darkMode', 'false', 'termsAgreed', 'false', 'termsAgreedAt', '']]);
+      // Row 1: 設定情報（テーマ名、ダークモードフラグ、規約同意フラグ、同意日時、カテゴリ並び順）
+      sheet.getRange(1, 1, 1, 11).setValues([['__SETTINGS__', 'theme', 'ocean', 'darkMode', 'false', 'termsAgreed', 'false', 'termsAgreedAt', '', 'categoryOrder', '[]']]);
       // Row 2: ブックマークテーブルの見出し行
       sheet.getRange(2, 1, 1, 6).setValues([['__BOOKMARKS__', 'タイトル', 'URL', 'カテゴリ', 'アイコン', '追加日時']]);
     }
@@ -189,35 +189,45 @@ function getOrCreateUserSheet(email) {
 }
 
 /**
- * ユーザーの各種設定 (テーマ, ダークモード, 利用規約同意状況) を取得する
+ * ユーザーの各種設定 (テーマ, ダークモード, 利用規約同意状況, カテゴリ並び順) を取得する
  *
  * @param {string} email - ユーザーのメールアドレス
- * @returns {Object} { theme: string, darkMode: boolean, termsAgreed: boolean, termsAgreedAt: string }
+ * @returns {Object} { theme: string, darkMode: boolean, termsAgreed: boolean, termsAgreedAt: string, categoryOrder: Array<string> }
  */
 function getUserSettings(email) {
   try {
     const sheet = getOrCreateUserSheet(email);
-    // Row 1 の各セルから設定値を一括取得
-    const settingsRange = sheet.getRange(1, 1, 1, 9).getValues()[0];
+    // Row 1 の各セルから設定値を一括取得 (列A〜列Kの11列)
+    const settingsRange = sheet.getRange(1, 1, 1, 11).getValues()[0];
+    
+    let categoryOrder = [];
+    try {
+      if (settingsRange[10]) {
+        categoryOrder = JSON.parse(settingsRange[10]);
+      }
+    } catch (e) {
+      categoryOrder = [];
+    }
     
     return {
       theme: settingsRange[2] || 'ocean',                                   // 列C: テーマ名 (デフォルト: 'ocean')
       darkMode: settingsRange[4] === 'true' || settingsRange[4] === true,   // 列E: ダークモードフラグ
       termsAgreed: settingsRange[6] === 'true' || settingsRange[6] === true,// 列G: 規約同意フラグ
-      termsAgreedAt: settingsRange[8] ? String(settingsRange[8]) : ''       // 列I: 規約同意日時
+      termsAgreedAt: settingsRange[8] ? String(settingsRange[8]) : '',      // 列I: 規約同意日時
+      categoryOrder: Array.isArray(categoryOrder) ? categoryOrder : []      // 列K: カテゴリ並び順配列
     };
   } catch (error) {
     console.error('getUserSettings Error:', error);
     // エラー時は安全なデフォルト設定を返す
-    return { theme: 'ocean', darkMode: false, termsAgreed: false, termsAgreedAt: '' };
+    return { theme: 'ocean', darkMode: false, termsAgreed: false, termsAgreedAt: '', categoryOrder: [] };
   }
 }
 
 /**
- * ユーザーの設定情報 (テーマ, ダークモード, 規約同意) を保存する
+ * ユーザーの設定情報 (テーマ, ダークモード, 規約同意, カテゴリ並び順) を保存する
  *
  * @param {string} email - ユーザーのメールアドレス
- * @param {Object} settings - 保存する設定オブジェクト { theme, darkMode, termsAgreed }
+ * @param {Object} settings - 保存する設定オブジェクト { theme, darkMode, termsAgreed, categoryOrder }
  * @returns {Object} { success: boolean, error?: string }
  */
 function saveUserSettings(email, settings) {
@@ -242,12 +252,38 @@ function saveUserSettings(email, settings) {
         sheet.getRange('I1').setValue(timestamp);
       }
     }
+    // カテゴリ並び順の更新 (セル J1〜K1)
+    if (settings.categoryOrder !== undefined) {
+      sheet.getRange('J1').setValue('categoryOrder');
+      sheet.getRange('K1').setValue(JSON.stringify(settings.categoryOrder));
+    }
     
     // 変更履歴をログに記録
     writeLog(email, '設定', '設定の変更をしました');
     return { success: true };
   } catch (error) {
     console.error('saveUserSettings Error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * カテゴリの並び順を保存する
+ *
+ * @param {string} email - ユーザーのメールアドレス
+ * @param {Array<string>} categoryOrder - カテゴリ名の並び順配列
+ * @returns {Object} { success: boolean, error?: string }
+ */
+function saveCategoryOrder(email, categoryOrder) {
+  try {
+    assertTermsAgreed(email);
+    const sheet = getOrCreateUserSheet(email);
+    sheet.getRange('J1').setValue('categoryOrder');
+    sheet.getRange('K1').setValue(JSON.stringify(categoryOrder || []));
+    writeLog(email, '設定', 'カテゴリの並び順を更新しました');
+    return { success: true };
+  } catch (error) {
+    console.error('saveCategoryOrder Error:', error);
     return { success: false, error: error.message };
   }
 }
@@ -415,8 +451,8 @@ function addBookmark(email, title, url, category, icon) {
     const sheet = getOrCreateUserSheet(email);
     
     // アイコン名の補正処理（指定がない場合はカテゴリ値またはデフォルトアイコン 'language'）
-    const iconName = icon || (category && !category.includes('/') ? category : 'language');
-    const cat = (icon && category) ? category : '';
+    const iconName = icon || 'language';
+    const cat = category || '';
     const addedAt = new Date().toISOString();
     
     // シート末尾に行を追加 (A列空欄, B:タイトル, C:URL, D:カテゴリ, E:アイコン, F:追加日時)
@@ -452,8 +488,8 @@ function updateBookmark(email, index, title, url, category, icon) {
       return { success: false, error: '指定されたブックマークが見つかりません' };
     }
 
-    const iconName = icon || (category && !category.includes('/') ? category : 'language');
-    const cat = (icon && category) ? category : '';
+    const iconName = icon || 'language';
+    const cat = category || '';
 
     // B列〜E列 (タイトル, URL, カテゴリ, アイコン) を上書き更新
     sheet.getRange(rowToUpdate, 2, 1, 4).setValues([[
