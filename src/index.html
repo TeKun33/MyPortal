@@ -2592,6 +2592,17 @@
                 id="week-period-label"></span>
             </div>
             <div class="flex items-center gap-2 ml-auto sm:ml-0">
+              <span id="calendar-loading-badge"
+                class="hidden text-xs font-medium flex items-center gap-1.5 py-1 px-2.5 rounded-full"
+                style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary); border: 1px solid rgba(var(--primary-rgb), 0.2);">
+                <span class="material-symbols-rounded animate-spin text-sm" style="font-size: 14px;">sync</span>
+                <span>取得中...</span>
+              </span>
+              <button
+                class="icon-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-transform"
+                id="btn-refresh-calendar" onclick="loadEvents()" title="カレンダーを更新">
+                <span class="material-symbols-rounded text-lg sm:text-xl" id="icon-refresh-calendar">refresh</span>
+              </button>
               <button
                 class="add-btn py-1.5 px-3 sm:py-2 sm:px-4 rounded-full font-semibold text-xs sm:text-sm flex items-center gap-1"
                 onclick="showAddEventModal()">
@@ -2606,6 +2617,17 @@
             </div>
           </div>
           <div id="tab-action-tasks" style="display:none" class="flex items-center gap-2">
+            <span id="tasks-loading-badge"
+              class="hidden text-xs font-medium flex items-center gap-1.5 py-1 px-2.5 rounded-full"
+              style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary); border: 1px solid rgba(var(--primary-rgb), 0.2);">
+              <span class="material-symbols-rounded animate-spin text-sm" style="font-size: 14px;">sync</span>
+              <span>取得中...</span>
+            </span>
+            <button
+              class="icon-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-transform"
+              id="btn-refresh-tasks" onclick="loadTasks()" title="タスクを更新">
+              <span class="material-symbols-rounded text-lg sm:text-xl" id="icon-refresh-tasks">refresh</span>
+            </button>
             <button
               class="add-btn py-1.5 px-3 sm:py-2 sm:px-4 rounded-full font-semibold text-xs sm:text-sm flex items-center gap-1"
               onclick="showAddTaskModal()">
@@ -4390,6 +4412,22 @@
      */
     async function loadEvents() {
       const container = document.getElementById('calendar-container');
+      const btnRefresh = document.getElementById('btn-refresh-calendar');
+      const iconRefresh = document.getElementById('icon-refresh-calendar');
+      const loadingBadge = document.getElementById('calendar-loading-badge');
+
+      // 更新ボタンとバッジのローディング状態
+      if (btnRefresh) {
+        btnRefresh.disabled = true;
+        btnRefresh.classList.add('opacity-50', 'cursor-not-allowed');
+      }
+      if (iconRefresh) {
+        iconRefresh.classList.add('animate-spin');
+      }
+      if (loadingBadge) {
+        loadingBadge.classList.remove('hidden');
+      }
+
       container.innerHTML = `<div class="skeleton skeleton-card" style="grid-column: 1 / -1; height: 250px;"></div>`;
       try {
         const offset = state.weekOffset || 0;
@@ -4398,7 +4436,26 @@
         renderEvents();
       } catch (err) {
         state.events = [];
-        container.innerHTML = '<div class="empty-state">エラーが発生しました</div>';
+        container.innerHTML = `
+          <div class="empty-state flex flex-col items-center justify-center p-8 text-center gap-2 col-span-full">
+            <span class="material-symbols-rounded text-4xl opacity-50" style="color: #ef4444;">event_busy</span>
+            <p class="text-sm font-medium">カレンダーの読み込みに失敗しました</p>
+            <button class="btn btn-secondary btn-sm py-1.5 px-4 rounded-full mt-2 text-xs flex items-center gap-1.5" onclick="loadEvents()">
+              <span class="material-symbols-rounded text-base">refresh</span> 再試行
+            </button>
+          </div>
+        `;
+      } finally {
+        if (btnRefresh) {
+          btnRefresh.disabled = false;
+          btnRefresh.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+        if (iconRefresh) {
+          iconRefresh.classList.remove('animate-spin');
+        }
+        if (loadingBadge) {
+          loadingBadge.classList.add('hidden');
+        }
       }
     }
 
@@ -4816,6 +4873,22 @@
      * Google Tasksから全タスクリストとタスクを取得し、描画を更新する
      */
     async function loadTasks() {
+      const btnRefresh = document.getElementById('btn-refresh-tasks');
+      const iconRefresh = document.getElementById('icon-refresh-tasks');
+      const loadingBadge = document.getElementById('tasks-loading-badge');
+
+      // 更新ボタンとバッジのローディング状態
+      if (btnRefresh) {
+        btnRefresh.disabled = true;
+        btnRefresh.classList.add('opacity-50', 'cursor-not-allowed');
+      }
+      if (iconRefresh) {
+        iconRefresh.classList.add('animate-spin');
+      }
+      if (loadingBadge) {
+        loadingBadge.classList.remove('hidden');
+      }
+
       try {
         const result = await callServer('getTasks');
         if (result && result.error) {
@@ -4825,7 +4898,26 @@
         state.taskLists = Array.isArray(result) ? result : [];
         renderTasks();
       } catch (err) {
-        document.getElementById('tasks-container').innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;"><span class="material-symbols-rounded">error</span><p>エラーが発生しました</p></div>';
+        document.getElementById('tasks-container').innerHTML = `
+          <div class="empty-state flex flex-col items-center justify-center p-8 text-center gap-2 col-span-full">
+            <span class="material-symbols-rounded text-4xl opacity-50" style="color: #ef4444;">error</span>
+            <p class="text-sm font-medium">タスクの読み込みに失敗しました</p>
+            <button class="btn btn-secondary btn-sm py-1.5 px-4 rounded-full mt-2 text-xs flex items-center gap-1.5" onclick="loadTasks()">
+              <span class="material-symbols-rounded text-base">refresh</span> 再試行
+            </button>
+          </div>
+        `;
+      } finally {
+        if (btnRefresh) {
+          btnRefresh.disabled = false;
+          btnRefresh.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+        if (iconRefresh) {
+          iconRefresh.classList.remove('animate-spin');
+        }
+        if (loadingBadge) {
+          loadingBadge.classList.add('hidden');
+        }
       }
     }
 

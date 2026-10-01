@@ -24,12 +24,11 @@
  * - [__LOG__]   : システム全体の操作ログ（日時, ユーザー, 操作, 詳細）
  * - [__TERMS__] : 全ユーザーの利用規約同意ステータス一覧（ユーザー, 同意ステータス, 同意日時, 最終更新日時）
  * - [メールアドレス名シート] : 各ユーザーの専用シート
- *     - Row 1   : 設定情報 (__SETTINGS__, theme, ocean, darkMode, false, termsAgreed, false, termsAgreedAt, '')
- *     - Row 2   : ブックマークヘッダー (__BOOKMARKS__, タイトル, URL, カテゴリ, アイコン, 追加日時)
- *     - Row 3〜 : 登録済みブックマークデータ
+ *     - 1行目   : 設定情報 (__SETTINGS__, theme, ocean, darkMode, false, termsAgreed, false, termsAgreedAt, '', 'categoryOrder', '[]')
+ *     - 2行目   : ブックマークヘッダー (__BOOKMARKS__, タイトル, URL, カテゴリ, アイコン, 追加日時)
+ *     - 3行目〜 : 登録済みブックマークデータ
  * ==========================================================================
  */
-
 
 /* ==========================================================================
  * 1. Webアプリケーション初期化・エントリーポイント
@@ -38,26 +37,44 @@
 /**
  * Webアプリケーションアクセス時の初期表示処理 (HTTP GET エントリーポイント)
  * - HTMLテンプレート 'index.html' を読み込んで評価し、Webページとして出力します。
- * - iframe内での表示を許可 (setXFrameOptionsMode.ALLOWALL) しています。
  *
- * @param {Object} e - HTTP GETリクエストのイベントオブジェクト
  * @returns {HtmlOutput} レンダリングされたHTMLページ、またはエラーメッセージ
  */
-function doGet(e) {
+function doGet() {
   try {
-    // 1. プロジェクト内の index.html テンプレートを読み込み
+    // プロジェクト内の index.html テンプレートを読み込み
     const template = HtmlService.createTemplateFromFile('index');
-    
-    // 2. テンプレートを評価してHtmlOutputを生成し、ページタイトルとiframe表示許可を設定
+
+    // テンプレートを評価してHtmlOutputを生成し、ページタイトルを設定
     return template.evaluate()
       .setTitle('マイポータル')
-      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
   } catch (error) {
     // テンプレート評価時などの例外発生時はエラー画面を返却
     return HtmlService.createHtmlOutput('エラーが発生しました: ' + error.message);
   }
 }
 
+/**
+ * スプレッドシートを取得する
+ * @returns {Spreadsheet} スプレッドシートオブジェクト
+ */
+function getSpreadSheet(){
+  // スクリプトのプロパティストアからスプレッドシートID (SSID) を取得
+  const SSID = PropertiesService.getScriptProperties().getProperty('SSID');
+  const SS = SpreadsheetApp.openById(SSID);
+  return SS;
+}
+
+/**
+ * タイムスタンプを取得する
+ * @returns {string}
+ */
+function getTimeStamp(){
+  // タイムスタンプを「yyyy/MM/dd HH:mm:ss」形式で取得
+  const timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy/MM/dd HH:mm:ss');
+  return timestamp;
+}
 
 /* ==========================================================================
  * 2. ログ管理・監査機能 (__LOG__ シート) & 管理用シート初期化
@@ -65,78 +82,83 @@ function doGet(e) {
 
 /**
  * 監査ログ用のシート (__LOG__) を取得する。存在しない場合は新規作成して初期化する。
- * - カラム構成: A=日時, B=ユーザー, C=操作, D=詳細
- *
+ * - カラム構成: A列=日時, B列=ユーザー, C列=操作, D列=詳細
  * @returns {Sheet} ログシートオブジェクト
  */
 function getOrCreateLogSheet() {
-  // スクリプトのプロパティストアからスプレッドシートID (SSID) を取得
-  const SSID = PropertiesService.getScriptProperties().getProperty('SSID');
-  const SS = SpreadsheetApp.openById(SSID);
-  
+  // スプレッドシートを取得
+  const SS = getSpreadSheet();
+
   // '__LOG__' という名称のシートを検索
-  let sheet = SS.getSheetByName('__LOG__');
-  
+  let sheet_log = SS.getSheetByName('__LOG__');
+
   // シートが存在しない場合は新規作成し、ヘッダーと見やすい列幅を設定
-  if (!sheet) {
-    sheet = SS.insertSheet('__LOG__');
-    // 1行目にヘッダーラベルを設定
-    sheet.getRange(1, 1, 1, 4).setValues([['日時', 'ユーザー', '操作', '詳細']]);
-    sheet.setFrozenRows(1); // スクロール時も見出しが見えるよう1行目を固定
-    sheet.getRange(1, 1, 1, 4).setFontWeight('bold'); // ヘッダーを太字に設定
-    sheet.setColumnWidth(1, 180); // 日時列幅
-    sheet.setColumnWidth(2, 200); // ユーザー(メールアドレス)列幅
-    sheet.setColumnWidth(3, 150); // 操作カテゴリ列幅
-    sheet.setColumnWidth(4, 400); // 詳細メッセージ列幅
+  if (!sheet_log) {
+    sheet_log = SS.insertSheet('__LOG__');
+    // 1行目にヘッダーラベルを設定(A列:日時, B列:ユーザー, C列:操作, D列:詳細)
+    sheet_log.getRange(1, 1, 1, 4).setValues([['日時', 'ユーザー', '操作', '詳細']]);
+    sheet_log.setFrozenRows(1); // スクロール時も見出しが見えるよう1行目を固定
+    sheet_log.getRange(1, 1, 1, 4).setFontWeight('bold'); // ヘッダーを太字に設定
+    sheet_log.setColumnWidth(1, 180); // 日時列幅
+    sheet_log.setColumnWidth(2, 200); // ユーザー(メールアドレス)列幅
+    sheet_log.setColumnWidth(3, 150); // 操作カテゴリ列幅
+    sheet_log.setColumnWidth(4, 400); // 詳細メッセージ列幅
+    writeLog('システム', '初期化', 'ログシート作成完了');
   }
-  return sheet;
+  return sheet_log;
 }
 
 /**
  * 利用規約同意状況シート (__TERMS__) を取得する。存在しない場合は新規作成する。
- * - 全ユーザーの規約同意状態を一元管理するためのシートです。
- * - カラム構成: A=ユーザー, B=同意ステータス, C=同意日時, D=最終更新日時
- *
+ * - 全ユーザーの規約同意状態を一元管理するためのシート。
+ * - カラム構成: A列=ユーザー, B列=同意ステータス, C列=同意日時, D列=最終更新日時
  * @returns {Sheet} 利用規約シートオブジェクト
  */
 function getOrCreateTermsSheet() {
-  const SSID = PropertiesService.getScriptProperties().getProperty('SSID');
-  const SS = SpreadsheetApp.openById(SSID);
-  
-  let sheet = SS.getSheetByName('__TERMS__');
-  if (!sheet) {
-    sheet = SS.insertSheet('__TERMS__');
-    sheet.getRange(1, 1, 1, 4).setValues([['ユーザー', '同意ステータス', '同意日時', '最終更新日時']]);
-    sheet.setFrozenRows(1);
-    sheet.getRange(1, 1, 1, 4).setFontWeight('bold');
-    sheet.setColumnWidth(1, 220); // ユーザー列
-    sheet.setColumnWidth(2, 120); // 同意ステータス列
-    sheet.setColumnWidth(3, 180); // 同意日時列
-    sheet.setColumnWidth(4, 180); // 最終更新日時列
+  // スプレッドシートを取得
+  const SS = getSpreadSheet();
+
+  // '__TERMS__' という名称のシートを検索
+  let sheet_terms = SS.getSheetByName('__TERMS__');
+
+  // シートが存在しない場合は新規作成し、ヘッダーと見やすい列幅を設定
+  if (!sheet_terms) {
+    sheet_terms = SS.insertSheet('__TERMS__');
+    // 1行目にヘッダーラベルを設定
+    sheet_terms.getRange(1, 1, 1, 4).setValues([['ユーザー', '同意ステータス', '同意日時', '最終更新日時']]);
+    sheet_terms.setFrozenRows(1); // スクロール時も見出しが見えるよう1行目を固定
+    sheet_terms.getRange(1, 1, 1, 4).setFontWeight('bold'); // ヘッダーを太字に設定
+    sheet_terms.setColumnWidth(1, 220); // A列:ユーザー(メールアドレス)
+    sheet_terms.setColumnWidth(2, 120); // B列:同意ステータス
+    sheet_terms.setColumnWidth(3, 180); // C列:同意日時
+    sheet_terms.setColumnWidth(4, 180); // D列:最終更新日時
+    writeLog('システム', '初期化', '利用規約同意シート作成完了');
   }
-  return sheet;
+  return sheet_terms;
 }
 
 /**
  * 操作履歴を監査ログ (__LOG__ シート) に1行追加する
- *
  * @param {string} email - 操作を行ったユーザーのメールアドレス
  * @param {string} action - 操作のカテゴリ名 (例: 'ブックマーク', 'カレンダー', '設定')
  * @param {string} detail - 操作の詳細内容
  */
 function writeLog(email, action, detail) {
   try {
-    const sheet = getOrCreateLogSheet();
-    // スクリプトのタイムゾーンに合わせて現在日時をフォーマット (yyyy/MM/dd HH:mm:ss)
-    const timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy/MM/dd HH:mm:ss');
+    // ログ用のシートを取得
+    const sheet_log = getOrCreateLogSheet();
+
+    // タイムスタンプを取得
+    const timestamp = getTimeStamp();
+
     // シートの末尾に行を追加
-    sheet.appendRow([timestamp, email || '', action || '', detail || '']);
-  } catch (e) {
-    // ログ記録の失敗によりユーザーのメイン処理が中断しないよう、コンソール出力に留める
-    console.error('writeLog Error:', e);
+    sheet_log.appendRow([timestamp, email || '', action || '', detail || '']);
+  } catch (error) {
+    // ログ記録に失敗した場合エラーとして表示
+    console.error('writeLog Error:', error);
+    writeLog('システム', 'エラー', 'ログ記録失敗: ' + error.message);
   }
 }
-
 
 /* ==========================================================================
  * 3. ユーザー情報・個別シート & 設定管理
@@ -144,47 +166,52 @@ function writeLog(email, action, detail) {
 
 /**
  * 現在ログインしているユーザーのメールアドレスを取得する
- *
  * @returns {string} ユーザーのメールアドレス
  */
 function getUserEmail() {
   try {
+    // Gmailアカウントからメールアドレスを取得
     return Session.getActiveUser().getEmail();
   } catch (error) {
-    console.error('getUserEmail Error:', error);
-    throw error;
+    // ユーザーのメールアドレスを取得できない場合はエラーとして表示
+    console.error('getUserEmail Error:', error.message);
+    writeLog('システム', 'エラー', 'ユーザーメールアドレス取得失敗: ' + error.message);
+    throw 'ユーザーメールアドレス取得失敗: ' + error.message;
   }
 }
 
 /**
  * ユーザー専用のシートを取得する。存在しない場合は新規作成してヘッダー行をセットアップする。
  * - シート名: ユーザーのメールアドレス
- * - Row 1 : 設定情報 (__SETTINGS__, theme, ocean, darkMode, false, termsAgreed, false, termsAgreedAt, '')
- * - Row 2 : ブックマークヘッダー (__BOOKMARKS__, タイトル, URL, カテゴリ, アイコン, 追加日時)
- * - Row 3〜: 個別ブックマークデータ
+ * - 1行目 : 設定情報 (__SETTINGS__, theme, ocean, darkMode, false, termsAgreed, false, termsAgreedAt, '')
+ * - 2行目 : ブックマークヘッダー (__BOOKMARKS__, タイトル, URL, カテゴリ, アイコン, 追加日時)
+ * - 3行目〜: 個別ブックマークデータ
  *
  * @param {string} email - ユーザーのメールアドレス
  * @returns {Sheet} ユーザー用シートオブジェクト
  */
 function getOrCreateUserSheet(email) {
   try {
-    const SSID = PropertiesService.getScriptProperties().getProperty('SSID');
-    const SS = SpreadsheetApp.openById(SSID);
-    let sheet = SS.getSheetByName(email);
-    
+    // スプレッドシートを取得
+    const SS = getSpreadSheet();
+
+    // ユーザー専用のシートを検索
+    let sheet_user = SS.getSheetByName(email);
+
     // シートがまだ存在しない場合は作成し、初期フォーマットをセットアップ
-    if (!sheet) {
-      sheet = SS.insertSheet(email);
-      // Row 1: 設定情報（テーマ名、ダークモードフラグ、規約同意フラグ、同意日時、カテゴリ並び順）
-      sheet.getRange(1, 1, 1, 11).setValues([['__SETTINGS__', 'theme', 'ocean', 'darkMode', 'false', 'termsAgreed', 'false', 'termsAgreedAt', '', 'categoryOrder', '[]']]);
-      // Row 2: ブックマークテーブルの見出し行
-      sheet.getRange(2, 1, 1, 6).setValues([['__BOOKMARKS__', 'タイトル', 'URL', 'カテゴリ', 'アイコン', '追加日時']]);
+    if (!sheet_user) {
+      sheet_user = SS.insertSheet(email);
+      // 1行目: 設定情報（C列:テーマ名、E列:ダークモードフラグ、G列:規約同意フラグ、I列:同意日時、K列:カテゴリ並び順）
+      sheet_user.getRange(1, 1, 1, 11).setValues([['__SETTINGS__', 'theme', 'ocean', 'darkMode', 'false', 'termsAgreed', 'false', 'termsAgreedAt', '', 'categoryOrder', '[]']]);
+      // 2行目: ブックマークテーブルの見出し行（B列:タイトル、C列:URL、D列:カテゴリ、E列:アイコン、F列:追加日時）
+      sheet_user.getRange(2, 1, 1, 6).setValues([['__BOOKMARKS__', 'タイトル', 'URL', 'カテゴリ', 'アイコン', '追加日時']]);
     }
-    
-    return sheet;
+    return sheet_user;
   } catch (error) {
-    console.error('getOrCreateUserSheet Error:', error);
-    throw error;
+    // ユーザー用シート取得に失敗した場合、エラーとして表示
+    console.error('getOrCreateUserSheet Error:', error.message);
+    writeLog('システム', 'エラー', 'ユーザー用シート取得失敗: ' + error.message);
+    throw 'ユーザー用シート取得失敗: ' + error.message;
   }
 }
 
@@ -196,28 +223,33 @@ function getOrCreateUserSheet(email) {
  */
 function getUserSettings(email) {
   try {
-    const sheet = getOrCreateUserSheet(email);
-    // Row 1 の各セルから設定値を一括取得 (列A〜列Kの11列)
-    const settingsRange = sheet.getRange(1, 1, 1, 11).getValues()[0];
-    
+    // ユーザー用シートを取得
+    const sheet_user = getOrCreateUserSheet(email);
+    // 1行目 の各セルから設定値を一括取得 (A1:K1)
+    const settingsRange = sheet_user.getRange(1, 1, 1, 11).getValues()[0];
+    // カテゴリ並び順（セル K1）の配列
     let categoryOrder = [];
     try {
+      // 設定値が存在する場合のみJSONパース
       if (settingsRange[10]) {
         categoryOrder = JSON.parse(settingsRange[10]);
       }
     } catch (e) {
+      // パースに失敗した場合は空配列とする
       categoryOrder = [];
     }
-    
+    // 設定値をオブジェクトにまとめる
     return {
-      theme: settingsRange[2] || 'ocean',                                   // 列C: テーマ名 (デフォルト: 'ocean')
-      darkMode: settingsRange[4] === 'true' || settingsRange[4] === true,   // 列E: ダークモードフラグ
-      termsAgreed: settingsRange[6] === 'true' || settingsRange[6] === true,// 列G: 規約同意フラグ
-      termsAgreedAt: settingsRange[8] ? String(settingsRange[8]) : '',      // 列I: 規約同意日時
-      categoryOrder: Array.isArray(categoryOrder) ? categoryOrder : []      // 列K: カテゴリ並び順配列
+      theme: settingsRange[2] || 'ocean',                                   // セル C1: テーマ名 (デフォルト: 'ocean')
+      darkMode: settingsRange[4] === 'true' || settingsRange[4] === true,   // セル E1: ダークモードフラグ
+      termsAgreed: settingsRange[6] === 'true' || settingsRange[6] === true,// セル G1: 規約同意フラグ
+      termsAgreedAt: settingsRange[8] ? String(settingsRange[8]) : '',      // セル I1: 規約同意日時
+      categoryOrder: Array.isArray(categoryOrder) ? categoryOrder : []      // セル K1: カテゴリ並び順配列
     };
   } catch (error) {
-    console.error('getUserSettings Error:', error);
+    // ユーザー設定取得失敗はエラーとして表示
+    console.error('getUserSettings Error:', error.message);
+    writeLog('システム', 'エラー', 'ユーザー設定取得失敗: ' + error.message);
     // エラー時は安全なデフォルト設定を返す
     return { theme: 'ocean', darkMode: false, termsAgreed: false, termsAgreedAt: '', categoryOrder: [] };
   }
@@ -232,37 +264,42 @@ function getUserSettings(email) {
  */
 function saveUserSettings(email, settings) {
   try {
-    const sheet = getOrCreateUserSheet(email);
+    // ユーザー用シートを取得
+    const sheet_user = getOrCreateUserSheet(email);
     
     // テーマ設定の更新 (セル C1)
     if (settings.theme !== undefined) {
-      sheet.getRange('C1').setValue(settings.theme);
+      sheet_user.getRange('C1').setValue(settings.theme);
     }
     // ダークモード設定の更新 (セル E1)
     if (settings.darkMode !== undefined) {
-      sheet.getRange('E1').setValue(settings.darkMode.toString());
+      sheet_user.getRange('E1').setValue(settings.darkMode.toString());
     }
-    // 利用規約同意フラグの更新 (セル F1〜I1)
+    // 利用規約同意フラグの更新 (セル F1:I1)
     if (settings.termsAgreed !== undefined) {
-      sheet.getRange('F1').setValue('termsAgreed');
-      sheet.getRange('G1').setValue(settings.termsAgreed ? 'true' : 'false');
-      sheet.getRange('H1').setValue('termsAgreedAt');
+      sheet_user.getRange('F1').setValue('termsAgreed'); // セル F1: 利用規約同意フラグ
+      sheet_user.getRange('G1').setValue(settings.termsAgreed ? 'true' : 'false'); // セル G1: 利用規約同意フラグ
+      sheet_user.getRange('H1').setValue('termsAgreedAt'); // セル H1: 利用規約同意日時
       if (settings.termsAgreed) {
-        const timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy/MM/dd HH:mm:ss');
-        sheet.getRange('I1').setValue(timestamp);
+        // タイムスタンプを取得
+        const timestamp = getTimeStamp();
+        // 同意日時を保存 (セル I1)
+        sheet_user.getRange('I1').setValue(timestamp);
       }
     }
-    // カテゴリ並び順の更新 (セル J1〜K1)
+    // カテゴリ並び順の更新 (セル J1:K1)
     if (settings.categoryOrder !== undefined) {
-      sheet.getRange('J1').setValue('categoryOrder');
-      sheet.getRange('K1').setValue(JSON.stringify(settings.categoryOrder));
+      sheet_user.getRange('J1').setValue('categoryOrder');
+      sheet_user.getRange('K1').setValue(JSON.stringify(settings.categoryOrder));
     }
     
     // 変更履歴をログに記録
-    writeLog(email, '設定', '設定の変更をしました');
+    writeLog(email, '設定', 'ユーザー設定の変更をしました');
     return { success: true };
   } catch (error) {
-    console.error('saveUserSettings Error:', error);
+    // ユーザー設定保存失敗はエラーとして表示
+    console.error('saveUserSettings Error:', error.message);
+    writeLog(email, '設定', 'ユーザー設定の変更に失敗しました: ' + error.message);
     return { success: false, error: error.message };
   }
 }
@@ -278,12 +315,14 @@ function saveCategoryOrder(email, categoryOrder) {
   try {
     assertTermsAgreed(email);
     const sheet = getOrCreateUserSheet(email);
-    sheet.getRange('J1').setValue('categoryOrder');
-    sheet.getRange('K1').setValue(JSON.stringify(categoryOrder || []));
-    writeLog(email, '設定', 'カテゴリの並び順を更新しました');
+    sheet.getRange('J1').setValue('categoryOrder'); // セル J1: カテゴリ並び順のラベルを設定
+    sheet.getRange('K1').setValue(JSON.stringify(categoryOrder || [])); // セル K1: カテゴリ並び順の値を設定
+    writeLog(email, 'カテゴリ', 'カテゴリの並び順を更新しました');
     return { success: true };
   } catch (error) {
-    console.error('saveCategoryOrder Error:', error);
+    // カテゴリ並び順保存失敗はエラーとして表示
+    console.error('saveCategoryOrder Error:', error.message);
+    writeLog(email, 'カテゴリ', 'カテゴリの並び順の更新に失敗しました: ' + error.message);
     return { success: false, error: error.message };
   }
 }
@@ -295,7 +334,7 @@ function saveCategoryOrder(email, categoryOrder) {
 
 /**
  * 利用規約の同意状態をスプレッドシートに保存する
- * 1. ユーザー専用シートの Row 1 (設定行) を更新
+ * 1. ユーザー専用シートの一行目(設定行)を更新
  * 2. __TERMS__ シートの該当ユーザー行を更新または追加
  * 3. __LOG__ シートに監査ログを記録
  *
@@ -307,15 +346,15 @@ function saveTermsAgreement(email, agreed) {
   try {
     if (!email) email = getUserEmail();
     const isAgreed = agreed === true || agreed === 'true';
-    const timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy/MM/dd HH:mm:ss');
+    const timestamp = getTimeStamp();
     
-    // 1. ユーザー専用シートの Row 1 を更新
+    // 1. ユーザー専用シートの一行目を更新
     const userSheet = getOrCreateUserSheet(email);
-    userSheet.getRange('F1').setValue('termsAgreed');
-    userSheet.getRange('G1').setValue(isAgreed ? 'true' : 'false');
-    userSheet.getRange('H1').setValue('termsAgreedAt');
+    userSheet.getRange('F1').setValue('termsAgreed'); // セルF1: 利用規約同意フラグのラベル
+    userSheet.getRange('G1').setValue(isAgreed ? 'true' : 'false'); // セルG1: 利用規約同意フラグの値
+    userSheet.getRange('H1').setValue('termsAgreedAt'); // セルH1: 利用規約同意日時のラベル
     if (isAgreed) {
-      userSheet.getRange('I1').setValue(timestamp);
+      userSheet.getRange('I1').setValue(timestamp); // セルI1: 利用規約同意日時の値
     }
     
     // 2. __TERMS__ シートの該当ユーザー行を更新または新規追加
@@ -332,13 +371,13 @@ function saveTermsAgreement(email, agreed) {
     const statusText = isAgreed ? '同意済み' : '未同意';
     if (rowIndex > 0) {
       // 既存行を更新
-      termsSheet.getRange(rowIndex, 2).setValue(statusText);
+      termsSheet.getRange(rowIndex, 2).setValue(statusText); // セルB: 同意状態
       if (isAgreed) {
-        termsSheet.getRange(rowIndex, 3).setValue(timestamp);
+        termsSheet.getRange(rowIndex, 3).setValue(timestamp); // セルC: 同意日時
       }
-      termsSheet.getRange(rowIndex, 4).setValue(timestamp);
+      termsSheet.getRange(rowIndex, 4).setValue(timestamp); // セルD: 更新日時
     } else {
-      // 新規行を追加
+      // 新規行を追加（セルA列：メールアドレス、セルB列：同意状態、セルC列：同意日時、セルD列：更新日時）
       termsSheet.appendRow([email, statusText, isAgreed ? timestamp : '', timestamp]);
     }
     
@@ -347,7 +386,9 @@ function saveTermsAgreement(email, agreed) {
     
     return { success: true, termsAgreed: isAgreed, termsAgreedAt: isAgreed ? timestamp : '' };
   } catch (error) {
-    console.error('saveTermsAgreement Error:', error);
+    // 利用規約同意状態保存失敗はエラーとして表示
+    console.error('saveTermsAgreement Error:', error.message);
+    writeLog(email, '利用規約', '利用規約の同意状態の更新に失敗しました: ' + error.message);
     return { success: false, error: error.message };
   }
 }
@@ -367,7 +408,9 @@ function getTermsAgreement(email) {
       termsAgreedAt: settings.termsAgreedAt || ''
     };
   } catch (error) {
-    console.error('getTermsAgreement Error:', error);
+    // 利用規約同意状態取得失敗はエラーとして表示
+    console.error('getTermsAgreement Error:', error.message);
+    writeLog(email, '利用規約', '利用規約の同意状態の取得に失敗しました: ' + error.message);
     return { termsAgreed: false, termsAgreedAt: '' };
   }
 }
@@ -401,16 +444,16 @@ function assertTermsAgreed(email) {
 function getBookmarks(email) {
   try {
     assertTermsAgreed(email); // 利用規約チェック
-    const sheet = getOrCreateUserSheet(email);
-    const lastRow = sheet.getLastRow();
+    const userSheet = getOrCreateUserSheet(email);
+    const lastRow = userSheet.getLastRow();
     
     // 2行以下（ヘッダーのみまたは空）の場合はデータなし
     if (lastRow <= 2) {
       return [];
     }
     
-    // Row 3 以降の全データを一括取得 (B列:タイトル 〜 F列:追加日時 の5列)
-    const dataRange = sheet.getRange(3, 2, lastRow - 2, 5).getValues();
+    // 3行目以降の全データを一括取得 (B列:タイトル 〜 F列:追加日時 の5列)
+    const dataRange = userSheet.getRange(3, 2, lastRow - 2, 5).getValues();
     const bookmarks = [];
     
     for (let i = 0; i < dataRange.length; i++) {
@@ -418,6 +461,7 @@ function getBookmarks(email) {
       // タイトルもURLもない空行はスキップ
       if (!row[0] && !row[1]) continue;
       
+      // ブックマークオブジェクトの配列を作成
       bookmarks.push({
         index: i,
         title: row[0],
@@ -430,7 +474,8 @@ function getBookmarks(email) {
     
     return bookmarks;
   } catch (error) {
-    console.error('getBookmarks Error:', error);
+    console.error('getBookmarks Error:', error.message);
+    writeLog(email, 'ブックマーク', 'ブックマーク一覧の取得に失敗しました: ' + error.message);
     return [];
   }
 }
@@ -448,20 +493,23 @@ function getBookmarks(email) {
 function addBookmark(email, title, url, category, icon) {
   try {
     assertTermsAgreed(email); // 利用規約チェック
-    const sheet = getOrCreateUserSheet(email);
+    const userSheet = getOrCreateUserSheet(email);
     
     // アイコン名の補正処理（指定がない場合はカテゴリ値またはデフォルトアイコン 'language'）
     const iconName = icon || 'language';
-    const cat = category || '';
+    const categoryName = category || '';
     const addedAt = new Date().toISOString();
     
-    // シート末尾に行を追加 (A列空欄, B:タイトル, C:URL, D:カテゴリ, E:アイコン, F:追加日時)
-    sheet.appendRow(['', title, url, cat, iconName, addedAt]);
-    
-    writeLog(email, 'ブックマーク', '新しいブックマークを追加しました');
+    // シート末尾に行を追加 (A列：空欄, B列:タイトル, C列:URL, D列:カテゴリ, E列:アイコン, F列:追加日時)
+    userSheet.appendRow(['', title, url, categoryName, iconName, addedAt]);
+
+    // ログ記録
+    writeLog(email, 'ブックマーク', '新しいブックマーク ' + title + ' を追加しました');
     return { success: true };
   } catch (error) {
-    console.error('addBookmark Error:', error);
+    // 新規ブックマーク追加失敗はエラーとして表示
+    console.error('addBookmark Error:', error.message);
+    writeLog(email, 'ブックマーク', '新しいブックマークの追加に失敗しました: ' + error.message);
     return { success: false, error: error.message };
   }
 }
@@ -489,20 +537,23 @@ function updateBookmark(email, index, title, url, category, icon) {
     }
 
     const iconName = icon || 'language';
-    const cat = category || '';
+    const categoryName = category || '';
 
     // B列〜E列 (タイトル, URL, カテゴリ, アイコン) を上書き更新
     sheet.getRange(rowToUpdate, 2, 1, 4).setValues([[
       title,
       url,
-      cat,
+      categoryName,
       iconName
     ]]);
     
-    writeLog(email, 'ブックマーク', 'ブックマークを更新しました');
+    // ログ記録
+    writeLog(email, 'ブックマーク', 'ブックマーク "' + title + '" を更新しました');
     return { success: true };
   } catch (error) {
-    console.error('updateBookmark Error:', error);
+    // ブックマーク更新失敗はエラーとして表示
+    console.error('updateBookmark Error:', error.message);
+    writeLog(email, 'ブックマーク', 'ブックマークの更新に失敗しました: ' + error.message);
     return { success: false, error: error.message };
   }
 }
@@ -517,18 +568,21 @@ function updateBookmark(email, index, title, url, category, icon) {
 function deleteBookmark(email, index) {
   try {
     assertTermsAgreed(email); // 利用規約チェック
-    const sheet = getOrCreateUserSheet(email);
+    const userSheet = getOrCreateUserSheet(email);
     const rowToDelete = index + 3;
     
     // 対象行を削除
-    if (rowToDelete > 2 && rowToDelete <= sheet.getLastRow()) {
-      sheet.deleteRow(rowToDelete);
+    if (rowToDelete > 2 && rowToDelete <= userSheet.getLastRow()) {
+      userSheet.deleteRow(rowToDelete);
     }
     
+    // ログ記録
     writeLog(email, 'ブックマーク', 'ブックマークを削除しました');
     return { success: true };
   } catch (error) {
-    console.error('deleteBookmark Error:', error);
+    // ブックマーク削除失敗はエラーとして表示
+    console.error('deleteBookmark Error:', error.message);
+    writeLog(email, 'ブックマーク', 'ブックマークの削除に失敗しました: ' + error.message);
     return { success: false, error: error.message };
   }
 }
@@ -543,12 +597,12 @@ function deleteBookmark(email, index) {
 function saveAllBookmarks(email, bookmarks) {
   try {
     assertTermsAgreed(email); // 利用規約チェック
-    const sheet = getOrCreateUserSheet(email);
-    const lastRow = sheet.getLastRow();
+    const userSheet = getOrCreateUserSheet(email);
+    const lastRow = userSheet.getLastRow();
     
     // 3行目以降の既存ブックマークデータをすべてクリア
     if (lastRow >= 3) {
-      sheet.getRange(3, 1, lastRow - 2, 6).clearContent();
+      userSheet.getRange(3, 1, lastRow - 2, 6).clearContent();
     }
     
     // データが空の場合はクリアのみで正常終了
@@ -564,11 +618,15 @@ function saveAllBookmarks(email, bookmarks) {
     });
     
     // 3行目から一括書き込み
-    sheet.getRange(3, 1, rows.length, 6).setValues(rows);
+    userSheet.getRange(3, 1, rows.length, 6).setValues(rows);
+    
+    // ログ記録
     writeLog(email, 'ブックマーク', 'ブックマークの並び順を更新しました');
     return { success: true };
   } catch (error) {
-    console.error('saveAllBookmarks Error:', error);
+    // ブックマーク並び替え失敗はエラーとして表示
+    console.error('saveAllBookmarks Error:', error.message);
+    writeLog(email, 'ブックマーク', 'ブックマークの並び替えに失敗しました: ' + error.message);
     return { success: false, error: error.message };
   }
 }
@@ -599,7 +657,9 @@ function reorderBookmarks(email, newOrder) {
     
     return saveAllBookmarks(email, reordered);
   } catch (error) {
-    console.error('reorderBookmarks Error:', error);
+    // ブックマーク並び替え失敗はエラーとして表示
+    console.error('reorderBookmarks Error:', error.message);
+    writeLog(email, 'ブックマーク', 'ブックマークの並び替えに失敗しました: ' + error.message);
     return { success: false, error: error.message };
   }
 }
@@ -635,6 +695,7 @@ function getGmailMessages() {
       let snippet = latestMsg.getPlainBody() || '';
       snippet = snippet.substring(0, 100);
       
+      // メッセージオブジェクト配列に追加
       messages.push({
         id: latestMsg.getId(),
         subject: latestMsg.getSubject(),
@@ -646,9 +707,13 @@ function getGmailMessages() {
       });
     }
     
+    // メールメッセージ配列を返す
     return messages;
   } catch (error) {
-    console.error('getGmailMessages Error:', error);
+    // メール取得失敗はエラーとして表示
+    console.error('getGmailMessages Error:', error.message);
+    const email = getUserEmail();
+    writeLog(email, 'メール', 'メールの取得に失敗しました: ' + error.message);
     return [];
   }
 }
@@ -657,6 +722,15 @@ function getGmailMessages() {
 /* ==========================================================================
  * 7. Google カレンダー連携機能
  * ========================================================================== */
+
+/**
+ * デフォルトカレンダーを取得する
+ *
+ * @returns {Calendar} デフォルトカレンダー
+ */
+function getCalendarObject() {
+  return CalendarApp.getDefaultCalendar();
+}
 
 /**
  * 指定週 (7日間) のGoogleカレンダーイベントを取得する
@@ -668,7 +742,7 @@ function getGmailMessages() {
 function getCalendarEvents(weekOffset) {
   try {
     assertTermsAgreed(); // 利用規約チェック
-    const calendar = CalendarApp.getDefaultCalendar();
+    const calendar = getCalendarObject();
     if (!calendar) return [];
     
     const offset = parseInt(weekOffset, 10) || 0;
@@ -701,6 +775,7 @@ function getCalendarEvents(weekOffset) {
         endTimeISO = adjustedEnd.toISOString();
       }
 
+      // イベントオブジェクト配列に追加
       result.push({
         id: event.getId(),
         title: event.getTitle(),
@@ -712,9 +787,13 @@ function getCalendarEvents(weekOffset) {
       });
     }
     
+    // イベントオブジェクト配列を返す
     return result;
   } catch (error) {
-    console.error('getCalendarEvents Error:', error);
+    // カレンダー取得失敗はエラーとして表示
+    console.error('getCalendarEvents Error:', error.message);
+    const email = getUserEmail();
+    writeLog(email, 'カレンダー', 'カレンダーの取得に失敗しました: ' + error.message);
     return [];
   }
 }
@@ -733,7 +812,7 @@ function getCalendarEvents(weekOffset) {
 function addCalendarEvent(title, startTime, endTime, description, color, isAllDay) {
   try {
     assertTermsAgreed(); // 利用規約チェック
-    const calendar = CalendarApp.getDefaultCalendar();
+    const calendar = getCalendarObject();
     const start = new Date(startTime);
     const end = new Date(endTime);
     let event;
@@ -766,15 +845,22 @@ function addCalendarEvent(title, startTime, endTime, description, color, isAllDa
           event.setColor(colorVal.toString());
         }
       } catch (ce) {
-        console.warn('Set color error:', ce);
+        // カラー設定に失敗した場合はログを出力する
+        console.warn('Set color error:', ce.message);
+        const email = getUserEmail();
+        writeLog(email, 'カレンダー', 'カレンダー予定にカラーを設定できませんでした: ' + ce.message);
       }
     }
-    
-    const email = Session.getActiveUser().getEmail();
-    writeLog(email, 'カレンダー', 'カレンダー予定を追加しました');
+
+    // 予定追加成功はログに出力する
+    const email = getUserEmail();
+    writeLog(email, 'カレンダー', 'カレンダー予定「' + title + '」を追加しました');
     return { success: true, id: event.getId() };
   } catch (error) {
-    console.error('addCalendarEvent Error:', error);
+    // カレンダー追加失敗はエラーとして表示
+    console.error('addCalendarEvent Error:', error.message);
+    const email = getUserEmail();
+    writeLog(email, 'カレンダー', 'カレンダー予定「' + title + '」の追加に失敗しました: ' + error.message);
     return { success: false, error: error.message };
   }
 }
@@ -788,20 +874,24 @@ function addCalendarEvent(title, startTime, endTime, description, color, isAllDa
 function deleteCalendarEvent(eventId) {
   try {
     assertTermsAgreed(); // 利用規約チェック
-    const calendar = CalendarApp.getDefaultCalendar();
+    const calendar = getCalendarObject();
     const event = calendar.getEventById(eventId);
     
     if (event) {
       const title = event.getTitle();
       event.deleteEvent();
-      const email = Session.getActiveUser().getEmail();
-      writeLog(email, 'カレンダー', 'カレンダー予定を削除しました');
+      // 予定削除成功はログに出力する
+      const email = getUserEmail();
+      writeLog(email, 'カレンダー', 'カレンダー予定「' + title + '」を削除しました');
       return { success: true };
     } else {
       return { success: false, message: 'イベントが見つかりませんでした' };
     }
   } catch (error) {
-    console.error('deleteCalendarEvent Error:', error);
+    // カレンダー削除失敗はエラーとして表示
+    console.error('deleteCalendarEvent Error:', error.message);
+    const email = getUserEmail();
+    writeLog(email, 'カレンダー', 'カレンダー予定「' + title + '」の削除に失敗しました: ' + error.message);
     return { success: false, message: error.message };
   }
 }
@@ -821,7 +911,7 @@ function deleteCalendarEvent(eventId) {
 function updateCalendarEvent(eventId, title, startTime, endTime, description, color, isAllDay) {
   try {
     assertTermsAgreed(); // 利用規約チェック
-    const calendar = CalendarApp.getDefaultCalendar();
+    const calendar = getCalendarObject();
     const event = calendar.getEventById(eventId);
     if (!event) {
       return { success: false, message: 'イベントが見つかりませんでした' };
@@ -855,18 +945,26 @@ function updateCalendarEvent(eventId, title, startTime, endTime, description, co
         if (!isNaN(colorVal) && colorVal >= 1 && colorVal <= 11) {
           event.setColor(colorVal.toString());
         }
-      } catch (ce) {}
+      } catch (ce) {
+        // カラー設定に失敗した場合はログを出力する
+        console.warn('Set color error:', ce.message);
+        const email = getUserEmail();
+        writeLog(email, 'カレンダー', 'カレンダー予定にカラーを設定できませんでした: ' + ce.message);
+      }
     }
-    
-    const email = Session.getActiveUser().getEmail();
-    writeLog(email, 'カレンダー', 'カレンダー予定を更新しました');
+
+    // 予定更新成功はログに出力する
+    const email = getUserEmail();
+    writeLog(email, 'カレンダー', 'カレンダー予定「' + title + '」を更新しました');
     return { success: true };
   } catch (error) {
-    console.error('updateCalendarEvent Error:', error);
+    // 予定更新失敗はエラーとして表示
+    console.error('updateCalendarEvent Error:', error.message);
+    const email = getUserEmail();
+    writeLog(email, 'カレンダー', 'カレンダー予定「' + title + '」の更新に失敗しました: ' + error.message);
     return { success: false, error: error.message };
   }
 }
-
 
 /* ==========================================================================
  * 8. Google Tasks 連携機能
@@ -915,11 +1013,16 @@ function getTasks() {
         tasks: tasks
       });
     }
-    
+    // タスク取得成功はログに出力する
+    const email = getUserEmail();
+    writeLog(email, 'タスク', 'タスクリストを取得しました');
     return result;
   } catch (error) {
-    console.error('getTasks Error:', error);
-    return { error: error.message };
+    // タスク取得失敗はエラーとして表示
+    console.error('getTasks Error:', error.message);
+    const email = getUserEmail();
+    writeLog(email, 'タスク', 'タスクリストの取得に失敗しました: ' + error.message);
+    return { success: false, error: error.message };
   }
 }
 
@@ -945,11 +1048,15 @@ function addTask(taskListId, title, notes, dueDate) {
     }
     
     const task = Tasks.Tasks.insert(newTask, taskListId);
-    const email = Session.getActiveUser().getEmail();
-    writeLog(email, 'タスク', '新しいタスクを追加しました');
+    // タスク追加成功はログに出力する
+    const email = getUserEmail();
+    writeLog(email, 'タスク', '新しいタスク「' + title + '」を追加しました');
     return { success: true, id: task.id };
   } catch (error) {
-    console.error('addTask Error:', error);
+    // タスク追加失敗はエラーとして表示
+    console.error('addTask Error:', error.message);
+    const email = getUserEmail();
+    writeLog(email, 'タスク', 'タスクの追加に失敗しました: ' + error.message);
     return { success: false, error: error.message };
   }
 }
@@ -965,11 +1072,15 @@ function deleteTask(taskListId, taskId) {
   try {
     assertTermsAgreed(); // 利用規約チェック
     Tasks.Tasks.remove(taskListId, taskId);
-    const email = Session.getActiveUser().getEmail();
-    writeLog(email, 'タスク', 'タスクを削除しました');
+    // タスク削除成功はログに出力する
+    const email = getUserEmail();
+    writeLog(email, 'タスク', 'タスク「' + taskListId + ':'+ taskId + '」を削除しました');
     return { success: true };
   } catch (error) {
-    console.error('deleteTask Error:', error);
+    // タスク削除失敗はエラーとして表示
+    console.error('deleteTask Error:', error.message);
+    const email = getUserEmail();
+    writeLog(email, 'タスク', 'タスクの削除に失敗しました: ' + error.message);
     return { success: false, error: error.message };
   }
 }
@@ -987,11 +1098,15 @@ function completeTask(taskListId, taskId) {
     const task = Tasks.Tasks.get(taskListId, taskId);
     task.status = 'completed';
     Tasks.Tasks.patch(task, taskListId, taskId);
-    const email = Session.getActiveUser().getEmail();
-    writeLog(email, 'タスク', 'タスクを完了しました');
+    // タスク完了成功はログに出力する
+    const email = getUserEmail();
+    writeLog(email, 'タスク', 'タスク「' + taskListId + ':'+ taskId + '」を完了しました');
     return { success: true };
   } catch (error) {
-    console.error('completeTask Error:', error);
+    // タスク完了失敗はエラーとして表示
+    console.error('completeTask Error:', error.message);
+    const email = getUserEmail();
+    writeLog(email, 'タスク', 'タスクの完了に失敗しました: ' + error.message);
     return { success: false, error: error.message };
   }
 }
@@ -1027,8 +1142,8 @@ function updateTask(taskListId, taskId, title, notes, dueDate, newTaskListId) {
       const inserted = Tasks.Tasks.insert(newTask, targetListId);
       Tasks.Tasks.remove(taskListId, taskId);
 
-      const email = Session.getActiveUser().getEmail();
-      writeLog(email, 'タスク', 'タスクを更新・移動しました');
+      const email = getUserEmail();
+      writeLog(email, 'タスク', 'タスク「' + taskListId + ':'+ taskId + '」を更新・移動しました');
       return { success: true, id: inserted.id };
     } else {
       // 【同一リスト内での通常更新】
@@ -1039,12 +1154,15 @@ function updateTask(taskListId, taskId, title, notes, dueDate, newTaskListId) {
       };
       const updated = Tasks.Tasks.patch(taskPatch, taskListId, taskId);
 
-      const email = Session.getActiveUser().getEmail();
-      writeLog(email, 'タスク', 'タスクを更新しました');
+      const email = getUserEmail();
+      writeLog(email, 'タスク', 'タスク「' + taskListId + ':'+ taskId + '」を更新しました');
       return { success: true, id: updated.id };
     }
   } catch (error) {
-    console.error('updateTask Error:', error);
+    // タスク更新失敗はエラーとして表示
+    console.error('updateTask Error:', error.message);
+    const email = getUserEmail();
+    writeLog(email, 'タスク', 'タスクの更新に失敗しました: ' + error.message);
     return { success: false, error: error.message };
   }
 }
@@ -1097,7 +1215,9 @@ function saveQRCodeToDrive(email, base64Data, fileName, mimeType) {
       fileName: fileName
     };
   } catch (error) {
-    console.error('saveQRCodeToDrive Error:', error);
+    // QRコード保存失敗はエラーとして表示
+    console.error('saveQRCodeToDrive Error:', error.message);
+    writeLog(email, 'QRコード', 'QRコードの保存に失敗しました: ' + error.message);
     return {
       success: false,
       error: error.message
