@@ -1656,123 +1656,6 @@
       gap: 0.45rem;
     }
 
-    .icon-picker-category-select {
-      padding: 0.42rem 0.6rem;
-      font-size: 0.75rem;
-      border-radius: 8px;
-      border: 1px solid var(--border-color);
-      background: var(--bg-card);
-      color: var(--text-primary);
-      outline: none;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: var(--transition);
-      max-width: 140px;
-    }
-
-    .icon-picker-category-select:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.15);
-    }
-
-    .icon-picker-tabs-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      width: 100%;
-      position: relative;
-    }
-
-    .icon-picker-tabs {
-      display: flex;
-      gap: 0.35rem;
-      overflow-x: auto;
-      padding: 0.25rem 0.15rem;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(var(--primary-rgb), 0.25) transparent;
-      cursor: grab;
-      user-select: none;
-      flex: 1;
-      scroll-behavior: smooth;
-    }
-
-    .icon-picker-tabs.dragging {
-      cursor: grabbing;
-      scroll-behavior: auto;
-    }
-
-    .icon-picker-tabs::-webkit-scrollbar {
-      height: 4px;
-    }
-
-    .icon-picker-tabs::-webkit-scrollbar-thumb {
-      background: rgba(var(--primary-rgb), 0.25);
-      border-radius: 4px;
-    }
-
-    .icon-picker-tabs::-webkit-scrollbar-thumb:hover {
-      background: var(--primary);
-    }
-
-    .icon-picker-tab {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      font-size: 0.72rem;
-      padding: 0.22rem 0.6rem;
-      border-radius: 9999px;
-      white-space: nowrap;
-      cursor: pointer;
-      border: 1px solid var(--border-color);
-      background: var(--bg-card);
-      color: var(--text-secondary);
-      transition: var(--transition);
-      user-select: none;
-      flex-shrink: 0;
-    }
-
-    .icon-picker-tab:hover {
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-      border-color: rgba(var(--primary-rgb), 0.4);
-      transform: translateY(-1px);
-    }
-
-    .icon-picker-tab.active {
-      background: var(--primary);
-      color: #ffffff;
-      border-color: var(--primary);
-      font-weight: 500;
-      box-shadow: 0 2px 6px rgba(var(--primary-rgb), 0.3);
-    }
-
-    .icon-picker-scroll-btn {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary);
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: var(--transition);
-      padding: 0;
-    }
-
-    .icon-picker-scroll-btn:hover {
-      background: var(--primary);
-      color: #ffffff;
-      border-color: var(--primary);
-      transform: scale(1.08);
-    }
-
-    .icon-picker-scroll-btn .material-symbols-rounded {
-      font-size: 16px;
-    }
-
     .icon-picker-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
@@ -2633,6 +2516,12 @@
               onclick="showAddTaskModal()">
               <span class="material-symbols-rounded text-base sm:text-lg">add_task</span> タスク追加
             </button>
+            <a href="https://keep.google.com/u/0/" target="_blank" rel="noopener noreferrer"
+              class="tab-link-btn py-1.5 px-3 sm:py-2 sm:px-4 rounded-full font-semibold text-xs sm:text-sm flex items-center gap-1 sm:gap-1.5"
+              title="Google Keepを新しいタブで開く">
+              <span class="material-symbols-rounded text-base sm:text-lg">open_in_new</span>
+              <span>メモを開く</span>
+            </a>
             <a href="https://tasks.google.com" target="_blank" rel="noopener noreferrer"
               class="tab-link-btn py-1.5 px-3 sm:py-2 sm:px-4 rounded-full font-semibold text-xs sm:text-sm flex items-center gap-1 sm:gap-1.5"
               title="Google Tasksを新しいタブで開く">
@@ -2943,205 +2832,74 @@
 
   <script>
     /* ==========================================================================
-       1. ブックマーク用アイコンカタログ (140種類の厳選アイコン & カテゴリ・検索キーワード)
+       1. ブックマーク用アイコンカタログ (厳選アイコン & 検索キーワード)
        ========================================================================== */
     const BOOKMARK_ICONS = [
-      // --- Web・ポータル・検索 ---
-      { name: 'language', label: 'Web・一般', category: 'web', categories: ["web", "tools"], keywords: 'Web 一般 ホーム サイト 公式 インターネット ホームページ language global site official' },
-      { name: 'public', label: '地球', category: 'web', categories: ["web"], keywords: '地球 海外 グローバル 世界 国際 英語 public world earth global foreign' },
-      { name: 'travel_explore', label: 'リサーチ・Web巡回', category: 'web', categories: ["web", "life"], keywords: '巡回 リサーチ 探訪 ネットサーフィン 調査 travel explore research browse' },
-      { name: 'search', label: '検索エンジン', category: 'web', categories: ["web", "tools"], keywords: '検索 探す ググる 調べる Google Yahoo 検索窓 search find engine' },
-      { name: 'home', label: 'ホーム', category: 'web', categories: ["web", "life"], keywords: 'ホーム 家 トップ ポータル メイン スタート 社内ポータル home portal start main' },
-      { name: 'bookmark', label: 'ブックマーク・保存', category: 'web', categories: ["web", "tools"], keywords: 'ブックマーク しおり 保存 キープ 後で読む bookmark save pin keep' },
-      { name: 'bookmarks', label: 'ブックマーク一覧', category: 'web', categories: ["web", "tools"], keywords: 'ブックマーク しおり 保存 キープ 後で読む bookmark save pin keep' },
-      { name: 'star', label: 'お気に入り・星', category: 'web', categories: ["web", "tools"], keywords: 'スター 星 お気に入り 評価 ブックマーク 重要 star favorite bookmark' },
-      { name: 'star_shine', label: 'お気に入り・星輝き', category: 'web', categories: ["web", "tools"], keywords: 'スター 星 お気に入り 評価 ブックマーク 重要 star favorite bookmark' },
-      { name: 'favorite', label: 'お気に入り・ハート', category: 'web', categories: ["web", "life"], keywords: 'ハート 愛 お気に入り いいね 推し 好き ファンクラブ favorite heart love like' },
-      { name: 'wifi', label: 'Wi-Fi・ネット回線', category: 'web', categories: ["web", "tools"], keywords: 'Wi-Fi ワイファイ 無線 ネット回線 光回線 ルーター wifi wireless network' },
-      { name: 'android_cell_4_bar', label: 'モバイル回線', category: 'web', categories: ["web", "social", "life"], keywords: 'スマホ iPhone Android モバイル 携帯 アプリ smartphone phone mobile app' },
-      { name: 'bluetooth', label: 'Bluetooth', category: 'web', categories: ["web", "tools"], keywords: 'Bluetooth ブルートゥース 無線 bluetooth wireless' },
-      { name: 'security', label: 'セキュリティ・認証', category: 'web', categories: ["web", "tools", "dev"], keywords: 'セキュリティ 安全 防犯 保護 対策 防御 マイナンバー security safety protect shield' },
-      { name: 'lock', label: 'ログイン・会員認証', category: 'web', categories: ["web", "tools"], keywords: '鍵 ロック パスワード 会員 ログイン 秘密 暗号化 HTTPS lock secret key login' },
-      { name: 'key', label: 'パスワード', category: 'web', categories: ["web", "tools"], keywords: 'パスワード 鍵 ロック 暗号化 パスワードマネージャー password secret key lock' },
-      { name: 'fingerprint', label: '生体認証', category: 'web', categories: ["web", "tools"], keywords: '生体認証 指紋 パスワードマネージャー fingerprint biometric password manager' },
-      { name: 'extension', label: '拡張機能', category: 'web', categories: ["web", "tools"], keywords: '拡張機能 拡張 アプリプラグイン プラグイン browser extension plugin' },
-
-      // --- SNS・コミュニケーション ---
-      { name: 'mail', label: 'メール', category: 'social', categories: ["social", "work", "web"], keywords: 'メール Gmail 連絡 手紙 メッセージ Outlook mail email google inbox' },
-      { name: 'send', label: '送信', category: 'social', categories: ["social", "work", "tools"], keywords: '送信 紙飛行機 DM Telegram メッセンジャー 送る 発信 send message direct' },
-      { name: 'attach_file', label: '添付ファイル', category: 'social', categories: ["social", "tools"], keywords: '添付ファイル 添付 ファイル クリップ ドキュメント attach file attachment paperclip' },
-      { name: 'label', label: 'ラベル', category: 'social', categories: ["social", "web", "work"], keywords: 'ラベル マーク シール 印 ラベル付け label tag mark badge' },
-      { name: 'chat', label: 'チャット', category: 'social', categories: ["social", "work"], keywords: 'チャット メッセージ LINE Slack Discord Teams 会話 トーク chat talk text message' },
-      { name: 'chat_bubble', label: 'チャット', category: 'social', categories: ["social", "work"], keywords: 'チャット メッセージ LINE Slack Discord Teams 会話 トーク chat talk text message' },
-      { name: 'sms', label: 'ショートメッセージ', category: 'social', categories: ["social", "work", "web"], keywords: 'SMS ショートメッセージ 連絡 手紙 メッセージ LINE Slack Discord Teams 会話 トーク chat talk text message' },
-      { name: 'forum', label: '掲示板・コミュニティ', category: 'social', categories: ["social", "web"], keywords: '掲示板 フォーラム コミュニティ スレッド 談話室 5ch Reddit forum board thread' },
-      { name: 'alternate_email', label: '@マーク', category: 'social', categories: ["social", "web"], keywords: '@ アットマーク メンション X Twitter SNS ツイッター alternate email mention handle' },
-      { name: 'video_call', label: 'Web会議・Zoom・Meet', category: 'social', categories: ["social", "work"], keywords: 'ビデオ通話 Zoom Meet Teams 会議 オンラインミーティング 面談 video call conference' },
-      { name: 'person', label: '個人', category: 'social', categories: ["social", "tools"], keywords: '個人 人 member user person アカウント ユーザー' },
-      { name: 'account_circle', label: 'マイページ', category: 'social', categories: ["social", "tools", "web"], keywords: 'マイページ 会員情報 アカウント 登録情報 ログイン ユーザー account circle mypage user' },
-      { name: 'group', label: 'グループ', category: 'social', categories: ["social", "work"], keywords: 'グループ チーム 仲間 組織 メンバー 共有 group team member' },
-      { name: 'groups', label: '複数グループ', category: 'social', categories: ["social", "work"], keywords: 'グループ チーム 仲間 組織 メンバー 共有 group team member' },
-      { name: 'notifications', label: '通知・お知らせ・速報', category: 'social', categories: ["social", "tools", "work"], keywords: '通知 ベル お知らせ 新着 アラート 速報 notification bell alert' },
-      { name: 'campaign', label: '広報・お知らせ・告知', category: 'social', categories: ["social", "work"], keywords: '広報 お知らせ キャンペーン メガホン アナウンス 告知 プレスリリース campaign PR announcement' },
-      { name: 'thumb_up', label: 'いいね・高評価', category: 'social', categories: ["social", "tools"], keywords: 'いいね 高評価 グッド 賛成 支持 thumb up like good' },
-      { name: 'thumbs_up_double', label: 'いいね・高評価', category: 'social', categories: ["social", "tools"], keywords: 'たくさんいいね たくさん高評価 thumbs up double like many' },
-      { name: 'thumb_down', label: '低評価・良くない', category: 'social', categories: ["social", "tools"], keywords: '低評価 良くない 反対 thumb down bad' },
-      { name: 'thumbs_up_down', label: '低評価・良くない', category: 'social', categories: ["social", "tools"], keywords: '低評価 良くない 反対 thumb down bad' },
-      { name: 'feed', label: 'タイムライン・SNS新着', category: 'social', categories: ["social", "web", "media"], keywords: 'タイムライン 投稿一覧 フィード 新着 SNS ストリーム feed stream timeline' },
-      { name: 'view_timeline', label: 'タイムライン', category: 'social', categories: ["social", "web", "media"], keywords: 'タイムライン 投稿一覧 フィード 新着 SNS ストリーム feed stream timeline' },
-      { name: 'share', label: 'シェア・共有・拡散', category: 'social', categories: ["social", "web", "tools"], keywords: 'シェア 共有 拡散 SNS ポスト 転送 share social post' },
-
-      // --- 開発・IT・クラウド ---
-      { name: 'android', label: 'Android', category: 'web', categories: ["web", "social", "life"], keywords: 'Android スマホ モバイル 携帯 アプリ android phone mobile app' },
-      { name: 'smartphone', label: 'スマホ', category: 'web', categories: ["web", "social", "life"], keywords: 'スマホ iPhone Android モバイル 携帯 アプリ smartphone phone mobile app' },
-      { name: 'mobile_hand', label: 'スマホ片手持ち', category: 'web', categories: ["web", "social", "life"], keywords: 'スマホ 片手持ち スマホ片手持ち片手 モバイル片手持ち mobile hand one hand' },
-      { name: 'apps', label: 'アプリ・アプリストア', category: 'web', categories: ["web", "social", "life"], keywords: 'アプリ アプリストア スマホ iPhone Android モバイル 携帯 アプリ apps phone mobile app' },
-      { name: 'desktop_windows', label: 'PC・デスクトップ', category: 'web', categories: ["web", "work", "dev"], keywords: 'Windows デスクトップ パソコン WindowsデスクトップPC '},
-      { name: 'laptop', label: 'ノートPC', category: 'web', categories: ["web", "work", "dev"], keywords: 'ノートPC パソコン ラップトップ MacBook Windows laptop pc computer' },
-      { name: 'devices', label: '複数デバイス・同期', category: 'web', categories: ["web", "tools", "dev"], keywords: 'デバイス PC スマホ 同期 マルチデバイス devices sync mobile pc' },
-      { name: 'code', label: 'ソースコード', category: 'dev', categories: ["dev", "work"], keywords: 'GitHub GitLab コード プログラミング ソース HTML CSS JS Python code dev' },
-      { name: 'code_blocks', label: 'ソースコード・ブロック', category: 'dev', categories: ["dev", "work"], keywords: 'コード ブロック code blocks'},
-      { name: 'code_xml', label: 'XML', category: 'dev', categories: ["dev", "work"], keywords: 'XML code xml'},
-      { name: 'data_array', label: '配列・リスト', category: 'dev', categories: ["dev", "work"], keywords: '配列 リスト JSON data array list'},
-      { name: 'data_object', label: 'オブジェクト・辞書', category: 'dev', categories: ["dev", "work"], keywords: 'オブジェクト 辞書 object data'},
-      { name: 'terminal', label: 'ターミナル・CLI', category: 'dev', categories: ["dev", "tools"], keywords: 'ターミナル コンソール CLI コマンド シェル bash サーバー管理 AWS terminal cmd server' },
-      { name: 'terminal_2', label: 'ターミナル・CLI', category: 'dev', categories: ["dev", "tools"], keywords: 'ターミナル コンソール CLI コマンド シェル bash サーバー管理 AWS terminal cmd server' },
-      { name: 'deployed_code', label: 'デプロイ・公開', category: 'dev', categories: ["dev", "web", "work"], keywords: 'デプロイ cloud deployed code'},
-      { name: 'cloud', label: 'クラウド', category: 'dev', categories: ["dev", "web", "work"], keywords: 'クラウド 雲 クラウドサーバー AWS GCP Azure クラウドインフラ ホスティング cloud hosting infra' },
-      { name: 'cloud_sync', label: '同期・連携', category: 'dev', categories: ["dev", "work", "tools"], keywords: '同期 連携 cloud sync'},
-      { name: 'backup', label: 'バックアップ・保存', category: 'dev', categories: ["dev", "work", "tools"], keywords: 'バックアップ 保存 バックアップ先 backup cloud save storage'},
-      { name: 'database', label: 'データベース', category: 'dev', categories: ["dev", "work"], keywords: 'データベース DB SQL MySQL PostgreSQL phpMyAdmin database storage table' },
-      { name: 'data_table', label: 'テーブル・データ', category: 'dev', categories: ["dev", "work", "tools"], keywords: 'テーブル データ data table'},
-      { name: 'api', label: 'Web API', category: 'dev', categories: ["dev", "web", "work"], keywords: 'API REST GraphQL エンドポイント WebAPI Postman Swagger api endpoint service docs' },
-      { name: 'bug_report', label: 'バグ', category: 'dev', categories: ["dev", "work"], keywords: 'バグ 不具合 Issue トラブル エラー チケット Jira Backlog bug report issue ticket' },
-      { name: 'error', label: 'エラー', category: 'dev', categories: ["dev", "work"], keywords: 'エラー 警告 失敗 error warning fail' },
-      { name: 'network_intelligence', label: 'ニューラルネットワーク', category: 'dev', categories: ["dev", "work"], keywords: 'ニューラルネットワーク 人工知能 AI intelligence neural network'},
-      { name: 'psychology', label: '生成AI', category: 'dev', categories: ["dev", "work", "tools"], keywords: '生成AI LLM ChatGPT Claude Gemini Perplexity 思考 AIアシスタント psychology alt ai llm' },
-      { name: 'smart_toy', label: 'AI・ボット・自動化', category: 'dev', categories: ["dev", "work", "tools"], keywords: 'AI ボット ロボット ChatGPT 人工知能 自動化 smart toy robot bot chatgpt' },
-      { name: 'lan', label: 'LAN', category: 'dev', categories: ["dev", "work", "tools"], keywords: 'LAN ネットワーク 社内網 イントラネット VPN ローカル net lan local intranet vpn' },
-      { name: 'extension', label: '拡張機能・プラグインストア', category: 'dev', categories: ["dev", "tools", "web"], keywords: '拡張機能 プラグイン アドオン Chrome拡張 VSCode ストア extension plugin add-on store' },
-
-      // --- 仕事・ビジネス・管理 ---
-      { name: 'description', label: 'ドキュメント・Word', category: 'work', categories: ["work", "web"], keywords: 'ドキュメント Docs 仕様書 文書 書類 テキスト GoogleDocs Word description document' },
-      { name: 'article', label: '記事・ブログ', category: 'work', categories: ["work", "web", "media"], keywords: '記事 ブログ コラム ニュース 読み物 メディア Qiita Zenn note article blog' },
-      { name: 'table_chart', label: 'スプレッドシート・Excel', category: 'work', categories: ["work", "dev", "tools"], keywords: 'スプレッドシート 表計算 エクセル GoogleSheets Excel 表 データ 集計 table chart sheet' },
-      { name: 'slideshow', label: 'PowerPoint・スライド', category: 'work', categories: ["work", "media"], keywords: 'プレゼン スライド 資料 パワポ PowerPoint GoogleSlides 発表 slideshow presentation' },
-      { name: 'note_alt', label: 'ノート', category: 'work', categories: ["work", "dev", "tools"], keywords: 'ノート メモ 記録 手帳 Notion Evernote 日記 議事録 edit note memo'},
-      { name: 'edit_note', label: 'ノート', category: 'work', categories: ["work", "dev", "tools"], keywords: 'ノート メモ 記録 手帳 Notion Evernote 日記 議事録 edit note memo' },
-      { name: 'stylus_note', label: 'スタイラスノート', category: 'work', categories: ["work", "dev", "tools"], keywords: 'スタイラスノート メモ 記録 手帳 Notion Evernote 日記 議事録 edit note memo'},
-      { name: 'sticky_note_2', label: 'スタイラスノート', category: 'work', categories: ["work", "dev", "tools"], keywords: '付箋 メモ 記録 手帳 Notion Evernote 日記 議事録 sticky note memo'},
-      { name: 'task', label: 'ToDo・タスク', category: 'work', categories: ["work", "life", "tools"], keywords: 'タスク ToDo チェック 完了 業務 やること Trello Asana task alt check todo done' },
-      { name: 'task_alt', label: 'ToDo・タスク', category: 'work', categories: ["work", "life", "tools"], keywords: 'タスク ToDo チェック 完了 業務 やること Trello Asana task alt check todo done' },
-      { name: 'checklist', label: 'チェックリスト', category: 'work', categories: ["work", "life", "tools"], keywords: 'タスク ToDo チェック 完了 業務 やること Trello Asana task alt check todo done'},
-      { name: 'list', label: 'リスト', category: 'work', categories: ["work", "life", "tools"], keywords: 'タスク ToDo チェック 完了 業務 やること Trello Asana task alt check todo done'},
-      { name: 'list_alt', label: 'リスト', category: 'work', categories: ["work", "life", "tools"], keywords: 'タスク ToDo チェック 完了 業務 やること Trello Asana task alt check todo done'},
-      { name: 'calendar_today', label: 'カレンダー', category: 'work', categories: ["work", "life"], keywords: 'カレンダー 今日 予定 スケジュール 日程 本日 Googleカレンダー calendar today schedule' },
-      { name: 'calendar_month', label: 'カレンダー', category: 'work', categories: ["work", "life"], keywords: 'カレンダー 月間 マンスリー 月別 スケジュール 予定表 行事 calendar month monthly' },
-      { name: 'today', label: 'カレンダー', category: 'work', categories: ["work", "life"], keywords: 'カレンダー 今日 予定 スケジュール 日程 本日 Googleカレンダー calendar today schedule' },
-      { name: 'schedule', label: '時計', category: 'work', categories: ["work", "tools", "life"], keywords: '時計 時間 時刻 スケジュール 勤怠 タイムカード 打刻 シフト schedule clock time attendance' },
-      { name: 'alarm', label: '時計・アラーム', category: 'work', categories: ["work", "life"], keywords: '時計 時間 時刻 スケジュール 勤怠 タイムカード 打刻 シフト schedule clock time attendance'},
-      { name: 'watch', label: '時計', category: 'work', categories: ["work", "life"], keywords: '時計 時間 時刻 スケジュール 勤怠 タイムカード 打刻 シフト schedule clock time attendance'},
-      { name: 'folder', label: 'フォルダ', category: 'work', categories: ["work", "tools"], keywords: 'フォルダ ドライブ GoogleDrive Dropbox OneDrive 共有フォルダ 保管庫 folder drive storage' },
-      { name: 'folder_code', label: 'フォルダ', category: 'work', categories: ["work", "tools"], keywords: 'フォルダ ドライブ GoogleDrive Dropbox OneDrive 共有フォルダ 保管庫 folder drive storage folder コード code'},
-      { name: 'folder_data', label: 'フォルダ', category: 'work', categories: ["work", "tools"], keywords: 'フォルダ ドライブ GoogleDrive Dropbox OneDrive 共有フォルダ 保管庫 folder drive storage データ folder data'},
-      { name: 'folder_delete', label: 'フォルダ', category: 'work', categories: ["work", "tools"], keywords: 'フォルダ ドライブ GoogleDrive Dropbox OneDrive 共有フォルダ 保管庫 folder drive storage 削除 folder delete'},
-      { name: 'folder_managed', label: 'フォルダ', category: 'work', categories: ["work", "tools"], keywords: 'フォルダ ドライブ GoogleDrive Dropbox OneDrive 共有フォルダ 保管庫 folder drive storage 組織 folder managed 設定'},
-      { name: 'folder_shared', label: 'フォルダ', category: 'work', categories: ["work", "tools"], keywords: 'フォルダ ドライブ GoogleDrive Dropbox OneDrive 共有フォルダ 保管庫 folder drive storage 共有 folder shared 設定'},
-      { name: 'folder_zip', label: 'フォルダ', category: 'work', categories: ["work", "tools"], keywords: 'フォルダ ドライブ GoogleDrive Dropbox OneDrive 共有フォルダ 保管庫 folder drive storage folder ジップ zip'},
-      { name: 'workspaces', label: 'ワークスペース', category: 'work', categories: ["work", "tools"], keywords: 'ワークスペース workspace'},
-      { name: 'work', label: '仕事・グループウェア・社内システム', category: 'work', categories: ["work", "web"], keywords: '仕事 ビジネス 業務 会社 グループウェア サイボウズ 社内システム work job business office' },
-      { name: 'business_center', label: '営業・案件管理・Salesforce', category: 'work', categories: ["work"], keywords: 'ビジネス 案件 取引 営業 商談 Salesforce CRM 出張 ブリーフケース business sales crm' },
-      { name: 'home_work', label: '在宅勤務・リモートワーク', category: 'work', categories: ["work", "life"], keywords: '在宅勤務 リモートワーク テレワーク 自宅 会社 外出 自宅待機 home work remote'},
-      { name: 'contract', label: '電子契約・クラウドサイン', category: 'work', categories: ["work"], keywords: '契約書 電子契約 クラウドサイン クラウド 合意 規約 締結 約款 contract agreement legal' },
-      { name: 'receipt', label: '請求書・領収書・freee', category: 'work', categories: ["work", "life"], keywords: '領収書 請求書 インボイス レシート 経理 伝票 freee マネーフォワード receipt invoice bill' },
-      { name: 'request_quote', label: '見積書・受発注システム', category: 'work', categories: ["work", "life"], keywords: '見積 見積書 提案書 概算 受発注 発注 案件 request quote estimate proposal' },
-      { name: 'paid', label: '給与明細・経費精算・売上', category: 'work', categories: ["work", "life"], keywords: '給与 給与明細 経費精算 支払い 売上 収益 入金 コイン paid salary expense income' },
-      { name: 'analytics', label: 'Google Analytics・アクセス解析', category: 'work', categories: ["work", "dev", "tools"], keywords: '分析 アナリティクス GA4 GoogleAnalytics アクセス解析 指標 統計 データ analytics stats' },
-      { name: 'show_chart', label: '株価チャート・推移・トレンド', category: 'work', categories: ["work", "life", "tools"], keywords: '折れ線グラフ グラフ トレンド 推移 株価 為替 チャート show chart trend line stock' },
-      { name: 'dashboard', label: '管理画面・管理コンソール', category: 'work', categories: ["work", "dev", "tools"], keywords: 'ダッシュボード 管理画面 ポータル コントロール 管理パネル コンソール dashboard admin console' },
-
-      // --- メディア・エンタメ・動画・音楽 ---
-      { name: 'play_circle', label: 'YouTube・動画再生・配信', category: 'media', categories: ["media", "web", "social"], keywords: '動画 YouTube 再生 プレイヤー ユーチューブ 動画サイト play circle movie video youtube' },
-      { name: 'smart_display', label: 'Netflix・Amazon Prime・動画サブスク', category: 'media', categories: ["media", "life", "web"], keywords: '動画配信 Netflix AmazonPrime Hulu Disney VOD 映画鑑賞 smart display streaming netflix' },
-      { name: 'movie', label: '映画・映画館・シネマ情報', category: 'media', categories: ["media", "life"], keywords: '映画 シネマ ムービー 映画館 上映スケジュール 劇場 Filmarks movie cinema film theater' },
-      { name: 'video_camera_front', label: 'Twitch・YouTube Live・生配信', category: 'media', categories: ["media", "social"], keywords: 'ライブ配信 Twitch YouTubeLive 配信者 生主 VTuber 実況 video camera front live stream' },
-      { name: 'live_tv', label: 'TVer・ABEMA・テレビ番組', category: 'media', categories: ["media", "life", "web"], keywords: '生放送 テレビ TV TVer ABEMA 地上波 見逃し配信 live tv broadcast tver abema' },
-      { name: 'subscriptions', label: 'サブスク・チャンネル登録・会員', category: 'media', categories: ["media", "web", "life"], keywords: 'サブスク チャンネル登録 メンバーシップ 定期購読 有料会員 subscriptions subscribe channel' },
-      { name: 'music_note', label: '音楽配信・BGM・楽曲', category: 'media', categories: ["media", "life"], keywords: '音楽 BGM メロディ 楽曲 ソング 音 ミュージック music note sound audio song' },
-      { name: 'headphones', label: 'Spotify・Apple Music・試聴', category: 'media', categories: ["media", "life"], keywords: 'ヘッドフォン Spotify AppleMusic イヤホン 音楽アプリ 試聴 headphones audio listen spotify' },
-      { name: 'podcasts', label: 'ポッドキャスト・Voicy・音声配信', category: 'media', categories: ["media", "social", "life"], keywords: 'ポッドキャスト 音声番組 ラジオ Voicy standfm 配信 podcasts audio show' },
-      { name: 'radio', label: 'radiko・ラジオ放送', category: 'media', categories: ["media", "life"], keywords: 'ラジオ AM FM radiko 放送 音声 ラジコ radio broadcast radiko' },
-      { name: 'image', label: '画像・写真・イラスト素材', category: 'media', categories: ["media", "tools"], keywords: '画像 写真 イラスト CG ピクチャー 壁紙 フリー素材 いらすとや image picture photo' },
-      { name: 'photo_camera', label: 'Instagram・写真・カメラ', category: 'media', categories: ["media", "social", "life"], keywords: 'カメラ 写真 撮影 Instagram フォト インスタ 写真共有 photo camera picture instagram' },
-      { name: 'palette', label: 'Canva・Figma・デザインツール', category: 'media', categories: ["media", "dev", "work"], keywords: 'デザイン 配色 パレット カラー Figma Canva UI UX 色調 palette design color figma' },
-      { name: 'art_track', label: 'pixiv・イラスト・ポートフォリオ', category: 'media', categories: ["media", "web"], keywords: 'アート イラスト pixiv 作品集 ポートフォリオ 作画 絵師 art track illustration pixiv' },
-      { name: 'sports_esports', label: 'Steam・ゲーム攻略・Discord', category: 'media', categories: ["media", "social", "life"], keywords: 'ゲーム eスポーツ Steam Discord コントローラー ゲーム攻略 sports esports game steam' },
-
-      // --- 生活・買い物・マネー・交通・健康 ---
-      { name: 'newspaper', label: 'ニュース', category: 'life', categories: ["life", "work", "media"], keywords: 'ニュース 新聞 報道 記事 朝日 日経 読売 ヤフーニュース newspaper news media article' },
-      { name: 'shopping_cart', label: 'Amazon・楽天市場・ネット通販', category: 'life', categories: ["life", "web"], keywords: '通販 ネットショッピング Amazon 楽天 買い物 カート Yahooショッピング shopping cart ec amazon rakuten' },
-      { name: 'shopping_bag', label: 'ZOZOTOWN・ファッション通販', category: 'life', categories: ["life", "web"], keywords: 'ショップ アパレル ブランド ファッション お買い物 ZOZOTOWN 服 shopping bag store fashion' },
-      { name: 'sell', label: 'メルカリ・ヤフオク・フリマ', category: 'life', categories: ["life", "work"], keywords: 'メルカリ ヤフオク フリマ 出品 セール 値札 特売 買取 sell sale mercari auction' },
-      { name: 'loyalty', label: 'ポイントサイト・クーポン', category: 'life', categories: ["life", "work"], keywords: 'ポイント クーポン 楽天ポイント Tポイント ポイ活 還元 特典 loyalty point coupon' },
-      { name: 'payments', label: 'キャッシュレス・決済・送金', category: 'life', categories: ["life", "work"], keywords: '決済 支払い キャッシュレス 送金 振込 バーコード決済 payments pay checkout' },
-      { name: 'credit_card', label: 'クレジットカード・カード明細', category: 'life', categories: ["life", "work"], keywords: 'クレジットカード クレカ カード決済 明細 VISA JCB Master credit card card' },
-      { name: 'wallet', label: 'PayPay・電子マネー', category: 'life', categories: ["life", "work"], keywords: '電子マネー PayPay 財布 ウォレット Suica PASMO バーコード決済 wallet pay money paypay' },
-      { name: 'account_balance', label: 'ネット銀行・口座・金融機関', category: 'life', categories: ["life", "work"], keywords: '銀行 ネットバンキング 口座 ゆうちょ 三菱UFJ 三井住友 みずほ 楽天銀行 account balance bank' },
-      { name: 'savings', label: 'つみたてNISA・証券・投資', category: 'life', categories: ["life", "work"], keywords: 'つみたてNISA 投資 貯金 資産運用 証券 SBI証券 楽天証券 投資信託 株 savings invest nisa stock' },
-      { name: 'currency_yen', label: '為替レート・円相場・マネー', category: 'life', categories: ["life", "work"], keywords: '日本円 円 円安 円高 為替 ドル円 通貨 相場 レート currency yen money jpy rate' },
-      { name: 'local_shipping', label: '荷物追跡・ヤマト/佐川/郵便', category: 'life', categories: ["life", "work", "tools"], keywords: '宅配便 荷物追跡 ヤマト運輸 佐川急便 日本郵便 配達 発送 再配達 local shipping delivery tracking' },
-      { name: 'delivery_dining', label: '出前館・Uber Eats・デリバリー', category: 'life', categories: ["life", "work"], keywords: 'フードデリバリー 出前 UberEats 出前館 宅配 料理 takeout delivery dining food' },
-      { name: 'school', label: '学習・学校・大学・オンライン教育', category: 'life', categories: ["life", "work"], keywords: '学校 大学 学習 勉強 授業 オンライン講座 Progate Udemy 履修 school university education' },
-      { name: 'menu_book', label: 'Kindle・読書・電子書籍', category: 'life', categories: ["life", "work"], keywords: '読書 本 書籍 電子書籍 Kindle マンガ 漫画 コミック menu book book read ebook' },
-      { name: 'translate', label: 'DeepL・Google翻訳・英語辞書', category: 'life', categories: ["life", "work", "tools"], keywords: '翻訳 DeepL Google翻訳 英語 語学 辞書 英和 多言語 translate translation english' },
-      { name: 'local_cafe', label: 'スタバ・カフェ・喫茶店', category: 'life', categories: ["life"], keywords: 'カフェ 喫茶店 スターバックス スタバ ドトール コーヒー 休憩 local cafe coffee starbucks' },
-      { name: 'restaurant', label: 'グルメ・食べログ・ホットペッパー', category: 'life', categories: ["life"], keywords: 'レストラン 飲食店 外食 グルメ 食べログ ホットペッパー 予約 居酒屋 restaurant dining food' },
-      { name: 'fastfood', label: 'マクドナルド・ファストフード', category: 'life', categories: ["life"], keywords: 'ファストフード マクドナルド マック バーガー ポテト 軽食 テイクアウト fastfood burger mcdonalds' },
-      { name: 'ramen_dining', label: 'ラーメン・麺類・中華', category: 'life', categories: ["life"], keywords: 'ラーメン 麺 ヌードル つけ麺 中華 拉麺 ラーメンデータベース ramen dining noodle food' },
-      { name: 'lunch_dining', label: 'ランチ・定食・お弁当', category: 'life', categories: ["life"], keywords: 'ランチ お弁当 定食 昼食 ご飯 弁当 ほっともっと lunch dining meal bento' },
-      { name: 'local_bar', label: '居酒屋・お酒・バー', category: 'life', categories: ["life"], keywords: '居酒屋 バー お酒 ビール ワイン 飲み会 宴会 local bar drink beer pub' },
-      { name: 'local_grocery_store', label: 'スーパー・ネットスーパー・食料品', category: 'life', categories: ["life"], keywords: 'スーパー スーパーマーケット ネットスーパー 食料品 イオン 生協 買い出し local grocery store supermarket food' },
-      { name: 'map', label: 'Googleマップ・地図・案内', category: 'life', categories: ["life", "tools", "web"], keywords: '地図 マップ GoogleMaps 経路 地理 ナビ Googleマップ map google maps location' },
-      { name: 'pin_drop', label: 'スポット・観光地・チェックイン', category: 'life', categories: ["life", "tools"], keywords: '位置情報 スポット ピン 観光地 施設 目的地 チェックイン pin drop spot location' },
-      { name: 'flight', label: '航空券予約・JAL/ANA・空港', category: 'life', categories: ["life", "work"], keywords: '飛行機 航空券 空港 フライト JAL ANA マイル 旅行 出張 flight airline airport travel' },
-      { name: 'hotel', label: 'じゃらん・楽天トラベル・宿予約', category: 'life', categories: ["life", "work"], keywords: 'ホテル 宿泊 旅館 予約 じゃらん 楽天トラベル 一休 温泉宿 hotel inn stay travel room' },
-      { name: 'event_seat', label: '座席予約・映画/新幹線/チケット', category: 'life', categories: ["life", "media", "work"], keywords: 'チケット 座席予約 映画館 新幹線座席 指定席 コンサート 観劇 event seat ticket reservation' },
-      { name: 'directions_car', label: '車・レンタカー・高速道路/ETC', category: 'life', categories: ["life", "work"], keywords: '車 ドライブ レンタカー タイムズ 高速道路 ETC カーシェア directions car drive rental' },
-      { name: 'train', label: '乗換案内・鉄道・新幹線・時刻表', category: 'life', categories: ["life", "work"], keywords: '電車 新幹線 JR 鉄道 乗換案内 ジョルダン 駅探 時刻表 地下鉄 train transit railway' },
-      { name: 'directions_bus', label: '高速バス・夜行バス・路線バス', category: 'life', categories: ["life", "work"], keywords: 'バス 高速バス 夜行バス 路線バス 時刻表 バスターミナル directions bus travel' },
-      { name: 'directions_bike', label: 'シェアサイクル・自転車', category: 'life', categories: ["life"], keywords: '自転車 シェアサイクル ドコモチャリ HELLO CYCLING サイクリング directions bike bicycle' },
-      { name: 'fitness_center', label: 'ジム・フィットネス・チョコザップ', category: 'life', categories: ["life"], keywords: 'ジム フィットネス 筋トレ チョコザップ ワークアウト 運動 fitness center gym workout' },
-      { name: 'sports_soccer', label: 'サッカー速報・Jリーグ・観戦', category: 'life', categories: ["life"], keywords: 'サッカー フットサル 観戦 Jリーグ 試合速報 ワールドカップ sports soccer football' },
-      { name: 'sports_baseball', label: 'プロ野球速報・MLB・試合結果', category: 'life', categories: ["life"], keywords: '野球 プロ野球 MLB 甲子園 スコア速報 観戦 sports baseball game score' },
-      { name: 'spa', label: '温泉・サウナ・銭湯・スパ', category: 'life', categories: ["life"], keywords: '温泉 サウナ 銭湯 スパ ととのう リフレッシュ 露天風呂 spa sauna onsen bath' },
-      { name: 'park', label: '公園・レジャー・アウトドア・キャンプ', category: 'life', categories: ["life"], keywords: '公園 ピクニック 広場 緑地 自然 キャンプ アウトドア キャンプ場 park picnic nature outdoor' },
-      { name: 'medical_services', label: '病院予約・医院・クリニック', category: 'life', categories: ["life", "work"], keywords: '病院 クリニック 医院 診療所 診療予約 健康診断 医療 medical services hospital clinic health' },
-      { name: 'medication', label: 'お薬手帳・処方箋・薬局', category: 'life', categories: ["life"], keywords: 'おくすり 薬 処方箋 お薬手帳 薬局 ドラッグストア 錠剤 medication drug medicine pharmacy' },
-      { name: 'wb_sunny', label: '天気予報・気象庁・ウェザーニュース', category: 'life', categories: ["life"], keywords: '天気 天気予報 気象庁 ウェザーニュース 晴れ 晴天 快晴 気象 日差し wb sunny sunny weather' },
-      { name: 'umbrella', label: '雨雲レーダー・降水確率・台風', category: 'life', categories: ["life"], keywords: '雨 雨雲レーダー 傘 降水確率 梅雨 台風 警報 レイン umbrella rain radar weather' },
-      { name: 'thermostat', label: '気温・熱中症情報・エアコン', category: 'life', categories: ["life", "tools"], keywords: '気温 温度 熱中症 室温 エアコン 防寒 thermostat temperature weather' },
-      { name: 'pets', label: 'ペット・犬猫・動物病院', category: 'life', categories: ["life"], keywords: 'ペット 犬 猫 いぬ ねこ 動物 動物病院 トリミング pets dog cat animal clinic' },
-
-      // --- 便利ツール・システム・設定 ---
-      { name: 'settings', label: '設定・マイページ・環境設定', category: 'tools', categories: ["tools", "web", "work"], keywords: '設定 システム設定 環境設定 構成 歯車 オプション settings config preferences system gear' },
-      { name: 'tune', label: '調整・パラメータ・カスタマイズ', category: 'tools', categories: ["tools", "work"], keywords: '調整 パラメータ チューニング スライダー 設定 微調整 tune adjustment control' },
-      { name: 'help', label: 'ヘルプ・よくある質問・FAQ', category: 'tools', categories: ["tools", "work", "web"], keywords: 'ヘルプ FAQ 使い方 ガイド マニュアル 困ったとき 質問 案内 help faq guide manual info' },
-      { name: 'info', label: 'インフォメーション・利用案内', category: 'tools', categories: ["tools", "work", "web"], keywords: 'インフォメーション 案内 情報 お知らせ 詳細 仕様 概要 info information detail guide' },
-      { name: 'lightbulb', label: 'アイデア・Tips・便利技', category: 'tools', categories: ["tools", "work"], keywords: 'アイデア ヒラメキ 発想 Tips 工夫 電球 便利技 知恵 lightbulb idea tip creative' },
-      { name: 'download', label: 'ファイル保存・ダウンロード', category: 'tools', categories: ["tools", "web", "work"], keywords: 'ダウンロード 保存 取得 入手 ファイル保存 download save fetch receive' },
-      { name: 'print', label: 'ネットプリント・印刷・PDF出力', category: 'tools', categories: ["tools", "work"], keywords: '印刷 プリント 出力 PDF 帳票 ネットプリント コンビニ印刷 print printer output pdf' },
-      { name: 'admin_panel_settings', label: '管理者ポータル・権限設定', category: 'tools', categories: ["tools", "work", "dev"], keywords: '管理者 管理権限 セキュリティ設定 管理パネル ポリシー root admin panel settings' },
-      { name: 'verified', label: '公式認証・正規品・安全マーク', category: 'tools', categories: ["tools", "social", "work"], keywords: '公式 認証 承認バッジ マーク 正規品 チェック 公式アカウント verified badge official' },
-      { name: 'shield', label: 'セキュリティ対策・防御・保護', category: 'tools', categories: ["tools", "web", "dev"], keywords: 'シールド 防御 盾 プロテクト セキュリティ 防衛 ウイルス対策 shield security protect' },
-      { name: 'bolt', label: 'スピードテスト・高速アクセス', category: 'tools', categories: ["tools", "dev"], keywords: '稲妻 高速 クイック スピード 電撃 パワー 回線速度 ベンチマーク bolt fast speed' },
-      { name: 'content_cut', label: 'URL短縮・切り取り・ツール', category: 'tools', categories: ["tools", "work"], keywords: '切り取り カット ハサミ URL短縮 クリップ スニペット 短縮URL content cut shorten' },
-      { name: 'swap_horiz', label: 'データ変換・為替換算・送受', category: 'tools', categories: ["tools", "work", "dev"], keywords: 'データ変換 コンバーター 送受信 為替 為替換算 相互変換 swap horiz convert exchange' },
-      { name: 'lock_reset', label: 'パスワード管理・1Password', category: 'tools', categories: ["tools", "web", "dev"], keywords: 'パスワード管理 パスワード再設定 Bitwarden 1Password 復旧 鍵再発行 lock reset password' },
-      { name: 'qr_code_2', label: 'QRコード作成・スキャン', category: 'tools', categories: ["tools", "social", "web"], keywords: 'QRコード バーコード スキャン 読み取り 2次元コード qr code 2 barcode scan' },
-      { name: 'push_pin', label: 'ピン留め・最重要ブックマーク', category: 'tools', categories: ["tools", "work"], keywords: 'ピン留め 固定 ピン ピン打ち 重要 付箋 最優先 push pin pin stick mark fix' },
-      { name: 'flag', label: 'フラグ・目印・注目サイト', category: 'tools', categories: ["tools", "work"], keywords: 'フラグ 旗 重要 目印 マーキング 注意 フラグ立て 国旗 flag mark highlight' },
-      { name: 'emoji_events', label: 'ランキング・表彰・コンテスト', category: 'tools', categories: ["tools", "work", "life"], keywords: 'トロフィー 優勝 1位 表彰 功績 コンテスト ランキング emoji events trophy award' }
-    ];
+      // --- Actions ---
+      { name: 'account_circle', label: 'アカウント', keywords: 'アカウント アカウント管理 アカウント切り替え ユーザー persona account profile user' },
+      { name: 'alarm', label: 'アラーム', keywords: 'アラーム 目覚まし 注意喚起 リマインダー 通知 alarm reminder clock attention' },
+      { name: 'anchor', label: 'アンカー', keywords: 'アンカー 錨 固定 位置 リンク anchor link position fix' },
+      { name: 'api', label: 'API', keywords: 'API アプリケーション プログラム プログラミング interface interface 開発 連携 api interface application program' },
+      { name: 'backup', label: 'バックアップ', keywords: 'バックアップ 保存 復元 データ リカバリ backup restore data recovery save' },
+      { name: 'book_ribbon', label: 'ブックリボン', keywords: 'ブックマーク bookmark 本' },
+      { name: 'bookmark', label: 'ブックマーク', keywords: 'ブックマーク bookmark 本' },
+      { name: 'bug_report', label: 'バグ', keywords: 'バグ 問題 エラー 不具合 リポート バグ報告バグレポート bug report issue defect anomaly' },
+      { name: 'build', label: 'ビルド', keywords: 'ビルド 構築 設定 変更 管理 build build modify change management' },
+      { name: 'calendar_month', label: 'カレンダー', keywords: 'カレンダー スケジュール予定 calendar schedule plan day month' },
+      { name: 'calendar_today', label: '今日', keywords: '今日 スケジュール予定 カレンダー calendar schedule plan day today' },
+      { name: 'date_range', label: '期間', keywords: '期間 日付 範囲 date_range range period カレンダー 予定' },
+      { name: 'event', label: 'イベント', keywords: 'イベント event 行事 イベント告知 予定 カレンダー' },
+      { name: 'today', label: '今日', keywords: '今日 カレンダー 今日今日 カレンダー 今日' },
+      { name: 'category', label: 'カテゴリ', keywords: 'カテゴリ category まとめ 分類' },
+      { name: 'celebration', label: 'お祝い', keywords: 'お祝い celebration 祭り' },
+      { name: 'code', label: 'コード', keywords: 'コード code ソース プログラミング program' },
+      { name: 'code_blocks', label: 'コードブロック', keywords: 'コードブロック code blocks プログラム プログラミング program' },
+      { name: 'code_xml', label: 'XML', keywords: 'XML コード xml code プログラム プログラミング program' },
+      { name: 'commit', label: 'コミット', keywords: 'コミット commit バージョン version git github' },
+      { name: 'error', label: 'エラー', keywords: 'エラー 不具合 問題 error bug 欠陥' },
+      { name: 'event_note', label: 'イベントノート', keywords: 'イベントノート event_note イベント メモ ノート イベントメモ' },
+      { name: 'extension', label: '拡張', keywords: '拡張 extension 拡張機能 拡張機能追加 extension add 機能 追加 機能追加' },
+      { name: 'fingerprint', label: '指紋', keywords: '指紋 fingerprint アイデンティティ 認証 登録 identity fingerprint registration' },
+      { name: 'help', label: 'ヘルプ', keywords: 'ヘルプ help 助け 支援 サポート support' },
+      { name: 'history', label: '履歴', keywords: '履歴 history 閲覧 履歴 閲覧履歴閲覧履歴 browser history view_history' },
+      { name: 'hourglass', label: '砂時計', keywords: '砂時計 hourglass 時計 砂' },
+      { name: 'info', label: '情報', keywords: '情報 info 情報提供' },
+      { name: 'input', label: '入力', keywords: '入力 input 入力フォーム フォーム' },
+      { name: 'keep', label: 'キープ', keywords: 'keep キープ 保存 キープアイテム' },
+      { name: 'label', label: 'ラベル', keywords: 'ラベル label ラベル設定 ラベル管理' },
+      { name: 'language', label: '言語', keywords: '言語 language 言語設定' },
+      { name: 'license', label: 'ライセンス', keywords: 'ライセンス license ライセンス情報' },
+      { name: 'lists', label: 'リスト', keywords: 'リスト lists リスト追加 リスト管理' },
+      { name: 'lock', label: 'ロック', keywords: 'ロック lock ロックアイコン' },
+      { name: 'power_settings_new', label: 'パワー設定', keywords: 'パワー設定 power_settings_new power 設定 アイコン 電源' },
+      { name: 'search_hands_free', label: 'ハンズフリー', keywords: 'ハンズフリー search_hands_free ハンズフリー検索' },
+      { name: 'target', label: 'ターゲット', keywords: '的 マト ターゲット' },
+      { name: 'task_alt', label: 'タスク', keywords: 'タスク完了 task_alt タスク 完了' },
+      { name: 'terminal', label: 'ターミナル', keywords: 'ターミナル terminal コマンド' },
+      { name: 'translate', label: '翻訳', keywords: '翻訳 translate トランスレート 日本語 英語 english japanese' },
+      { name: 'web', label: 'ウェブ', keywords: 'ウェブ web ウェブサイト ブラウザ' },
+      // --- Activities ---
+      { name: 'air', label: '風', keywords: '風 air' },
+      { name: 'architecture', label: 'コンパス', keywords: 'コンパス compass 方角 方角知る' },
+      { name: '', label: '', keywords: '' },
+      { name: '', label: '', keywords: '' },
+      { name: '', label: '', keywords: '' },
+      { name: '', label: '', keywords: '' },
+      { name: '', label: '', keywords: '' },
+      { name: '', label: '', keywords: '' },
+      { name: '', label: '', keywords: '' },
+      { name: '', label: '', keywords: '' },
+      { name: '', label: '', keywords: '' },
+      { name: '', label: '', keywords: '' },
+      { name: '', label: '', keywords: '' },
+      { name: '', label: '', keywords: '' },
+      { name: '', label: '', keywords: '' },
+      { name: '', label: '', keywords: '' },
+      { name: '', label: '', keywords: '' },
+      { name: '', label: '', keywords: '' },
+      { name: '', label: '', keywords: '' },
+      { name: '', label: '', keywords: '' },
+  ];
 
     /* ==========================================================================
        2. アプリケーション状態管理 (State Management)
@@ -5201,127 +4959,12 @@
       if (nameEl) nameEl.textContent = iconName;
     }
 
-    /**
-     * アイコンピッカーのカテゴリタブをクリックした時のカテゴリ切り替え処理
-     *
-     * @param {HTMLElement} tabBtn - クリックされたタブ要素
-     * @param {string} fieldName - 対象フォームフィールド名
-     */
-    function handleIconPickerTabClick(tabBtn, fieldName) {
-      if (tabBtn._preventClick) {
-        tabBtn._preventClick = false;
-        return;
-      }
-      const container = document.getElementById(`icon-picker-container-${fieldName}`);
-      if (!container) return;
-
-      container.querySelectorAll('.icon-picker-tab').forEach(b => b.classList.remove('active'));
-      tabBtn.classList.add('active');
-
-      const select = container.querySelector('.icon-picker-category-select');
-      if (select) select.value = tabBtn.dataset.cat;
-
-      tabBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-      filterIconPickerItems(fieldName);
-    }
-
-    /**
-     * モバイル用カテゴリードロップダウン選択時のアイコン切り替え処理
-     *
-     * @param {HTMLSelectElement} selectEl - セレクトボックス要素
-     * @param {string} fieldName - 対象フォームフィールド名
-     */
-    function handleIconPickerCategorySelect(selectEl, fieldName) {
-      const catId = selectEl.value;
-      const container = document.getElementById(`icon-picker-container-${fieldName}`);
-      if (!container) return;
-
-      const targetTab = container.querySelector(`.icon-picker-tab[data-cat="${catId}"]`);
-      if (targetTab) {
-        container.querySelectorAll('.icon-picker-tab').forEach(b => b.classList.remove('active'));
-        targetTab.classList.add('active');
-        targetTab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-      }
-      filterIconPickerItems(fieldName);
-    }
-
-    /**
-     * アイコンピッカーのタブバーを左右にスクロールする
-     *
-     * @param {string} fieldName - フィールド名
-     * @param {number} offset - スクロール量 (px)
-     */
-    function scrollIconPickerTabs(fieldName, offset) {
-      const tabsEl = document.getElementById(`icon-tabs-${fieldName}`);
-      if (tabsEl) {
-        tabsEl.scrollBy({ left: offset, behavior: 'smooth' });
-      }
-    }
-
-    /**
-     * アイコンピッカーのタブバーにマウスホイール横スクロールおよびドラッグ操作を設定する
-     *
-     * @param {HTMLElement} tabsEl - タブコンテナ要素
-     */
-    function initIconPickerTabsMouseControl(tabsEl) {
-      if (!tabsEl || tabsEl._hasMouseControl) return;
-      tabsEl._hasMouseControl = true;
-
-      // 1. Mouse wheel horizontal scrolling
-      tabsEl.addEventListener('wheel', (e) => {
-        if (e.deltaY !== 0) {
-          e.preventDefault();
-          tabsEl.scrollLeft += (e.deltaY * 0.9);
-        }
-      }, { passive: false });
-
-      // 2. Mouse drag-to-scroll (grab & slide)
-      let isDown = false;
-      let startX;
-      let scrollLeft;
-      let dragged = false;
-
-      tabsEl.addEventListener('mousedown', (e) => {
-        isDown = true;
-        dragged = false;
-        tabsEl.classList.add('dragging');
-        startX = e.pageX - tabsEl.offsetLeft;
-        scrollLeft = tabsEl.scrollLeft;
-      });
-
-      const stopDrag = () => {
-        if (!isDown) return;
-        isDown = false;
-        tabsEl.classList.remove('dragging');
-        if (dragged) {
-          // Temporarily suppress tab clicks that occurred during drag
-          const tabs = tabsEl.querySelectorAll('.icon-picker-tab');
-          tabs.forEach(t => t._preventClick = true);
-          setTimeout(() => tabs.forEach(t => t._preventClick = false), 100);
-        }
-      };
-
-      tabsEl.addEventListener('mouseleave', stopDrag);
-      tabsEl.addEventListener('mouseup', stopDrag);
-
-      tabsEl.addEventListener('mousemove', (e) => {
-        if (!isDown) return;
-        e.preventDefault();
-        const x = e.pageX - tabsEl.offsetLeft;
-        const walk = (x - startX) * 1.3;
-        if (Math.abs(walk) > 4) {
-          dragged = true;
-        }
-        tabsEl.scrollLeft = scrollLeft - walk;
-      });
-    }
-
     function handleIconPickerSearch(searchInput, fieldName) {
       filterIconPickerItems(fieldName);
     }
 
     /**
-     * 選択中のカテゴリと検索キーワードに基づいてアイコンをフィルタリング表示する
+     * 検索キーワードに基づいてアイコンをフィルタリング表示する
      *
      * @param {string} fieldName - 対象フォームフィールド名
      */
@@ -5329,25 +4972,19 @@
       const container = document.getElementById(`icon-picker-container-${fieldName}`);
       if (!container) return;
 
-      const activeTab = container.querySelector('.icon-picker-tab.active');
-      const activeCat = activeTab ? activeTab.dataset.cat : 'all';
-
       const searchInput = container.querySelector('.icon-picker-search-input');
       const query = (searchInput ? searchInput.value.trim().toLowerCase() : '');
 
       const items = container.querySelectorAll('.icon-picker-item');
       let visibleCount = 0;
       items.forEach(item => {
-        const catStr = item.dataset.categories || item.dataset.category || '';
-        const itemCats = catStr.split(/\s+/);
         const iconName = item.dataset.icon.toLowerCase();
         const label = item.dataset.label.toLowerCase();
         const keywords = (item.dataset.keywords || '').toLowerCase();
 
-        const matchesCat = (activeCat === 'all' || itemCats.includes(activeCat));
         const matchesQuery = !query || iconName.includes(query) || label.includes(query) || keywords.includes(query);
 
-        if (matchesCat && matchesQuery) {
+        if (matchesQuery) {
           item.style.display = 'flex';
           visibleCount++;
         } else {
@@ -5761,53 +5398,19 @@
         }
         if (f.type === 'icon-picker') {
           const selectedVal = f.value || 'language';
-          const selectedIconObj = BOOKMARK_ICONS.find(ic => ic.name === selectedVal) || { name: selectedVal, label: 'カスタム', category: 'all', categories: ['all'] };
+          const selectedIconObj = BOOKMARK_ICONS.find(ic => ic.name === selectedVal) || { name: selectedVal, label: 'カスタム' };
 
-          const catCounts = { all: BOOKMARK_ICONS.length };
-          BOOKMARK_ICONS.forEach(ic => {
-            const cats = ic.categories || [ic.category];
-            cats.forEach(c => {
-              catCounts[c] = (catCounts[c] || 0) + 1;
-            });
-          });
-
-          const categories = [
-            { id: 'all', label: `すべて (${catCounts.all})`, icon: 'apps' },
-            { id: 'web', label: `Web (${catCounts.web || 0})`, icon: 'language' },
-            { id: 'social', label: `SNS (${catCounts.social || 0})`, icon: 'chat' },
-            { id: 'dev', label: `開発 (${catCounts.dev || 0})`, icon: 'code' },
-            { id: 'work', label: `仕事 (${catCounts.work || 0})`, icon: 'description' },
-            { id: 'media', label: `メディア (${catCounts.media || 0})`, icon: 'movie' },
-            { id: 'life', label: `生活 (${catCounts.life || 0})`, icon: 'shopping_cart' },
-            { id: 'tools', label: `ツール (${catCounts.tools || 0})`, icon: 'settings' }
-          ];
-
-          const tabsHtml = categories.map((cat, i) => `
-            <button type="button" class="icon-picker-tab ${i === 0 ? 'active' : ''}" data-cat="${cat.id}" onclick="handleIconPickerTabClick(this, '${f.name}')">
-              <span class="material-symbols-rounded" style="font-size: 13px;">${cat.icon}</span>
-              <span>${cat.label}</span>
-            </button>
-          `).join('');
-
-          const selectOptionsHtml = categories.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
-
-          const itemsHtml = BOOKMARK_ICONS.map(ic => {
-            const catArr = ic.categories || [ic.category];
-            const catStr = catArr.join(' ');
-            return `
+          const itemsHtml = BOOKMARK_ICONS.map(ic => `
             <div class="icon-picker-item ${ic.name === selectedVal ? 'active' : ''}"
                  data-name="${f.name}"
                  data-icon="${ic.name}"
                  data-label="${escapeHtml(ic.label)}"
-                 data-category="${ic.category}"
-                 data-categories="${catStr}"
                  data-keywords="${escapeHtml(ic.keywords)}"
-                 title="${escapeHtml(ic.label)} (${ic.name}) [${catArr.join(', ')}]"
+                 title="${escapeHtml(ic.label)} (${ic.name})"
                  onclick="selectIconPickerItem(this)">
               <span class="material-symbols-rounded">${ic.name}</span>
             </div>
-          `;
-          }).join('');
+          `).join('');
 
           return `
             <div class="form-group">
@@ -5828,20 +5431,6 @@
                     <span class="material-symbols-rounded">search</span>
                     <input type="text" class="icon-picker-search-input" placeholder="アイコンを検索（例: コード、メール、動画）..." oninput="handleIconPickerSearch(this, '${f.name}')">
                   </div>
-                  <select class="icon-picker-category-select" onchange="handleIconPickerCategorySelect(this, '${f.name}')" title="カテゴリを直接切り替え">
-                    ${selectOptionsHtml}
-                  </select>
-                </div>
-                <div class="icon-picker-tabs-wrapper">
-                  <button type="button" class="icon-picker-scroll-btn" onclick="scrollIconPickerTabs('${f.name}', -130)" title="左へスクロール">
-                    <span class="material-symbols-rounded">chevron_left</span>
-                  </button>
-                  <div class="icon-picker-tabs" id="icon-tabs-${f.name}">
-                    ${tabsHtml}
-                  </div>
-                  <button type="button" class="icon-picker-scroll-btn" onclick="scrollIconPickerTabs('${f.name}', 130)" title="右へスクロール">
-                    <span class="material-symbols-rounded">chevron_right</span>
-                  </button>
                 </div>
                 <div class="icon-picker-grid" id="icon-grid-${f.name}">
                   ${itemsHtml}
@@ -5968,8 +5557,6 @@
       btn.addEventListener('click', currentModalSubmit);
       document.getElementById('modal').classList.add('active');
 
-      // Initialize mouse wheel & drag scrolling on icon picker tabs
-      body.querySelectorAll('.icon-picker-tabs').forEach(initIconPickerTabsMouseControl);
     }
 
     /**
