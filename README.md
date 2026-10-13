@@ -1,7 +1,7 @@
 # マイポータル (MyPortal)
 
 - **作成者**: TeKun33
-- **バージョン**: 1.1.4
+- **バージョン**: 1.1.4b
 - **デプロイ先**: [Web App URL](https://script.google.com/macros/s/AKfycbw9pZTRX4idXfr5XPbreF1_6PLQnZsuDRsMR6f2jsvWbpO1y79KLCm1SHfUyrMYRMTD/exec)
 - **プラットフォーム**: Google Apps Script (GAS)
 
@@ -183,9 +183,9 @@ graph TD
 ### ステップ 3: ソースコードの配置 & Google Tasks API の有効化
 
 1. **コードの配置**:
-   - エディタ左側のファイル一覧から `コード.gs` を開き、本リポジトリの **src フォルダ**の中の `Code.js` の内容を貼り付けて保存します。
+   - エディタ左側のファイル一覧から `コード.gs` を開き、本リポジトリの **dist フォルダ**の中の `Code.js` の内容を貼り付けて保存します。
    - ファイル一覧上部の **「+」**（ファイルを追加）> **「HTML」** をクリックし、ファイル名に `index` と入力して作成します（`index.html` が作成されます）。
-   - 本リポジトリの **src フォルダ**の中の `index.html` の内容を貼り付けて保存します。
+   - 本リポジトリの **dist フォルダ**の中の `index.html` の内容を貼り付けて保存します。
 2. **Google Tasks API（拡張サービス）の有効化**:
    - エディタ左サイドバーの **「サービス」(+)** をクリックします。
    - 一覧から **「Google Tasks API」** を選択します。
