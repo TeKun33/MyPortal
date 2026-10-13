@@ -4696,8 +4696,12 @@
       container.innerHTML = state.taskLists.map(list => {
         if (!list.tasks || list.tasks.length === 0) return '';
 
-        const tasksHtml = list.tasks.map(task => {
-          const isCompleted = task.status === 'completed' || task.completed;
+        // 未完了タスクを上、完了タスクを下に並べる（同じ状態内では元の順序を維持）
+        const isTaskCompleted = t => t.status === 'completed' || !!t.completed;
+        const sortedTasks = [...list.tasks].sort((a, b) => isTaskCompleted(a) - isTaskCompleted(b));
+
+        const tasksHtml = sortedTasks.map(task => {
+          const isCompleted = isTaskCompleted(task);
           let dateHtml = '';
           if (task.due) {
             const due = new Date(task.due);
