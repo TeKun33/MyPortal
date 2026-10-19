@@ -743,7 +743,7 @@ function getCalendarObject() {
  *
  * @param {number|string} weekOffset - 今週を基準とした週オフセット (0:今週, -1:前週, 1:次週)
  * @returns {Array<Object>} イベントオブジェクトの配列
- *                          [{ id, title, startTime, endTime, description, location, isAllDay, color }]
+ *                          [{ id, title, startTime, endTime, description, isAllDay, color }]
  */
 function getCalendarEvents(weekOffset: number) {
   try {
@@ -789,7 +789,6 @@ function getCalendarEvents(weekOffset: number) {
         startTime: startTimeISO,
         endTime: endTimeISO,
         description: event.getDescription() || '',
-        location: event.getLocation() || '',
         isAllDay: isAllDay,
         color: event.getColor() || ''
       });
@@ -815,10 +814,9 @@ function getCalendarEvents(weekOffset: number) {
  * @param {string} description - 予定の説明・詳細
  * @param {string|number} color - Googleカレンダーのカラー番号 (1〜11)
  * @param {boolean} isAllDay - 終日イベントかどうかのフラグ
- * @param {string} location - 予定の場所
  * @returns {Object} { success: boolean, id?: string, error?: string }
  */
-function addCalendarEvent(title: string, startTime: string, endTime: string, description: string, color: string, isAllDay: boolean, location: string = '') {
+function addCalendarEvent(title: string, startTime: string, endTime: string, description: string, color: string, isAllDay: boolean) {
   try {
     const email = getUserEmail();
     assertTermsAgreed(email); // 利用規約チェック
@@ -834,17 +832,16 @@ function addCalendarEvent(title: string, startTime: string, endTime: string, des
       
       if (startDate.getTime() === endDate.getTime()) {
         // 単日の終日予定
-        event = calendar.createAllDayEvent(title, startDate, { description: description || '', location: location || '' });
+        event = calendar.createAllDayEvent(title, startDate, { description: description || '' });
       } else {
         // 複数日にまたがる終日予定（Google仕様に合わせて終了日の翌日0時を指定）
         const nextDayOfEnd = new Date(endDate.getTime() + (24 * 60 * 60 * 1000));
-        event = calendar.createAllDayEvent(title, startDate, nextDayOfEnd, { description: description || '', location: location || '' });
+        event = calendar.createAllDayEvent(title, startDate, nextDayOfEnd, { description: description || '' });
       }
     } else {
       // 時間指定の予定
       event = calendar.createEvent(title, start, end, {
-        description: description || '',
-        location: location || ''
+        description: description || ''
       });
     }
 
@@ -915,10 +912,9 @@ function deleteCalendarEvent(eventId: string) {
  * @param {string} description - 説明
  * @param {string|number} color - カラー番号 (1〜11)
  * @param {boolean} isAllDay - 終日フラグ
- * @param {string} location - 場所
  * @returns {Object} { success: boolean, error?: string, message?: string }
  */
-function updateCalendarEvent(eventId: string, title: string, startTime: string, endTime: string, description: string, color: string, isAllDay: boolean, location: string = '') {
+function updateCalendarEvent(eventId: string, title: string, startTime: string, endTime: string, description: string, color: string, isAllDay: boolean) {
   try {
     const email = getUserEmail();
     assertTermsAgreed(email); // 利用規約チェック
@@ -931,10 +927,9 @@ function updateCalendarEvent(eventId: string, title: string, startTime: string, 
     const start = new Date(startTime);
     const end = new Date(endTime);
     
-    // タイトル・詳細説明・場所を更新
+    // タイトルと詳細説明を更新
     event.setTitle(title);
     event.setDescription(description || '');
-    event.setLocation(location || '');
     
     // 日時・終日の更新
     if (isAllDay) {

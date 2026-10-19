@@ -1064,38 +1064,6 @@
       color: rgba(255, 255, 255, 0.9);
     }
 
-    .event-location {
-      display: flex;
-      align-items: center;
-      gap: 0.2rem;
-      min-width: 0;
-      margin-top: 0.2rem;
-      font-size: 0.72rem;
-      line-height: 1.3;
-      color: var(--text-secondary);
-    }
-
-    .event-location .material-symbols-rounded {
-      flex-shrink: 0;
-      font-size: 0.9rem;
-    }
-
-    .event-location a {
-      color: inherit;
-      text-decoration: none;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .event-location a:hover {
-      text-decoration: underline;
-    }
-
-    .event-chip.all-day .event-location {
-      color: rgba(255, 255, 255, 0.9);
-    }
-
     .event-actions {
       z-index: 2;
       pointer-events: none;
@@ -4365,7 +4333,6 @@
         const eventsHtml = [
           ...allDayEvents.map(e => {
             const hex = eventColorMap[e.color] || 'var(--primary)';
-            const locHtml = e.location ? `<div class="event-location" title="${escapeHtml(e.location)}"><span class="material-symbols-rounded">location_on</span><a href="https://www.google.com/maps/search/?api=1&query=${escapeHtml(encodeURIComponent(e.location))}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${escapeHtml(e.location)}</a></div>` : '';
             const descHtml = e.description ? `<div class="event-desc" title="${escapeHtml(e.description)}">${escapeHtml(e.description)}</div>` : '';
             return `
               <div class="event-chip all-day" style="background: ${hex};" onclick="showEditEventModal('${escapeHtml(e.id)}')">
@@ -4379,7 +4346,6 @@
                 </div>
                 <div class="event-time">全日</div>
                 <div class="event-title">${escapeHtml(e.title)}</div>
-                ${locHtml}
                 ${descHtml}
               </div>
             `;
@@ -4388,7 +4354,6 @@
             const timeRangeStr = formatEventTimeDisplay(e, d);
             const hex = eventColorMap[e.color];
             const chipStyle = hex ? `border-left-color: ${hex}; background: ${hex}18;` : '';
-            const locHtml = e.location ? `<div class="event-location" title="${escapeHtml(e.location)}"><span class="material-symbols-rounded">location_on</span><a href="https://www.google.com/maps/search/?api=1&query=${escapeHtml(encodeURIComponent(e.location))}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${escapeHtml(e.location)}</a></div>` : '';
             const descHtml = e.description ? `<div class="event-desc" title="${escapeHtml(e.description)}">${escapeHtml(e.description)}</div>` : '';
 
             return `
@@ -4403,7 +4368,6 @@
                 </div>
                 <div class="event-time">${timeRangeStr}</div>
                 <div class="event-title">${escapeHtml(e.title)}</div>
-                ${locHtml}
                 ${descHtml}
               </div>
             `;
@@ -4587,7 +4551,6 @@
           { name: 'startTime', label: '開始時間', type: 'time', required: true, value: startTimeVal },
           { name: 'endDate', label: isAllDay ? '終了日' : '終了日付', type: 'date', required: true, value: endDateVal },
           { name: 'endTime', label: '終了時間', type: 'time', required: true, value: endTimeVal },
-          { name: 'location', label: '場所', type: 'text', placeholder: '例: 会議室A / オンライン / 住所', value: eventObj && eventObj.location ? eventObj.location : '' },
           { name: 'color', label: 'カラー', type: 'color-picker', colors: colorList, value: eventObj ? (eventObj.color || '1') : '1' },
           { name: 'description', label: '説明（詳細）', type: 'textarea', rows: 3, placeholder: '詳細やメモを入力（複数行入力可）', value: eventObj && eventObj.description ? eventObj.description : '' }
         ],
@@ -4607,9 +4570,9 @@
 
             let res;
             if (isEdit) {
-              res = await callServer('updateCalendarEvent', eventObj.id, data.title, startISO, endISO, data.description || '', colorVal, allDayChecked, data.location || '');
+              res = await callServer('updateCalendarEvent', eventObj.id, data.title, startISO, endISO, data.description || '', colorVal, allDayChecked);
             } else {
-              res = await callServer('addCalendarEvent', data.title, startISO, endISO, data.description || '', colorVal, allDayChecked, data.location || '');
+              res = await callServer('addCalendarEvent', data.title, startISO, endISO, data.description || '', colorVal, allDayChecked);
             }
 
             if (res && res.error) throw new Error(res.error);
