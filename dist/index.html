@@ -1,36 +1,11 @@
-<!--
-  ==========================================================================
-  マイポータル (MyPortal) - クライアントサイド SPA (Single Page Application)
-  ==========================================================================
-  
-  【システム概要】
-  本ファイルは「マイポータル」のフロントエンド全体（HTML構造、スタイルCSS、
-  クライアントJavaScript）を包含する単一ファイルテンプレートです。
-  Google Apps Script (GAS) の HtmlService から配信され、モダンなSPAとして動作します。
-  
-  【技術構成】
-  - HTML5 : セマンティックなマークアップ
-  - CSS3  : CSS変数、グラスモーフィズム (backdrop-filter)、Tailwind CSS (v4 CDN)
-  - JS    : Vanilla JavaScript (フレームワーク非依存で高速動作)
-  - アイコン: Material Symbols Rounded (Google Fonts)
-  - QR生成: qrcodejs CDN
-  
-  【ファイル内構成】
-  1. <head>    : メタ設定、Webフォント、Tailwind CSS、QRCode.js
-  2. <style>   : テーマ変数、各ウィジェットのデザイン、レスポンシブスタイル
-  3. <body>    : ダッシュボードUI、ウィジェット、規約ゲート、モーダル、トースト
-  4. <script>  : 状態管理、GASサーバー通信、各機能のUI制御ロジック
-  ==========================================================================
--->
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>マイポータル</title>
 
-  <!-- Fonts & Icons -->
+  <!-- フォント & アイコン -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -53,7 +28,7 @@
        - ライトモード & ダークモードのベースカラー・グラスモーフィズム設定
        */
     :root {
-      /* Shared values */
+      /* 共有設定 */
       --font-sans: 'Inter', 'Noto Sans JP', sans-serif;
       --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
       --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -65,7 +40,8 @@
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Themes */
+    /* テーマ */
+    /* オーシャン */
     [data-theme="ocean"] {
       --primary: #0ea5e9;
       --primary-light: #38bdf8;
@@ -76,6 +52,7 @@
       --gradient-end: #6366f1;
     }
 
+    /* サンセット */
     [data-theme="sunset"] {
       --primary: #f97316;
       --primary-light: #fb923c;
@@ -86,6 +63,7 @@
       --gradient-end: #ef4444;
     }
 
+    /* フォレスト */
     [data-theme="forest"] {
       --primary: #22c55e;
       --primary-light: #4ade80;
@@ -96,6 +74,7 @@
       --gradient-end: #14b8a6;
     }
 
+    /* ラベンダー */
     [data-theme="lavender"] {
       --primary: #a855f7;
       --primary-light: #c084fc;
@@ -106,6 +85,7 @@
       --gradient-end: #ec4899;
     }
 
+    /* ローズ */
     [data-theme="rose"] {
       --primary: #f43f5e;
       --primary-light: #fb7185;
@@ -116,7 +96,7 @@
       --gradient-end: #ec4899;
     }
 
-    /* Light Mode (Default) */
+    /* ライトモード */
     [data-mode="light"] {
       --bg-primary: #f0f4f8;
       --bg-secondary: #ffffff;
@@ -133,7 +113,7 @@
       --skeleton-2: var(--glass-bg);
     }
 
-    /* Dark Mode */
+    /* ダークモード */
     [data-mode="dark"] {
       --bg-primary: #0f172a;
       --bg-secondary: #1e293b;
@@ -1081,6 +1061,38 @@
     }
 
     .event-chip.all-day .event-desc {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .event-location {
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+      min-width: 0;
+      margin-top: 0.2rem;
+      font-size: 0.72rem;
+      line-height: 1.3;
+      color: var(--text-secondary);
+    }
+
+    .event-location .material-symbols-rounded {
+      flex-shrink: 0;
+      font-size: 0.9rem;
+    }
+
+    .event-location a {
+      color: inherit;
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .event-location a:hover {
+      text-decoration: underline;
+    }
+
+    .event-chip.all-day .event-location {
       color: rgba(255, 255, 255, 0.9);
     }
 
@@ -2326,7 +2338,7 @@
       </div>
     </div>
     <div class="header-center order-3 md:order-2 w-full md:w-auto flex justify-center">
-      <div class="datetime flex items-center gap-2 sm:gap-4 tabular-nums text-xs sm:text-base">
+      <div class="datetime flex items-center gap-2 sm:gap-4 tabular-nums text-xs sm:text-lg">
         <span class="date font-medium" id="clock-date">----年--月--日（-）</span>
         <span class="time font-bold" id="clock-time">--:--:--</span>
       </div>
@@ -2394,7 +2406,7 @@
           </div>
         </div>
         <button class="bookmark-category-manage-btn" onclick="showCategoryManageModal()" title="カテゴリ管理・並び替え">
-          <span class="material-symbols-rounded">tune</span>
+          <span class="material-symbols-rounded">bookmarks</span>
         </button>
       </div>
       <div class="bookmark-grid grid gap-3 sm:gap-4" id="bookmarks-container">
@@ -2881,17 +2893,47 @@
       // --- Activities ---
       { name: 'air', label: '風', keywords: '風 air' },
       { name: 'architecture', label: 'コンパス', keywords: 'コンパス compass 方角 方角知る' },
-      { name: '', label: '', keywords: '' },
-      { name: '', label: '', keywords: '' },
-      { name: '', label: '', keywords: '' },
-      { name: '', label: '', keywords: '' },
-      { name: '', label: '', keywords: '' },
-      { name: '', label: '', keywords: '' },
-      { name: '', label: '', keywords: '' },
-      { name: '', label: '', keywords: '' },
-      { name: '', label: '', keywords: '' },
-      { name: '', label: '', keywords: '' },
-      { name: '', label: '', keywords: '' },
+      { name: 'backpack', label: 'リュック', keywords: 'バックパック backpack リュック 遠出 旅行 カバン bag travel' },
+      { name: 'badminton', label: 'バドミントン', keywords: 'バドミントン badminton ラケット スポーツ sport' },
+      { name: 'bath_outdoor', label: '温泉', keywords: '温泉 露天風呂 入浴 風呂' },
+      { name: 'biotech', label: 'バイオテクノロジー', keywords: 'バイオテクノロジー biotech' },
+      { name: 'cake', label: 'ケーキ', keywords: 'ケーキ cake スイーツ dessert' },
+      { name: 'campaign', label: 'キャンペーン', keywords: 'キャンペーン campaign イベント 行事' },
+      { name: 'camping', label: 'キャンプ', keywords: 'キャンプ camping バーベキュー テント 焚き火' },
+      { name: 'cleaning', label: '掃除', keywords: '掃除 cleaning クリーニング 清掃' },
+      { name: 'construction', label: '建築', keywords: '建築 construction 建設 建築工事 ビルド 工具' },
+      { name: 'distance', label: 'ピン', keywords: '距離 distance ピン pin マップ map' },
+      { name: 'downhill_skiing', label: 'スキー', keywords: 'スキー downhill_skiing スキーヤー スキー場 レジャー スキーウェア スポーツ' },
+      { name: 'exercise', label: 'ダンベル', keywords: 'ダンベル 運動 exercise エクササイズ トレーニング ワークアウト ジム スポーツ' },
+      { name: 'experiment', label: 'フラスコ', keywords: 'フラスコ 薬 実験 experiment 実験室 科学 科学者 科学研究' },
+      { name: 'featured_seasonal_and_gifts', label: 'プレゼント', keywords: 'プレゼント 特集 seasonal 季節 ギフト gift お祝い' },
+      { name: 'fertile', label: 'チューリップ', keywords: 'チューリップ fertile 華 花 アレンジメント 花束 flower arrangement bouquet' },
+      { name: 'hiking', label: 'ハイキング', keywords: 'ハイキング 運動 スポーツ 登山 ハイキングシューズ ウォーキング トレッキング レジャー マウンテン 山' },
+      { name: 'ice_skating', label: 'アイススケート', keywords: 'アイススケート ice_skating アイススケート靴 スケート スケートボード スケーター スポーツ' },
+      { name: 'kayaking', label: 'カヤック', keywords: 'カヤック kayaking 水上 スポーツ 船' },
+      { name: 'kitesurfing', label: 'カイトサーフィン', keywords: 'カイトサーフィン kitesurfing カイト サーフィン 水上 スポーツ' },
+      { name: 'nordic_walking', label: 'ウォーキング', keywords: 'ウォーキング nordic_walking ノルディックウォーキング ウォーキングポール 運動 スポーツ' },
+      { name: 'onsen', label: '温泉', keywords: '温泉 onsen 露天風呂 入浴 風呂' },
+      { name: 'padel', label: 'テニス', keywords: 'テニス padel スポーツ ボール' },
+      { name: 'paragliding', label: 'パラグライダー', keywords: 'パラグライダー paragliding スポーツ 運動' },
+      { name: 'phishing', label: '釣り', keywords: '釣り 釣り糸 釣り竿 フィッシング phishing 魚' },
+      { name: 'piano', label: 'ピアノ', keywords: 'ピアノ piano 音楽 楽器 音楽鑑賞 芸術' },
+      { name: 'pickleball', label: 'ピックルボール', keywords: 'ピックルボール pickleball ラケット スポーツ ボール 運動' },
+      { name: 'roller_skating', label: 'ローラースケート', keywords: 'ローラー スケート roller_skating ローラーブレード インラインスケート スケーター スポーツ 運動' },
+      { name: 'rowing', label: 'ボート', keywords: 'ボート rowing 競技 ボート 船 カヌー カヤック 水上 スポーツ 運動' },
+      { name: 'sauna', label: 'サウナ', keywords: 'サウナ sauna サウナ室 室内 プール スチーム 温泉' },
+      { name: 'school', label: '学校', keywords: '学校 school 校庭 勉強 ノート' },
+      { name: 'scuba_diving', label: 'ダイビング', keywords: 'ダイビング scuba_diving ダイバー ダイビングマスク ダイビングゴーグル ダイビング器材 スポーツ 運動' },
+      { name: 'skateboarding', label: 'スケートボード', keywords: 'スケートボード skateboarding スケボー ストリート スポーツ 運動' },
+      { name: 'sledding', label: 'そり遊び', keywords: 'そり遊び sledding そり 遊び 冬 雪 雪遊び スポーツ 運動' },
+      { name: 'snowboarding', label: 'スノーボード', keywords: 'スノーボード 雪 冬 snowboarding スノボ スポーツ 運動' },
+      { name: 'snowshoeing', label: 'スノーシューイング', keywords: 'スノーシューイング snowshoeing スノーシュー 雪遊び スポーツ 運動' },
+      { name: 'sports_and_outdoors', label: 'サッカー', keywords: 'サッカー ボール スポーツ 運動' },
+      { name: 'sports_baseball', label: '野球', keywords: '野球 ボール スポーツ 運動 バット' },
+      { name: 'sports_cricket', label: 'クリケット', keywords: 'クリケット スポーツ 運動 ボール ラケット' },
+      { name: 'sports_esports', label: 'eスポーツ', keywords: 'eスポーツ スポーツ 運動 ゲーム 対戦 FPS' },
+      { name: 'sports_football', label: 'アメリカンフットボール', keywords: 'アメリカンフットボール スポーツ 運動 タックル' },
+      { name: 'sports_golf', label: 'ゴルフ', keywords: 'ゴルフ スポーツ 運動 クラブ ボール' },
       { name: '', label: '', keywords: '' },
       { name: '', label: '', keywords: '' },
       { name: '', label: '', keywords: '' },
@@ -4323,6 +4365,7 @@
         const eventsHtml = [
           ...allDayEvents.map(e => {
             const hex = eventColorMap[e.color] || 'var(--primary)';
+            const locHtml = e.location ? `<div class="event-location" title="${escapeHtml(e.location)}"><span class="material-symbols-rounded">location_on</span><a href="https://www.google.com/maps/search/?api=1&query=${escapeHtml(encodeURIComponent(e.location))}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${escapeHtml(e.location)}</a></div>` : '';
             const descHtml = e.description ? `<div class="event-desc" title="${escapeHtml(e.description)}">${escapeHtml(e.description)}</div>` : '';
             return `
               <div class="event-chip all-day" style="background: ${hex};" onclick="showEditEventModal('${escapeHtml(e.id)}')">
@@ -4336,6 +4379,7 @@
                 </div>
                 <div class="event-time">全日</div>
                 <div class="event-title">${escapeHtml(e.title)}</div>
+                ${locHtml}
                 ${descHtml}
               </div>
             `;
@@ -4344,6 +4388,7 @@
             const timeRangeStr = formatEventTimeDisplay(e, d);
             const hex = eventColorMap[e.color];
             const chipStyle = hex ? `border-left-color: ${hex}; background: ${hex}18;` : '';
+            const locHtml = e.location ? `<div class="event-location" title="${escapeHtml(e.location)}"><span class="material-symbols-rounded">location_on</span><a href="https://www.google.com/maps/search/?api=1&query=${escapeHtml(encodeURIComponent(e.location))}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${escapeHtml(e.location)}</a></div>` : '';
             const descHtml = e.description ? `<div class="event-desc" title="${escapeHtml(e.description)}">${escapeHtml(e.description)}</div>` : '';
 
             return `
@@ -4358,6 +4403,7 @@
                 </div>
                 <div class="event-time">${timeRangeStr}</div>
                 <div class="event-title">${escapeHtml(e.title)}</div>
+                ${locHtml}
                 ${descHtml}
               </div>
             `;
@@ -4541,6 +4587,7 @@
           { name: 'startTime', label: '開始時間', type: 'time', required: true, value: startTimeVal },
           { name: 'endDate', label: isAllDay ? '終了日' : '終了日付', type: 'date', required: true, value: endDateVal },
           { name: 'endTime', label: '終了時間', type: 'time', required: true, value: endTimeVal },
+          { name: 'location', label: '場所', type: 'text', placeholder: '例: 会議室A / オンライン / 住所', value: eventObj && eventObj.location ? eventObj.location : '' },
           { name: 'color', label: 'カラー', type: 'color-picker', colors: colorList, value: eventObj ? (eventObj.color || '1') : '1' },
           { name: 'description', label: '説明（詳細）', type: 'textarea', rows: 3, placeholder: '詳細やメモを入力（複数行入力可）', value: eventObj && eventObj.description ? eventObj.description : '' }
         ],
@@ -4560,9 +4607,9 @@
 
             let res;
             if (isEdit) {
-              res = await callServer('updateCalendarEvent', eventObj.id, data.title, startISO, endISO, data.description || '', colorVal, allDayChecked);
+              res = await callServer('updateCalendarEvent', eventObj.id, data.title, startISO, endISO, data.description || '', colorVal, allDayChecked, data.location || '');
             } else {
-              res = await callServer('addCalendarEvent', data.title, startISO, endISO, data.description || '', colorVal, allDayChecked);
+              res = await callServer('addCalendarEvent', data.title, startISO, endISO, data.description || '', colorVal, allDayChecked, data.location || '');
             }
 
             if (res && res.error) throw new Error(res.error);
