@@ -83,6 +83,7 @@ Gmail、Google カレンダー、Google Tasks、QRコード生成ツール、お
 #### Google Tasks (タスク)
 
 - タスクリスト一覧およびタスクの表示。
+- タスクリストの追加、名前変更、削除（※デフォルトリストは削除不可）。
 - タスクの完了 / 未完了切り替え（チェックボックス操作、Google Tasks 連携）。
 - タスクの追加（タイトル、詳細メモ、期限日時の指定）。
 - タスクの編集（タイトル、詳細メモ、期限、所属タスクリストの変更およびリスト間移動）。
@@ -118,20 +119,6 @@ Gmail、Google カレンダー、Google Tasks、QRコード生成ツール、お
 
 ---
 
-## システム構成 & 使用技術
-
-```mermaid
-graph TD
-    User[ユーザー / ブラウザ] -->|Webアクセス| WebApp[マイポータル WebApp]
-    WebApp -->|google.script.run| GAS[Google Apps Script]
-    GAS -->|スクリプトプロパティ SSID| Sheet[Google スプレッドシート]
-    GAS -->|GmailApp| Gmail[Gmail]
-    GAS -->|CalendarApp| Cal[Google カレンダー]
-    GAS -->|Tasks Advanced Service| Tasks[Google Tasks]
-    GAS -->|DriveApp| Drive[Google ドライブ]
-    Dev[開発環境] -->|clasp push| GAS
-```
-
 ### 技術スタック
 
 | 分類 | 技術 / ツール |
@@ -144,20 +131,6 @@ graph TD
 | **開発 / デプロイツール** | clasp |
 | **データベース / ストレージ** | スプレッドシート, LocalStorage |
 | **外部連携** | GmailApp, CalendarApp, Google Tasks API, DriveApp |
-
----
-
-## プロジェクト構成
-
-```text
-マイポータル/
-├── .clasp.json        # clasp 設定ファイル (Script ID, ルートディレクトリ等)
-├── appsscript.json    # GAS マニフェスト (タイムゾーン, Tasks API, WebApp設定)
-├── Code.js            # サーバーサイド処理 (GAS API, スプレッドシート読み書き, ログ, Drive保存)
-├── index.html         # クライアントサイド UI/UX (HTML / CSS / JavaScript)
-├── README.md          # プロジェクト説明書 (本ファイル)
-└── LICENSE            # MIT ライセンス
-```
 
 ---
 
