@@ -3067,7 +3067,7 @@
      * サーバー側 (GAS) の関数を非同期呼び出しする汎用ラッパー
      * - google.script.run が有効な環境ではサーバー関数を実行
      * - ローカル開発環境では mockData を用いて疑似レスポンスを返却
-     * 
+     *
      * @param {string} functionName - 呼び出すGASサーバー関数名
      * @param {...*} args - サーバー関数に渡す引数リスト
      * @returns {Promise<*>} サーバーからの戻り値
@@ -3215,47 +3215,45 @@
     /**
      * リアルタイム時計の更新タイマーを開始する (毎秒実行)
      */
-    function startClock() {
+    function updateDateTime() {
       const days = ['日', '月', '火', '水', '木', '金', '土'];
 
-      function update() {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const date = String(now.getDate()).padStart(2, '0');
-        const day = days[now.getDay()];
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const date = String(now.getDate()).padStart(2, '0');
+      const day = days[now.getDay()];
 
-        const h = String(now.getHours()).padStart(2, '0');
-        const m = String(now.getMinutes()).padStart(2, '0');
-        const s = String(now.getSeconds()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
 
-        const dateEl = document.getElementById('clock-date');
-        const timeEl = document.getElementById('clock-time');
-        if (dateEl) dateEl.textContent = `${year}年${month}月${date}日（${day}）`;
-        if (timeEl) timeEl.textContent = `${h}:${m}:${s}`;
-      }
-
-      update();
-      setInterval(update, 1000);
+      const dateEl = document.getElementById('clock-date');
+      const timeEl = document.getElementById('clock-time');
+      dateEl.textContent = `${year}年${month}月${date}日（${day}）`;
+      timeEl.textContent = `${hours}:${minutes}:${seconds}`;
     }
-
+    
+    // アプリ起動時に一度実行
+    updateDateTime();
+    // 1秒ごとに実行
+    setInterval(updateDateTime, 1000);
+    
     /**
      * アプリケーション全体の起動エントリーポイント
      * - 時計起動、利用規約同意状態チェック、初期データロードを実行します。
      */
     async function init() {
-      startClock();
       setupBookmarkDragAndDrop();
       setupCategoryDragAndDrop();
 
       // 初期タブをGmailに強制切り替え
-      try { switchTab('gmail'); } catch (e) { }
+      switchTab('gmail');
 
       // メールアドレス取得
       try {
         state.email = await callServer('getUserEmail');
       } catch (err) {
-        console.warn('getUserEmail failed, fallback to default:', err);
         state.email = 'ユーザー';
       }
       const emailEl = document.getElementById('user-email-display');
