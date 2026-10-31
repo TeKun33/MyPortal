@@ -40,19 +40,12 @@
  * @returns {HtmlOutput} レンダリングされたHTMLページ、またはエラーメッセージ
  */
 function doGet() {
-    try {
-        // プロジェクト内の index.html テンプレートを読み込み
-        const template = HtmlService.createTemplateFromFile('index');
-        // テンプレートを評価してHtmlOutputを生成し、ページタイトルを設定
-        return template.evaluate()
-            .setTitle('マイポータル')
-            .addMetaTag('viewport', 'width=device-width, initial-scale=1');
-    }
-    catch (error) {
-        // テンプレート評価時などの例外発生時はエラー画面を返却
-        console.error(`doGet Error: ${error.message}`);
-        return HtmlService.createHtmlOutput(`エラーが発生しました: ${error.message}`);
-    }
+    // プロジェクト内の index.html テンプレートを読み込み
+    const template = HtmlService.createTemplateFromFile('index');
+    // テンプレートを評価してHtmlOutputを生成し、ページタイトルを設定
+    return template.evaluate()
+        .setTitle('マイポータル')
+        .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 /**
  * スプレッドシートを取得する
@@ -78,7 +71,7 @@ function getTimeStamp() {
  * ========================================================================== */
 /**
  * 監査ログ用のシート (__LOG__) を取得する。存在しない場合は新規作成して初期化する。
- * - カラム構成: A列=日時, B列=ユーザー, C列=操作, D列=詳細
+ * - カラム構成: A列：日時, B列：ユーザー, C列：操作, D列：詳細
  * @returns {Sheet} ログシートオブジェクト
  */
 function getOrCreateLogSheet() {
@@ -104,7 +97,7 @@ function getOrCreateLogSheet() {
 /**
  * 利用規約同意状況シート (__TERMS__) を取得する。存在しない場合は新規作成する。
  * - 全ユーザーの規約同意状態を一元管理するためのシート。
- * - カラム構成: A列=ユーザー, B列=同意ステータス, C列=同意日時, D列=最終更新日時
+ * - カラム構成: A列：ユーザー, B列：同意ステータス, C列：同意日時, D列：最終更新日時
  * @returns {Sheet} 利用規約シートオブジェクト
  */
 function getOrCreateTermsSheet() {
@@ -141,10 +134,10 @@ function writeLog(email, action, detail) {
         const timestamp = getTimeStamp();
         // シートの末尾に行を追加
         sheet_log.appendRow([timestamp, email || '', action || '', detail || '']);
+        sheet_log.autoResizeColumns(1, 4); // 列幅を自動調整
     }
     catch (error) {
         // ログ記録に失敗した場合エラーとして表示
-        console.error(`writeLog Error: ${error.message}`);
         writeLog('システム', 'エラー', `ログ記録失敗: ${error.message}`);
     }
 }
@@ -158,13 +151,13 @@ function writeLog(email, action, detail) {
 function getUserEmail() {
     try {
         // Gmailアカウントからメールアドレスを取得
-        return Session.getActiveUser().getEmail();
+        const userEmail = Session.getActiveUser().getEmail();
+        return userEmail;
     }
     catch (error) {
         // ユーザーのメールアドレスを取得できない場合はエラーとして表示
-        console.error(`getUserEmail Error: ${error.message}`);
         writeLog('システム', 'エラー', `ユーザーメールアドレス取得失敗: ${error.message}`);
-        throw `ユーザーメールアドレス取得失敗: ${error.message}`;
+        throw new Error(`ユーザーメールアドレス取得失敗: ${error.message}`);
     }
 }
 /**
@@ -195,9 +188,8 @@ function getOrCreateUserSheet(email) {
     }
     catch (error) {
         // ユーザー用シート取得に失敗した場合、エラーとして表示
-        console.error(`getOrCreateUserSheet Error: ${error.message}`);
         writeLog('システム', 'エラー', `ユーザー用シート取得失敗: ${error.message}`);
-        throw `ユーザー用シート取得失敗: ${error.message}`;
+        throw new Error(`ユーザー用シート取得失敗: ${error.message}`);
     }
 }
 /**
@@ -239,7 +231,6 @@ function getUserSettings(email) {
     }
     catch (error) {
         // ユーザー設定取得失敗はエラーとして表示
-        console.error(`getUserSettings Error: ${error.message}`);
         writeLog('システム', 'エラー', `ユーザー設定取得失敗: ${error.message}`);
         // エラー時は安全なデフォルト設定を返す
         return { theme: 'ocean', darkMode: false, termsAgreed: false, termsAgreedAt: '', categoryOrder: [] };
@@ -287,7 +278,6 @@ function saveUserSettings(email, settings) {
     }
     catch (error) {
         // ユーザー設定保存失敗はエラーとして表示
-        console.error(`saveUserSettings Error: ${error.message}`);
         writeLog(email, '設定', `ユーザー設定の変更に失敗しました: ${error.message}`);
         return { success: false, error: error.message };
     }
@@ -310,7 +300,6 @@ function saveCategoryOrder(email, categoryOrder) {
     }
     catch (error) {
         // カテゴリ並び順保存失敗はエラーとして表示
-        console.error(`saveCategoryOrder Error: ${error.message}`);
         writeLog(email, 'カテゴリ', `カテゴリの並び順の更新に失敗しました: ${error.message}`);
         return { success: false, error: error.message };
     }
@@ -371,7 +360,6 @@ function saveTermsAgreement(email, agreed) {
     }
     catch (error) {
         // 利用規約同意状態保存失敗はエラーとして表示
-        console.error(`saveTermsAgreement Error: ${error.message}`);
         writeLog(email, '利用規約', `利用規約の同意状態の更新に失敗しました: ${error.message}`);
         return { success: false, error: error.message };
     }
@@ -394,7 +382,6 @@ function getTermsAgreement(email) {
     }
     catch (error) {
         // 利用規約同意状態取得失敗はエラーとして表示
-        console.error(`getTermsAgreement Error: ${error.message}`);
         writeLog(email, '利用規約', `利用規約の同意状態の取得に失敗しました: ${error.message}`);
         return { termsAgreed: false, termsAgreedAt: '' };
     }
@@ -453,7 +440,6 @@ function getBookmarks(email) {
         return bookmarks;
     }
     catch (error) {
-        console.error(`getBookmarks Error: ${error.message}`);
         writeLog(email, 'ブックマーク', `ブックマーク一覧の取得に失敗しました: ${error.message}`);
         return [];
     }
@@ -484,7 +470,6 @@ function addBookmark(email, title, url, category, icon) {
     }
     catch (error) {
         // 新規ブックマーク追加失敗はエラーとして表示
-        console.error(`addBookmark Error: ${error.message}`);
         writeLog(email, 'ブックマーク', `新しいブックマークの追加に失敗しました: ${error.message}`);
         return { success: false, error: error.message };
     }
@@ -524,7 +509,6 @@ function updateBookmark(email, index, title, url, category, icon) {
     }
     catch (error) {
         // ブックマーク更新失敗はエラーとして表示
-        console.error(`updateBookmark Error: ${error.message}`);
         writeLog(email, 'ブックマーク', `ブックマークの更新に失敗しました: ${error.message}`);
         return { success: false, error: error.message };
     }
@@ -551,7 +535,6 @@ function deleteBookmark(email, index) {
     }
     catch (error) {
         // ブックマーク削除失敗はエラーとして表示
-        console.error(`deleteBookmark Error: ${error.message}`);
         writeLog(email, 'ブックマーク', `ブックマークの削除に失敗しました: ${error.message}`);
         return { success: false, error: error.message };
     }
@@ -623,7 +606,6 @@ function reorderBookmarks(email, newOrder) {
     }
     catch (error) {
         // ブックマーク並び替え失敗はエラーとして表示
-        console.error(`reorderBookmarks Error: ${error.message}`);
         writeLog(email, 'ブックマーク', `ブックマークの並び替えに失敗しました: ${error.message}`);
         return { success: false, error: error.message };
     }
@@ -670,7 +652,6 @@ function getGmailMessages() {
     }
     catch (error) {
         // メール取得失敗はエラーとして表示
-        console.error(`getGmailMessages Error: ${error.message}`);
         const email = getUserEmail();
         writeLog(email, 'メール', `メールの取得に失敗しました: ${error.message}`);
         return [];
@@ -742,7 +723,6 @@ function getCalendarEvents(weekOffset) {
     }
     catch (error) {
         // カレンダー取得失敗はエラーとして表示
-        console.error(`getCalendarEvents Error: ${error.message}`);
         const email = getUserEmail();
         writeLog(email, 'カレンダー', `カレンダーの取得に失敗しました: ${error.message}`);
         return [];
@@ -798,7 +778,6 @@ function addCalendarEvent(title, startTime, endTime, description, color, isAllDa
             }
             catch (error) {
                 // カラー設定に失敗した場合はログを出力する
-                console.warn(`Set color error: ${error.message}`);
                 writeLog(email, 'カレンダー', `カレンダー予定にカラーを設定できませんでした: ${error.message}`);
             }
         }
@@ -808,7 +787,6 @@ function addCalendarEvent(title, startTime, endTime, description, color, isAllDa
     }
     catch (error) {
         // カレンダー追加失敗はエラーとして表示
-        console.error('addCalendarEvent Error:', error.message);
         const email = getUserEmail();
         writeLog(email, 'カレンダー', `カレンダー予定「${title}」の追加に失敗しました: ${error.message}`);
         return { success: false, error: error.message };
@@ -839,7 +817,6 @@ function deleteCalendarEvent(eventId) {
     }
     catch (error) {
         // カレンダー削除失敗はエラーとして表示
-        console.error('deleteCalendarEvent Error:', error.message);
         const email = getUserEmail();
         writeLog(email, 'カレンダー', `カレンダー予定の削除に失敗しました: ${error.message}`);
         return { success: false, message: error.message };
@@ -898,7 +875,6 @@ function updateCalendarEvent(eventId, title, startTime, endTime, description, co
             }
             catch (error) {
                 // カラー設定に失敗した場合はログを出力する
-                console.warn('Set color error:', error.message);
                 writeLog(email, 'カレンダー', `カレンダー予定にカラーを設定できませんでした: ${error.message}`);
             }
         }
@@ -908,7 +884,6 @@ function updateCalendarEvent(eventId, title, startTime, endTime, description, co
     }
     catch (error) {
         // 予定更新失敗はエラーとして表示
-        console.error('updateCalendarEvent Error:', error.message);
         const email = getUserEmail();
         writeLog(email, 'カレンダー', `カレンダー予定「${title}」の更新に失敗しました: ${error.message}`);
         return { success: false, error: error.message };
@@ -926,7 +901,7 @@ function getTasks() {
     try {
         const email = getUserEmail();
         assertTermsAgreed(email); // 利用規約チェック
-        const taskLists = Tasks === null || Tasks === void 0 ? void 0 : Tasks.Tasklists.list();
+        const taskLists = Tasks === null || Tasks === void 0 ? void 0 : Tasks.Tasklists.list({ maxResults: 100 }); // デフォルト20件のため上限を拡張
         if (!(taskLists === null || taskLists === void 0 ? void 0 : taskLists.items)) {
             return [];
         }
@@ -934,23 +909,30 @@ function getTasks() {
         // 各タスクリストを走査してタスク一覧を取得
         for (const list of taskLists.items) {
             const listId = list.id;
-            const tasksResult = Tasks === null || Tasks === void 0 ? void 0 : Tasks.Tasks.list(listId || '', {
-                showCompleted: true, // 完了済みタスクも含める
-                showHidden: true // 非表示タスクも含める
-            });
             const tasks = [];
-            if (tasksResult === null || tasksResult === void 0 ? void 0 : tasksResult.items) {
-                for (const task of tasksResult.items) {
-                    tasks.push({
-                        id: task.id,
-                        title: task.title || '',
-                        notes: task.notes || '',
-                        due: task.due ? new Date(task.due).toISOString() : null,
-                        status: task.status,
-                        completed: task.status === 'completed'
-                    });
+            // Tasks API はデフォルトで最大20件しか返さないため、ページングして全件取得する
+            let pageToken = undefined;
+            do {
+                const tasksResult = Tasks === null || Tasks === void 0 ? void 0 : Tasks.Tasks.list(listId || '', {
+                    showCompleted: true, // 完了済みタスクも含める
+                    showHidden: true, // 非表示タスクも含める
+                    maxResults: 100, // 1リクエストあたりの最大取得件数
+                    pageToken: pageToken
+                });
+                if (tasksResult === null || tasksResult === void 0 ? void 0 : tasksResult.items) {
+                    for (const task of tasksResult.items) {
+                        tasks.push({
+                            id: task.id,
+                            title: task.title || '',
+                            notes: task.notes || '',
+                            due: task.due ? new Date(task.due).toISOString() : null,
+                            status: task.status,
+                            completed: task.status === 'completed'
+                        });
+                    }
                 }
-            }
+                pageToken = tasksResult === null || tasksResult === void 0 ? void 0 : tasksResult.nextPageToken;
+            } while (pageToken);
             result.push({
                 listId: listId,
                 listTitle: list.title,
@@ -963,7 +945,6 @@ function getTasks() {
     }
     catch (error) {
         // タスク取得失敗はエラーとして表示
-        console.error('getTasks Error:', error.message);
         const email = getUserEmail();
         writeLog(email, 'タスク', `タスクリストの取得に失敗しました: ${error.message}`);
         return { success: false, error: error.message };
@@ -997,7 +978,6 @@ function addTask(taskListId, title, notes, dueDate) {
     }
     catch (error) {
         // タスク追加失敗はエラーとして表示
-        console.error('addTask Error:', error.message);
         const email = getUserEmail();
         writeLog(email, 'タスク', `タスクの追加に失敗しました: ${error.message}`);
         return { success: false, error: error.message };
@@ -1021,7 +1001,6 @@ function deleteTask(taskListId, taskId) {
     }
     catch (error) {
         // タスク削除失敗はエラーとして表示
-        console.error('deleteTask Error:', error.message);
         const email = getUserEmail();
         writeLog(email, 'タスク', `タスク「${taskListId}:${taskId}」の削除に失敗しました: ${error.message}`);
         return { success: false, error: error.message };
@@ -1050,7 +1029,6 @@ function completeTask(taskListId, taskId) {
     }
     catch (error) {
         // タスク完了失敗はエラーとして表示
-        console.error('completeTask Error:', error.message);
         const email = getUserEmail();
         writeLog(email, 'タスク', 'タスクの完了に失敗しました: ' + error.message);
         return { success: false, error: error.message };
@@ -1104,7 +1082,6 @@ function updateTask(taskListId, taskId, title, notes, dueDate, newTaskListId) {
     }
     catch (error) {
         // タスク更新失敗はエラーとして表示
-        console.error('updateTask Error:', error.message);
         const email = getUserEmail();
         writeLog(email, 'タスク', 'タスクの更新に失敗しました: ' + error.message);
         return { success: false, error: error.message };
@@ -1153,7 +1130,6 @@ function saveQRCodeToDrive(email, base64Data, fileName, mimeType) {
     }
     catch (error) {
         // QRコード保存失敗はエラーとして表示
-        console.error('saveQRCodeToDrive Error:', error.message);
         writeLog(email, 'QRコード', `QRコードの保存に失敗しました: ${error.message}`);
         return {
             success: false,

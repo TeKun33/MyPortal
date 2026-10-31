@@ -964,7 +964,7 @@ function getTasks() {
   try {
     const email = getUserEmail();
     assertTermsAgreed(email); // 利用規約チェック
-    const taskLists = Tasks?.Tasklists.list();
+    const taskLists = Tasks?.Tasklists.list({ maxResults: 100 }); // デフォルト20件のため上限を拡張
     if (!taskLists?.items) {
       return [];
     }
@@ -974,24 +974,31 @@ function getTasks() {
     // 各タスクリストを走査してタスク一覧を取得
     for (const list of taskLists.items) {
       const listId = list.id;
-      const tasksResult = Tasks?.Tasks.list(listId || '', {
-        showCompleted: true, // 完了済みタスクも含める
-        showHidden: true     // 非表示タスクも含める
-      });
-      
       const tasks = [];
-      if (tasksResult?.items) {
-        for (const task of tasksResult.items) {
-          tasks.push({
-            id: task.id,
-            title: task.title || '',
-            notes: task.notes || '',
-            due: task.due ? new Date(task.due).toISOString() : null,
-            status: task.status,
-            completed: task.status === 'completed'
-          });
+      // Tasks API はデフォルトで最大20件しか返さないため、ページングして全件取得する
+      let pageToken: string | undefined = undefined;
+      do {
+        const tasksResult: GoogleAppsScript.Tasks.Schema.Tasks | undefined = Tasks?.Tasks.list(listId || '', {
+          showCompleted: true, // 完了済みタスクも含める
+          showHidden: true,    // 非表示タスクも含める
+          maxResults: 100,     // 1リクエストあたりの最大取得件数
+          pageToken: pageToken
+        });
+
+        if (tasksResult?.items) {
+          for (const task of tasksResult.items) {
+            tasks.push({
+              id: task.id,
+              title: task.title || '',
+              notes: task.notes || '',
+              due: task.due ? new Date(task.due).toISOString() : null,
+              status: task.status,
+              completed: task.status === 'completed'
+            });
+          }
         }
-      }
+        pageToken = tasksResult?.nextPageToken;
+      } while (pageToken);
       
       result.push({
         listId: listId,

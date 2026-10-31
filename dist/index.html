@@ -4985,10 +4985,12 @@
         ],
         onSubmit: async (data) => {
           try {
-            const selectedIdx = listOptions.findIndex(o => o.label === data.listId);
+            // select の value にはリストIDが入るため、ID（またはラベル）で照合する
+            const selectedIdx = listOptions.findIndex(o => o.value === data.listId || o.label === data.listId);
             const taskListId = selectedIdx >= 0 ? listOptions[selectedIdx].value : listOptions[0].value;
             const dueDate = data.due ? new Date(data.due).toISOString() : null;
-            await callServer('addTask', taskListId, data.title, data.notes, dueDate);
+            const res = await callServer('addTask', taskListId, data.title, data.notes, dueDate);
+            if (res && res.error) throw new Error(res.error);
             showToast('タスクを追加しました', 'success');
             hideModal();
             loadTasks();
