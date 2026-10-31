@@ -1199,6 +1199,49 @@
       gap: 0.5rem;
     }
 
+    /* タスクリスト（グループ）見出しの操作ボタン：ホバー時に表示 */
+    .task-group-title .task-group-name {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .task-group-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.125rem;
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .task-group:hover .task-group-actions,
+    .task-group:focus-within .task-group-actions {
+      opacity: 1;
+    }
+
+    .task-group-default-badge {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.1rem 0.5rem;
+      border-radius: 9999px;
+      background: rgba(var(--primary-rgb), 0.1);
+      color: var(--primary);
+      border: 1px solid rgba(var(--primary-rgb), 0.2);
+      flex-shrink: 0;
+    }
+
+    .task-group-empty {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      opacity: 0.7;
+      text-align: center;
+      padding: 1rem 0.5rem;
+      border: 1px dashed var(--border-color);
+      border-radius: var(--radius-sm);
+    }
+
     .task-item {
       display: flex;
       align-items: flex-start;
@@ -2025,6 +2068,7 @@
       }
 
       .task-actions,
+      .task-group-actions,
       .delete-task-btn {
         opacity: 0.85;
       }
@@ -2516,6 +2560,11 @@
               class="icon-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-transform"
               id="btn-refresh-tasks" onclick="loadTasks()" title="タスクを更新">
               <span class="material-symbols-rounded text-lg sm:text-xl" id="icon-refresh-tasks">refresh</span>
+            </button>
+            <button
+              class="tab-link-btn py-1.5 px-3 sm:py-2 sm:px-4 rounded-full font-semibold text-xs sm:text-sm flex items-center gap-1"
+              id="btn-add-tasklist" onclick="showAddTaskListModal()" title="新しいタスクリストを作成">
+              <span class="material-symbols-rounded text-base sm:text-lg">playlist_add</span> リスト追加
             </button>
             <button
               class="add-btn py-1.5 px-3 sm:py-2 sm:px-4 rounded-full font-semibold text-xs sm:text-sm flex items-center gap-1"
@@ -3045,6 +3094,7 @@
         {
           listId: 'list1',
           listTitle: 'マイタスク',
+          isDefault: true,
           tasks: [
             { id: 't1', title: '週報の提出', notes: '今週の進捗をまとめる', due: new Date().toISOString(), status: 'needsAction' },
             { id: 't2', title: 'メール返信', notes: '', due: new Date(Date.now() - 86400000).toISOString(), status: 'needsAction' }
@@ -3199,6 +3249,29 @@
                 }
               }
               resolve({ success: true });
+            }
+            else if (functionName === 'addTaskList') {
+              const newListId = 'list_' + Date.now();
+              mockData.taskLists.push({ listId: newListId, listTitle: String(args[0] || '').trim(), isDefault: false, tasks: [] });
+              resolve({ success: true, id: newListId });
+            }
+            else if (functionName === 'updateTaskList') {
+              const l = mockData.taskLists.find(l => l.listId === args[0]);
+              if (l) {
+                l.listTitle = String(args[1] || '').trim();
+                resolve({ success: true, id: l.listId });
+              } else {
+                resolve({ success: false, error: 'Task list not found' });
+              }
+            }
+            else if (functionName === 'deleteTaskList') {
+              const l = mockData.taskLists.find(l => l.listId === args[0]);
+              if (l && l.isDefault) {
+                resolve({ success: false, error: 'デフォルトのタスクリストは削除できません' });
+              } else {
+                mockData.taskLists = mockData.taskLists.filter(l => l.listId !== args[0]);
+                resolve({ success: true });
+              }
             }
             else if (functionName === 'saveQRCodeToDrive') {
               resolve({ success: true, url: 'https://drive.google.com/file/d/mock-qr-id/view' });
@@ -4798,7 +4871,8 @@
       }
 
       container.innerHTML = state.taskLists.map(list => {
-        if (!list.tasks || list.tasks.length === 0) return '';
+        // タスクが無いリストも表示し、GUIからリスト管理（タスク追加・名前変更・削除）ができるようにする
+        if (!list.tasks) list.tasks = [];
 
         // 未完了タスクを上、完了タスクを下に並べる（同じ状態内では元の順序を維持）
         const isTaskCompleted = t => t.status === 'completed' || !!t.completed;
@@ -4851,14 +4925,29 @@
           `;
         }).join('');
 
+        const emptyHtml = `<div class="task-group-empty">タスクはありません</div>`;
+        const deleteListBtn = list.isDefault ? '' : `
+                <button class="task-action-btn delete-btn p-1 rounded transition-colors" onclick="deleteTaskList('${list.listId}')" title="リストを削除">
+                  <span class="material-symbols-rounded text-base">delete</span>
+                </button>`;
+
         return `
-          <div class="task-group p-4 rounded-xl">
+          <div class="task-group p-4 rounded-xl" data-list="${list.listId}">
             <div class="task-group-title text-base font-semibold mb-4 flex items-center gap-2">
               <span class="material-symbols-rounded">list_alt</span>
-              ${escapeHtml(list.listTitle)}
+              <span class="task-group-name" title="${escapeHtml(list.listTitle)}">${escapeHtml(list.listTitle)}</span>
+              ${list.isDefault ? '<span class="task-group-default-badge" title="Google Tasks のデフォルトリスト（削除不可）">デフォルト</span>' : ''}
+              <div class="task-group-actions shrink-0">
+                <button class="task-action-btn p-1 rounded transition-colors" onclick="showAddTaskModal('${list.listId}')" title="このリストにタスクを追加">
+                  <span class="material-symbols-rounded text-base">add</span>
+                </button>
+                <button class="task-action-btn p-1 rounded transition-colors" onclick="showEditTaskListModal('${list.listId}')" title="リスト名を変更">
+                  <span class="material-symbols-rounded text-base">edit</span>
+                </button>${deleteListBtn}
+              </div>
             </div>
             <div class="task-items flex flex-col gap-2">
-              ${tasksHtml}
+              ${tasksHtml || emptyHtml}
             </div>
           </div>
         `;
@@ -4967,8 +5056,10 @@
 
     /**
      * 新規タスク追加用モーダルを表示する
+     *
+     * @param {string} [defaultListId] - 初期選択するタスクリストID（省略時は先頭のリスト）
      */
-    function showAddTaskModal() {
+    function showAddTaskModal(defaultListId) {
       const listOptions = state.taskLists.map(l => ({ label: l.listTitle, value: l.listId }));
       if (listOptions.length === 0) {
         showToast('タスクリストがありません', 'error');
@@ -4978,7 +5069,7 @@
       showModal({
         title: 'タスク追加',
         fields: [
-          { name: 'listId', label: 'リスト', type: 'select', options: listOptions.map(o => o.label), values: listOptions.map(o => o.value) },
+          { name: 'listId', label: 'リスト', type: 'select', options: listOptions.map(o => o.label), values: listOptions.map(o => o.value), value: defaultListId },
           { name: 'title', label: 'タイトル', type: 'text', required: true },
           { name: 'notes', label: 'メモ', type: 'textarea', rows: 3, placeholder: 'メモを入力（複数行入力可）' },
           { name: 'due', label: '期限', type: 'date' }
@@ -4999,6 +5090,106 @@
           }
         }
       });
+    }
+
+    /**
+     * 新規タスクリスト作成用モーダルを表示する
+     */
+    function showAddTaskListModal() {
+      showModal({
+        title: 'タスクリスト追加',
+        submitText: '作成',
+        fields: [
+          { name: 'title', label: 'リスト名', type: 'text', required: true, placeholder: '例: 買い物リスト' }
+        ],
+        onSubmit: async (data) => {
+          const title = (data.title || '').trim();
+          if (!title) {
+            showToast('リスト名を入力してください', 'error');
+            return;
+          }
+          try {
+            const res = await callServer('addTaskList', title);
+            if (res && res.error) throw new Error(res.error);
+            showToast('タスクリストを作成しました', 'success');
+            hideModal();
+            loadTasks();
+          } catch (err) {
+            showToast('リストの作成に失敗しました', 'error');
+          }
+        }
+      });
+    }
+
+    /**
+     * タスクリスト名の変更モーダルを表示する
+     *
+     * @param {string} listId - 対象タスクリストID
+     */
+    function showEditTaskListModal(listId) {
+      const list = state.taskLists.find(l => l.listId === listId);
+      if (!list) return;
+
+      showModal({
+        title: 'タスクリスト編集',
+        submitText: '更新',
+        fields: [
+          { name: 'title', label: 'リスト名', type: 'text', required: true, value: list.listTitle || '' }
+        ],
+        onSubmit: async (data) => {
+          const title = (data.title || '').trim();
+          if (!title) {
+            showToast('リスト名を入力してください', 'error');
+            return;
+          }
+          if (title === list.listTitle) {
+            hideModal();
+            return;
+          }
+          try {
+            const res = await callServer('updateTaskList', listId, title);
+            if (res && res.error) throw new Error(res.error);
+            // 再取得を待たずに画面へ即時反映
+            list.listTitle = title;
+            renderTasks();
+            showToast('リスト名を変更しました', 'success');
+            hideModal();
+          } catch (err) {
+            showToast('リスト名の変更に失敗しました', 'error');
+          }
+        }
+      });
+    }
+
+    /**
+     * タスクリストを削除する（リスト内のタスクもすべて削除される）
+     *
+     * @param {string} listId - 削除対象タスクリストID
+     */
+    async function deleteTaskList(listId) {
+      const list = state.taskLists.find(l => l.listId === listId);
+      if (!list) return;
+      if (list.isDefault) {
+        showToast('デフォルトのタスクリストは削除できません', 'error');
+        return;
+      }
+
+      const count = (list.tasks || []).length;
+      const msg = count > 0
+        ? `タスクリスト「${list.listTitle}」を削除しますか？\nリスト内の ${count} 件のタスクもすべて削除されます。`
+        : `タスクリスト「${list.listTitle}」を削除しますか？`;
+      if (!confirm(msg)) return;
+
+      try {
+        const res = await callServer('deleteTaskList', listId);
+        if (res && res.error) throw new Error(res.error);
+        state.taskLists = state.taskLists.filter(l => l.listId !== listId);
+        renderTasks();
+        showToast('タスクリストを削除しました', 'success');
+      } catch (err) {
+        showToast(err && err.message ? err.message : 'リストの削除に失敗しました', 'error');
+        loadTasks();
+      }
     }
 
     /* ==========================================================================

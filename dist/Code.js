@@ -18,7 +18,7 @@
  * 5. ブックマーク管理 (CRUD処理、アイコン設定、ドラッグ＆ドロップ並び替え)
  * 6. Gmail 連携 (受信トレイの最新メール一覧取得・プレビュー)
  * 7. Google カレンダー連携 (週単位の予定取得、終日・時間指定予定の追加/編集/削除)
- * 8. Google Tasks 連携 (タスク一覧取得、完了チェック、タスクの追加/編集/削除/リスト間移動)
+ * 8. Google Tasks 連携 (タスク一覧取得、完了チェック、タスクの追加/編集/削除/リスト間移動、タスクリストの追加/名前変更/削除)
  * 9. QRコード Drive 保存 (生成したQRコード画像のGoogle Driveへの保存)
  *
  * 【スプレッドシート構成】
@@ -898,12 +898,21 @@ function updateCalendarEvent(eventId, title, startTime, endTime, description, co
  * @returns {Array<Object>|Object} タスクリスト一覧 [{ listId, listTitle, tasks: [...] }]、またはエラーオブジェクト
  */
 function getTasks() {
+    var _a;
     try {
         const email = getUserEmail();
         assertTermsAgreed(email); // 利用規約チェック
         const taskLists = Tasks === null || Tasks === void 0 ? void 0 : Tasks.Tasklists.list({ maxResults: 100 }); // デフォルト20件のため上限を拡張
         if (!(taskLists === null || taskLists === void 0 ? void 0 : taskLists.items)) {
             return [];
+        }
+        // デフォルトリスト（Google Tasks の「マイタスク」）は削除できないため、IDを取得して識別する
+        let defaultListId = '';
+        try {
+            defaultListId = ((_a = Tasks === null || Tasks === void 0 ? void 0 : Tasks.Tasklists.get('@default')) === null || _a === void 0 ? void 0 : _a.id) || '';
+        }
+        catch (e) {
+            defaultListId = '';
         }
         const result = [];
         // 各タスクリストを走査してタスク一覧を取得
@@ -936,6 +945,7 @@ function getTasks() {
             result.push({
                 listId: listId,
                 listTitle: list.title,
+                isDefault: !!defaultListId && listId === defaultListId,
                 tasks: tasks
             });
         }
@@ -1084,6 +1094,86 @@ function updateTask(taskListId, taskId, title, notes, dueDate, newTaskListId) {
         // タスク更新失敗はエラーとして表示
         const email = getUserEmail();
         writeLog(email, 'タスク', 'タスクの更新に失敗しました: ' + error.message);
+        return { success: false, error: error.message };
+    }
+}
+/**
+ * Google Tasksに新しいタスクリストを作成する
+ *
+ * @param {string} title - タスクリスト名
+ * @returns {Object} { success: boolean, id?: string, error?: string }
+ */
+function addTaskList(title) {
+    try {
+        const email = getUserEmail();
+        assertTermsAgreed(email); // 利用規約チェック
+        const trimmed = (title || '').trim();
+        if (!trimmed) {
+            return { success: false, error: 'リスト名を入力してください' };
+        }
+        const created = Tasks === null || Tasks === void 0 ? void 0 : Tasks.Tasklists.insert({ title: trimmed });
+        // タスクリスト作成成功はログに出力する
+        writeLog(email, 'タスク', `タスクリスト「${trimmed}」を作成しました`);
+        return { success: true, id: created === null || created === void 0 ? void 0 : created.id };
+    }
+    catch (error) {
+        // タスクリスト作成失敗はエラーとして表示
+        const email = getUserEmail();
+        writeLog(email, 'タスク', `タスクリストの作成に失敗しました: ${error.message}`);
+        return { success: false, error: error.message };
+    }
+}
+/**
+ * Google Tasksのタスクリスト名を変更する
+ *
+ * @param {string} taskListId - 対象のタスクリストID
+ * @param {string} title - 新しいタスクリスト名
+ * @returns {Object} { success: boolean, id?: string, error?: string }
+ */
+function updateTaskList(taskListId, title) {
+    try {
+        const email = getUserEmail();
+        assertTermsAgreed(email); // 利用規約チェック
+        const trimmed = (title || '').trim();
+        if (!trimmed) {
+            return { success: false, error: 'リスト名を入力してください' };
+        }
+        const updated = Tasks === null || Tasks === void 0 ? void 0 : Tasks.Tasklists.patch({ title: trimmed }, taskListId);
+        // タスクリスト名変更成功はログに出力する
+        writeLog(email, 'タスク', `タスクリスト「${taskListId}」の名前を「${trimmed}」に変更しました`);
+        return { success: true, id: updated === null || updated === void 0 ? void 0 : updated.id };
+    }
+    catch (error) {
+        // タスクリスト名変更失敗はエラーとして表示
+        const email = getUserEmail();
+        writeLog(email, 'タスク', `タスクリストの名前変更に失敗しました: ${error.message}`);
+        return { success: false, error: error.message };
+    }
+}
+/**
+ * Google Tasksのタスクリストを削除する（リスト内のタスクもすべて削除されます）
+ * - デフォルトリスト（マイタスク）は Google Tasks の仕様上削除できません。
+ *
+ * @param {string} taskListId - 削除するタスクリストID
+ * @returns {Object} { success: boolean, error?: string }
+ */
+function deleteTaskList(taskListId) {
+    try {
+        const email = getUserEmail();
+        assertTermsAgreed(email); // 利用規約チェック
+        const defaultList = Tasks === null || Tasks === void 0 ? void 0 : Tasks.Tasklists.get('@default');
+        if ((defaultList === null || defaultList === void 0 ? void 0 : defaultList.id) && defaultList.id === taskListId) {
+            return { success: false, error: 'デフォルトのタスクリストは削除できません' };
+        }
+        Tasks === null || Tasks === void 0 ? void 0 : Tasks.Tasklists.remove(taskListId);
+        // タスクリスト削除成功はログに出力する
+        writeLog(email, 'タスク', `タスクリスト「${taskListId}」を削除しました`);
+        return { success: true };
+    }
+    catch (error) {
+        // タスクリスト削除失敗はエラーとして表示
+        const email = getUserEmail();
+        writeLog(email, 'タスク', `タスクリスト「${taskListId}」の削除に失敗しました: ${error.message}`);
         return { success: false, error: error.message };
     }
 }
