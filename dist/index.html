@@ -664,7 +664,7 @@
     .category-select-wrapper {
       position: relative;
     }
-    
+
     .category-datalist-input {
       width: 100%;
       padding: 0.6rem 0.75rem;
@@ -675,7 +675,7 @@
       font-size: 0.875rem;
       transition: var(--transition);
     }
-    
+
     .category-datalist-input:focus {
       outline: none;
       border-color: var(--primary);
@@ -2748,7 +2748,7 @@
        ========================================================================== -->
   <div class="terms-gate" id="terms-gate" role="dialog" aria-modal="true" aria-labelledby="terms-gate-title">
     <div class="terms-gate-card w-[95%] max-w-[660px] p-5 sm:p-7 flex flex-col max-h-[92vh]">
-      
+
       <!-- 1. 同意確認ビュー (Agreement View) -->
       <div id="terms-gate-agreement-view" class="flex flex-col flex-1 min-h-0">
         <div class="flex items-center gap-3.5 mb-4 pb-3 flex-shrink-0" style="border-bottom: 1px solid var(--border-color);">
@@ -2821,7 +2821,7 @@
             <input type="checkbox" id="terms-gate-checkbox" class="w-4 h-4 rounded cursor-pointer accent-[var(--primary)]" onchange="toggleTermsGateButton()">
             <span class="font-medium">上記の利用規約およびプライバシー方針の内容を確認し、同意します</span>
           </label>
-          
+
           <div class="flex items-center justify-end gap-3 pt-1">
             <button type="button" class="btn btn-secondary text-xs sm:text-sm py-2 px-4" onclick="handleDeclineTermsGate()">同意しない</button>
             <button type="button" id="terms-gate-submit-btn" class="btn btn-primary text-xs sm:text-sm py-2 px-5 opacity-50 cursor-not-allowed" disabled onclick="handleAcceptTermsGate()">
@@ -3041,8 +3041,9 @@
       { name: 'satellite_alt', label: '人工衛星', keywords: '宇宙 人工衛星 通信 接続' },
       { name: 'send', label: '送信', keywords: '送信 送る send メール mail 連絡 手紙' },
       { name: 'sms', label: 'SMS', keywords: 'ショートメッセージサービス 手紙 連絡 送る 送信 受信' },
-      { name: 'video_chat', label: 'ビデオチャット', keywords: '映像 動画 音声 チャット メッセージ 会話 連絡 会議 報告 相談' },
-      { name: '', label: '', keywords: '' },
+      { name: 'video_chat', label: 'ビデオチャット', keywords: '映像 動画 音声 チャット メッセージ 会話 連絡 会議 報告 相談 スマホ meet zoom teams' },
+      { name: 'voice_chat', label: 'ボイスチャット', keywords: '音声 チャット メッセージ 会話 連絡 会議 連絡 報告 相談 電話 スマホ' },
+      // --- Hardware ---
       { name: '', label: '', keywords: '' },
       { name: '', label: '', keywords: '' },
       { name: '', label: '', keywords: '' },
@@ -3331,12 +3332,12 @@
       dateEl.textContent = `${year}年${month}月${date}日（${day}）`;
       timeEl.textContent = `${hours}:${minutes}:${seconds}`;
     }
-    
+
     // アプリ起動時に一度実行
     updateDateTime();
     // 1秒ごとに実行
     setInterval(updateDateTime, 1000);
-    
+
     /**
      * アプリケーション全体の起動エントリーポイント
      * - 時計起動、利用規約同意状態チェック、初期データロードを実行します。
@@ -3651,9 +3652,9 @@
       let tabsHTML = tabs.map((t, idx) => {
         const isActive = state.activeBookmarkCategory === t.key;
         return `
-          <button class="bookmark-category-tab ${isActive ? 'active' : ''}" 
+          <button class="bookmark-category-tab ${isActive ? 'active' : ''}"
                   draggable="true"
-                  data-category="${escapeHtml(t.key)}" 
+                  data-category="${escapeHtml(t.key)}"
                   data-cat-index="${idx}"
                   onclick="switchBookmarkCategory('${escapeHtml(t.key)}')"
                   title="${escapeHtml(t.label)} (ドラッグで並び替え)">
@@ -3976,8 +3977,8 @@
       container.innerHTML = filteredBookmarks.map((bm) => {
         const iconName = bm.icon || 'language';
         const idx = bm.originalIndex;
-        const categoryBadge = bm.category && bm.category.trim() 
-          ? `<div class="bookmark-category-badge">${escapeHtml(bm.category.trim())}</div>` 
+        const categoryBadge = bm.category && bm.category.trim()
+          ? `<div class="bookmark-category-badge">${escapeHtml(bm.category.trim())}</div>`
           : '';
         return `
           <div class="bookmark-card" draggable="true" data-bm-index="${idx}" onclick="handleBookmarkClick(event, '${escapeHtml(bm.url)}')">
@@ -4008,7 +4009,7 @@
     /**
      * ブックマークカードクリック時のリンク遷移処理
      * (ドラッグ中やアクションボタンのクリック時は遷移を防止)
-     * 
+     *
      * @param {MouseEvent} e - クリックイベント
      * @param {string} url - 遷移先URL
      */
@@ -4022,7 +4023,7 @@
 
     /**
      * XSS脆弱性を防ぐためのHTMLエスケープユーティリティ
-     * 
+     *
      * @param {string} str - エスケープ前の文字列
      * @returns {string} サニタイズされた文字列
      */
@@ -4108,7 +4109,7 @@
 
     /**
      * 既存ブックマークの編集モーダルを表示する
-     * 
+     *
      * @param {number} index - 編集対象ブックマークのインデックス
      */
     function showEditBookmarkModal(index) {
@@ -4193,7 +4194,7 @@
 
     /**
      * 指定インデックスのブックマークを削除する
-     * 
+     *
      * @param {number} index - 削除対象ブックマークのインデックス
      */
     async function deleteBookmark(index) {
