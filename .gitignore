@@ -1,5 +1,2 @@
-# Clasp プロジェクト設定ファイルを除外
 .clasp*
 node_modules/
-package*.json
-tsconfig.json
